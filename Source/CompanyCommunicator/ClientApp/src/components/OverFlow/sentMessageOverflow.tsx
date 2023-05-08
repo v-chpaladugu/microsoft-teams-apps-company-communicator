@@ -8,7 +8,7 @@ import { Menu, MoreIcon } from '@fluentui/react-northstar';
 import { getBaseUrl } from '../../configVariables';
 import * as microsoftTeams from "@microsoft/teams-js";
 import { duplicateDraftNotification, cancelSentNotification } from '../../apis/messageListApi';
-import { selectMessage, getMessagesList, getDraftMessagesList } from '../../actions';
+import { SelectedMessageAction, GetSentMessagesAction, GetDraftMessagesAction } from '../../actions';
 import { TFunction } from "i18next";
 
 export interface OverflowProps extends WithTranslation {
@@ -151,4 +151,4 @@ const mapStateToProps = (state: any) => {
 }
 
 const overflowWithTranslation = withTranslation()(Overflow);
-export default connect(mapStateToProps, { selectMessage, getMessagesList, getDraftMessagesList })(overflowWithTranslation);
+export default connect(mapStateToProps, { selectMessage: SelectedMessageAction, getMessagesList: GetSentMessagesAction, getDraftMessagesList: GetDraftMessagesAction })(overflowWithTranslation);

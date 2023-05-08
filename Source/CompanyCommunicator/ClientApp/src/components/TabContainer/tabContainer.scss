@@ -127,3 +127,64 @@ div[role="tooltip"]>div {
         }
     }
 }
+
+.company-communicator-header {
+    background: var(--colorBrandBackgroundSelected);
+    min-height: 7rem;
+}
+
+.company-communicator-header-dark {
+    background: #0a0a0a;
+    min-height: 7rem;
+}
+
+.cc-main-heading {
+    float: left;
+}
+
+.cc-main-icons {
+    float: right;
+    padding: 0.5rem;;
+}
+
+.ms-logo {
+    vertical-align:middle;
+    width: 7rem;
+    height: 7rem;
+}
+
+.cc-header-text {
+    vertical-align: middle;
+    color: var(--colorNeutralForegroundInvertedSelected);
+    font: normal normal bold 24px Segoe UI;
+}
+
+.cc-icon-span {
+    padding: 1rem;
+}
+
+.cc-link-icon {
+    // vertical-align:middle;
+    color: var(--colorNeutralForegroundInvertedSelected);
+    cursor: pointer;
+}
+
+.cc-link-icon:focus-visible {
+    //border: 2px solid var(--colorNeutralForegroundInvertedSelected);
+    box-sizing: content-box;width: 100%;border: solid var(--colorNeutralForegroundInvertedSelected) 3px;
+    padding: 25px 0px 5px 0px;
+}
+
+.cc-icon {
+    color: var(--colorNeutralForegroundInvertedSelected);
+    padding-top: 2rem;
+}
+
+.new-message {
+    float:right;
+    padding: 2rem;
+}
+
+.fui-TableCell {
+    outline-offset: -2px;
+}
