@@ -1,22 +1,25 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import i18n from "i18next";
-import React, { Suspense } from "react";
-import { BrowserRouter, Route, Switch } from "react-router-dom";
-
-import { FluentProvider, teamsDarkTheme, teamsHighContrastTheme, teamsLightTheme } from "@fluentui/react-components";
-import * as microsoftTeams from "@microsoft/teams-js";
-
-import Configuration from "./components/config";
-import ErrorPage from "./components/ErrorPage/errorPage";
-import { NewMessage } from "./components/NewMessage/newMessage";
-import SendConfirmationTaskModule from "./components/SendConfirmationTaskModule/sendConfirmationTaskModule";
-import SignInPage from "./components/SignInPage/signInPage";
-import SignInSimpleEnd from "./components/SignInPage/signInSimpleEnd";
-import SignInSimpleStart from "./components/SignInPage/signInSimpleStart";
-import StatusTaskModule from "./components/StatusTaskModule/statusTaskModule";
-import { TabContainer } from "./components/TabContainer/tabContainer";
+import './app.scss';
+import i18n from 'i18next';
+import React, { Suspense } from 'react';
+import { BrowserRouter, Route, Switch } from 'react-router-dom';
+import {
+    FluentProvider, teamsDarkTheme, teamsHighContrastTheme, teamsLightTheme
+} from '@fluentui/react-components';
+import * as microsoftTeams from '@microsoft/teams-js';
+import Configuration from './components/config';
+import ErrorPage from './components/ErrorPage/errorPage';
+import { MainContainer } from './components/MainContainer/mainContainer';
+import { NewMessage } from './components/NewMessage/newMessage';
+import {
+    SendConfirmationTaskModule
+} from './components/SendConfirmationTaskModule/sendConfirmationTaskModule';
+import SignInPage from './components/SignInPage/signInPage';
+import SignInSimpleEnd from './components/SignInPage/signInSimpleEnd';
+import SignInSimpleStart from './components/SignInPage/signInSimpleStart';
+import { StatusTaskModule } from './components/StatusTaskModule/statusTaskModule';
 
 export const App = () => {
   const [fluentUITheme, setFluentUITheme] = React.useState(teamsLightTheme);
@@ -24,7 +27,7 @@ export const App = () => {
 
   React.useEffect(() => {
     microsoftTeams.getContext((context: microsoftTeams.Context) => {
-      let theme = context.theme || "light";
+      let theme = context.theme || "default";
       setLocale(context.locale);
       i18n.changeLanguage(context.locale);
       updateTheme(theme);
@@ -36,13 +39,12 @@ export const App = () => {
 
   const updateTheme = (theme: string) => {
     switch (theme.toLocaleLowerCase()) {
-      case "light":
+      case "default":
         setFluentUITheme(teamsLightTheme);
         break;
       case "dark":
         setFluentUITheme(teamsDarkTheme);
         break;
-      case "highcontrast":
       case "contrast":
         setFluentUITheme(teamsHighContrastTheme);
         break;
@@ -56,7 +58,7 @@ export const App = () => {
           <BrowserRouter>
             <Switch>
               <Route exact path="/configtab" component={Configuration} />
-              <Route exact path="/messages" component={TabContainer} />
+              <Route exact path="/messages" component={MainContainer} />
               <Route exact path="/newmessage" component={NewMessage} />
               <Route exact path="/newmessage/:id" component={NewMessage} />
               <Route exact path="/viewstatus/:id" component={StatusTaskModule} />

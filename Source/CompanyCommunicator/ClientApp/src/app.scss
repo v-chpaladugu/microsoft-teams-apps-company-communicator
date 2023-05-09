@@ -1,0 +1,4 @@
+// this can be removed in future. setting this as fluent_ui table has offset issues.
+.fui-TableCell {
+    outline-offset: -2px;
+}

@@ -10,6 +10,8 @@ import {
     Avatar,
     Button,
     useArrowNavigationGroup,
+    useFluent,
+    useScrollbarWidth
   } from '@fluentui/react-components';
   import * as React from 'react';
   import {
@@ -39,6 +41,8 @@ import { TooltipHost } from 'office-ui-fabric-react';
     const keyboardNavAttr = useArrowNavigationGroup({ axis: 'grid' });
     // let dd = new Array(draftMessages.length);
     // dd = [...draftMessages];
+   // const { targetDocument } = useFluent();
+   // const scrollbarWidth = useScrollbarWidth({ targetDocument: window.document });
 
     const columns = [
       { columnKey: 'title', label: t("TitleText") },
@@ -126,13 +130,12 @@ import { TooltipHost } from 'office-ui-fabric-react';
                           </TooltipHost>
                       }
                   </div>
-
                 </TableCellLayout>
               </TableCell>
               <TableCell tabIndex={0} role='gridcell'>
                 <TableCellLayout>{item.sentDate}</TableCellLayout>
               </TableCell>
-              <TableCell tabIndex={0} role='gridcell'>
+              <TableCell tabIndex={0} role='gridcell' style={{textOverflow: 'ellipsis'}}>
                 <TableCellLayout>{item.createdBy}</TableCellLayout>
               </TableCell>
               <TableCell role='gridcell'>

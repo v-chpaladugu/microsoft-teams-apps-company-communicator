@@ -14,28 +14,18 @@ export const messagesSlice = createSlice({
   name: 'messagesSlice',
   initialState,
   reducers: {
-    draftMessages: (state, action) => {
+    draftMessagesReducer: (state, action) => {
       state.draftMessages = action.payload
     },
-    sentMessages: (state, action) => {
+    sentMessagesReducer: (state, action) => {
         state.sentMessages = action.payload
     },
-    selectedMessage: (state, action) => {
+    selectedMessageReducer: (state, action) => {
         state.selectedMessage = action.payload
     },
   },
 })
 
-export const { draftMessages, sentMessages, selectedMessage } = messagesSlice.actions
+export const { draftMessagesReducer, sentMessagesReducer, selectedMessageReducer } = messagesSlice.actions
 
 export default messagesSlice.reducer
-
-// The function below is called a thunk and allows us to perform async logic. It
-// can be dispatched like a regular action: `dispatch(incrementAsync(10))`. This
-// will call the thunk with the `dispatch` function as the first argument. Async
-// code can then be executed and other actions can be dispatched
-// export const incrementAsync = (amount) => (dispatch) => {
-//   setTimeout(() => {
-//     dispatch(incrementByAmount(amount))
-//   }, 1000)
-// }

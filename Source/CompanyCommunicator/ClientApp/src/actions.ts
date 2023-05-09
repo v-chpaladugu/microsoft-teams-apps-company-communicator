@@ -1,10 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { getDraftNotifications, getSentNotifications } from "./apis/messageListApi";
-import { formatDate } from "./i18n";
-import { draftMessages, selectedMessage, sentMessages } from "./messagesSlice";
-import { store } from "./store";
+import { getDraftNotifications, getSentNotifications } from './apis/messageListApi';
+import { formatDate } from './i18n';
+import { draftMessagesReducer, selectedMessageReducer, sentMessagesReducer } from './messagesSlice';
+import { store } from './store';
 
 type Notification = {
   createdDateTime: string;
@@ -22,7 +22,7 @@ type Notification = {
 };
 
 export const SelectedMessageAction = (dispatch: typeof store.dispatch, message: any) => {
-  dispatch(selectedMessage({ type: "MESSAGE_SELECTED", payload: message }));
+  dispatch(selectedMessageReducer({ type: "MESSAGE_SELECTED", payload: message }));
 };
 
 export const GetSentMessagesAction = (dispatch: typeof store.dispatch) => {
@@ -32,12 +32,12 @@ export const GetSentMessagesAction = (dispatch: typeof store.dispatch) => {
       notification.sendingStartedDate = formatDate(notification.sendingStartedDate);
       notification.sentDate = formatDate(notification.sentDate);
     });
-    dispatch(sentMessages({ type: "FETCH_MESSAGES", payload: notificationList }));
+    dispatch(sentMessagesReducer({ type: "FETCH_MESSAGES", payload: notificationList }));
   });
 };
 
 export const GetDraftMessagesAction = (dispatch: typeof store.dispatch) => {
   getDraftNotifications().then((response) => {
-    dispatch(draftMessages({ type: "FETCH_DRAFT_MESSAGES", payload: response.data }));
+    dispatch(draftMessagesReducer({ type: "FETCH_DRAFT_MESSAGES", payload: response.data }));
   });
 };

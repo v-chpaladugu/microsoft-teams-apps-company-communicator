@@ -19,7 +19,6 @@ class Configuration extends React.Component<{}, IConfigState> {
 
     public componentDidMount() {
         microsoftTeams.initialize();
-
         microsoftTeams.settings.registerOnSaveHandler((saveEvent) => {
             microsoftTeams.settings.setSettings({
                 entityId: "Company_Communicator_App",

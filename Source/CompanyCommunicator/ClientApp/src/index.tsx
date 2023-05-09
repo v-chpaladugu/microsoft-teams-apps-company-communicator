@@ -4,14 +4,12 @@
 import React from "react";
 import ReactDOM from "react-dom";
 import { Provider } from "react-redux";
-
 import { App } from "./App";
 import * as serviceWorker from "./serviceWorker";
 import * as microsoftTeams from "@microsoft/teams-js";
 import { store } from "./store";
 
 microsoftTeams.initialize();
-
 
 ReactDOM.render(
   <Provider store={store}>

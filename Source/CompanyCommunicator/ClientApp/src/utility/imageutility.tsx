@@ -1,7 +1,6 @@
 import ColorHash from "color-hash";
 
 export class ImageUtil {
-
     public static makeInitialImage = (name: string) => {
         const canvas = document.createElement('canvas');
         canvas.style.display = 'none';

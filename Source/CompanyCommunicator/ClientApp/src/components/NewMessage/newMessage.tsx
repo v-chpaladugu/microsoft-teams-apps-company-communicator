@@ -105,7 +105,7 @@ export const NewMessage = (newMessageProps: INewMessageProps) => {
   let fileInput: any;
   // const [teams, setTeams] = React.useState(await getTeams());
   const [loader, setLoader] = React.useState(false);
-  const { id } = useParams();
+  const { id } = useParams() as any;
 
   const [formState, setFormState] = React.useState<formState>({
     title: "",

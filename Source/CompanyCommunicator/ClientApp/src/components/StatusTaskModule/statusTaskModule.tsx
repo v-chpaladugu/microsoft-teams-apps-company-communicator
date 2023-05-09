@@ -1,364 +1,370 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import * as React from 'react';
-import { withTranslation, WithTranslation } from "react-i18next";
 import './statusTaskModule.scss';
-import { getSentNotification, exportNotification } from '../../apis/messageListApi';
-import { RouteComponentProps } from 'react-router-dom';
-import * as AdaptiveCards from "adaptivecards";
+
+import * as AdaptiveCards from 'adaptivecards';
 import { TooltipHost } from 'office-ui-fabric-react';
-import { Loader, List, Image, Button, DownloadIcon, AcceptIcon, Flex } from '@fluentui/react-northstar';
-import * as microsoftTeams from "@microsoft/teams-js";
+import * as React from 'react';
+import { useTranslation } from 'react-i18next';
+import { useParams } from 'react-router-dom';
+
 import {
-    getInitAdaptiveCard, setCardTitle, setCardImageLink, setCardSummary,
-    setCardAuthor, setCardBtn
-} from '../AdaptiveCard/adaptiveCard';
-import { ImageUtil } from '../../utility/imageutility';
+    AcceptIcon, Button, DownloadIcon, Flex, Image, List, Loader
+} from '@fluentui/react-northstar';
+import * as microsoftTeams from '@microsoft/teams-js';
+
+import { exportNotification, getSentNotification } from '../../apis/messageListApi';
 import { formatDate, formatDuration, formatNumber } from '../../i18n';
-import { TFunction } from "i18next";
+import { ImageUtil } from '../../utility/imageutility';
+import {
+    getInitAdaptiveCard, setCardAuthor, setCardBtn, setCardImageLink, setCardSummary, setCardTitle
+} from '../AdaptiveCard/adaptiveCard';
 
 export interface IListItem {
-    header: string,
-    media: JSX.Element,
+  header: string;
+  media: JSX.Element;
 }
 
 export interface IMessage {
-    id: string;
-    title: string;
-    acknowledgements?: string;
-    reactions?: string;
-    responses?: string;
-    succeeded?: string;
-    failed?: string;
-    unknown?: string;
-    canceled?: string;
-    sentDate?: string;
-    imageLink?: string;
-    summary?: string;
-    author?: string;
-    buttonLink?: string;
-    buttonTitle?: string;
-    teamNames?: string[];
-    rosterNames?: string[];
-    groupNames?: string[];
-    allUsers?: boolean;
-    sendingStartedDate?: string;
-    sendingDuration?: string;
-    errorMessage?: string;
-    warningMessage?: string;
-    canDownload?: boolean;
-    sendingCompleted?: boolean;
-    createdBy?: string;
+  id: string;
+  title: string;
+  acknowledgements?: string;
+  reactions?: string;
+  responses?: string;
+  succeeded?: string;
+  failed?: string;
+  unknown?: string;
+  canceled?: string;
+  sentDate?: string;
+  imageLink?: string;
+  summary?: string;
+  author?: string;
+  buttonLink?: string;
+  buttonTitle?: string;
+  teamNames?: string[];
+  rosterNames?: string[];
+  groupNames?: string[];
+  allUsers?: boolean;
+  sendingStartedDate?: string;
+  sendingDuration?: string;
+  errorMessage?: string;
+  warningMessage?: string;
+  canDownload?: boolean;
+  sendingCompleted?: boolean;
+  createdBy?: string;
 }
 
 export interface IStatusState {
-    message: IMessage;
-    loader: boolean;
-    page: string;
-    teamId?: string;
+  message: IMessage;
+  loader: boolean;
+  page: string;
+  teamId?: string;
 }
 
-interface StatusTaskModuleProps extends RouteComponentProps, WithTranslation { }
+export const StatusTaskModule = () => {
+  const { t } = useTranslation();
+  const {id} = useParams() as any;
+  const [messageState, setMessageState] = React.useState<IStatusState>({
+    message: { id: "", title: "" },
+    loader: true,
+    page: "ViewStatus",
+    teamId: "",
+  });
 
-class StatusTaskModule extends React.Component<StatusTaskModuleProps, IStatusState> {
-    readonly localize: TFunction;
-    private initMessage = {
-        id: "",
-        title: ""
+  let card: any;
+
+  React.useEffect(() => {
+    card = getInitAdaptiveCard(t);
+    initialLoad();
+  }, []);
+
+  const initialLoad = () => {
+    microsoftTeams.getContext((context) => {
+      setMessageState({ ...messageState, teamId: context.teamId });
+    });
+
+    if (id) {
+      getItem(id).then(() => {
+        setMessageState({ ...messageState, loader: false });
+
+        setCardTitle(card, messageState.message.title);
+        setCardImageLink(card, messageState.message.imageLink);
+        setCardSummary(card, messageState.message.summary);
+        setCardAuthor(card, messageState.message.author);
+        if (messageState.message.buttonTitle !== "" && messageState.message.buttonLink !== "") {
+          setCardBtn(card, messageState.message.buttonTitle, messageState.message.buttonLink);
+        }
+
+        let adaptiveCard = new AdaptiveCards.AdaptiveCard();
+        adaptiveCard.parse(card);
+        let renderedCard = adaptiveCard.render();
+        document.getElementsByClassName("adaptiveCardContainer")[0].appendChild(renderedCard);
+        let link = messageState.message.buttonLink;
+        adaptiveCard.onExecuteAction = function (action) {
+          window.open(link, "_blank");
+        };
+      });
+    }
+  };
+
+  const getItem = async (id: number) => {
+    try {
+      const response = await getSentNotification(id);
+      response.data.sendingDuration = formatDuration(response.data.sendingStartedDate, response.data.sentDate);
+      response.data.sendingStartedDate = formatDate(response.data.sendingStartedDate);
+      response.data.sentDate = formatDate(response.data.sentDate);
+      response.data.succeeded = formatNumber(response.data.succeeded);
+      response.data.failed = formatNumber(response.data.failed);
+      response.data.unknown = response.data.unknown && formatNumber(response.data.unknown);
+      response.data.canceled = response.data.canceled && formatNumber(response.data.canceled);
+      // response.data.createdBy = response.data.createdBy;
+      setMessageState({ ...messageState, message: response.data });
+    } catch (error) {
+      return error;
+    }
+  };
+
+  const onClose = () => {
+    microsoftTeams.tasks.submitTask();
+  };
+
+  const onExport = async () => {
+    let spanner = document.getElementsByClassName("sendingLoader");
+    spanner[0].classList.remove("hiddenLoader");
+    let payload = {
+      id: messageState.message.id,
+      teamId: messageState.teamId,
     };
+    await exportNotification(payload)
+      .then(() => {
+        setMessageState({ ...messageState, page: "SuccessPage" });
+      })
+      .catch(() => {
+        setMessageState({ ...messageState, page: "ErrorPage" });
+      });
+  };
 
-    private card: any;
-
-    constructor(props: StatusTaskModuleProps) {
-        super(props);
-
-        this.localize = this.props.t;
-
-        this.card = getInitAdaptiveCard(this.props.t);
-
-        this.state = {
-            message: this.initMessage,
-            loader: true,
-            page: "ViewStatus",
-            teamId: '',
+  const getItemList = (items: string[]) => {
+    let resultedTeams: IListItem[] = [];
+    if (items) {
+      resultedTeams = items.map((element) => {
+        const resultedTeam: IListItem = {
+          header: element,
+          media: <Image src={ImageUtil.makeInitialImage(element)} avatar />,
         };
+        return resultedTeam;
+      });
     }
+    return resultedTeams;
+  };
 
-    public componentDidMount() {
-        let params = this.props.match.params;
-        microsoftTeams.initialize();
-        microsoftTeams.getContext((context) => {
-            this.setState({
-                teamId: context.teamId,
-            });
-        });
-
-        if ('id' in params) {
-            let id = params['id'];
-            this.getItem(id).then(() => {
-                this.setState({
-                    loader: false
-                }, () => {
-                    setCardTitle(this.card, this.state.message.title);
-                    setCardImageLink(this.card, this.state.message.imageLink);
-                    setCardSummary(this.card, this.state.message.summary);
-                    setCardAuthor(this.card, this.state.message.author);
-                    if (this.state.message.buttonTitle !== "" && this.state.message.buttonLink !== "") {
-                        setCardBtn(this.card, this.state.message.buttonTitle, this.state.message.buttonLink);
-                    }
-
-                    let adaptiveCard = new AdaptiveCards.AdaptiveCard();
-                    adaptiveCard.parse(this.card);
-                    let renderedCard = adaptiveCard.render();
-                    document.getElementsByClassName('adaptiveCardContainer')[0].appendChild(renderedCard);
-                    let link = this.state.message.buttonLink;
-                    adaptiveCard.onExecuteAction = function (action) { window.open(link, '_blank'); }
-                });
-            });
-        }
+  const renderAudienceSelection = () => {
+    if (messageState.message.teamNames && messageState.message.teamNames.length > 0) {
+      return (
+        <div>
+          <h3>{t("SentToGeneralChannel")}</h3>
+          <List items={getItemList(messageState.message.teamNames)} />
+        </div>
+      );
+    } else if (messageState.message.rosterNames && messageState.message.rosterNames.length > 0) {
+      return (
+        <div>
+          <h3>{t("SentToRosters")}</h3>
+          <List items={getItemList(messageState.message.rosterNames)} />
+        </div>
+      );
+    } else if (messageState.message.groupNames && messageState.message.groupNames.length > 0) {
+      return (
+        <div>
+          <h3>{t("SentToGroups1")}</h3>
+          <span>{t("SentToGroups2")}</span>
+          <List items={getItemList(messageState.message.groupNames)} />
+        </div>
+      );
+    } else if (messageState.message.allUsers) {
+      return (
+        <div>
+          <h3>{t("SendToAllUsers")}</h3>
+        </div>
+      );
+    } else {
+      return <div></div>;
     }
+  };
 
-    private getItem = async (id: number) => {
-        try {
-            const response = await getSentNotification(id);
-            response.data.sendingDuration = formatDuration(response.data.sendingStartedDate, response.data.sentDate);
-            response.data.sendingStartedDate = formatDate(response.data.sendingStartedDate);
-            response.data.sentDate = formatDate(response.data.sentDate);
-            response.data.succeeded = formatNumber(response.data.succeeded);
-            response.data.failed = formatNumber(response.data.failed);
-            response.data.unknown = response.data.unknown && formatNumber(response.data.unknown);
-            response.data.canceled = response.data.canceled && formatNumber(response.data.canceled);
-            response.data.createdBy = response.data.createdBy;
-            this.setState({
-                message: response.data
-            });
-        } catch (error) {
-            return error;
-        }
+  const renderErrorMessage = () => {
+    if (messageState.message.errorMessage) {
+      return (
+        <div>
+          <h3>{t("Errors")}</h3>
+          <span>{messageState.message.errorMessage}</span>
+        </div>
+      );
+    } else {
+      return <div></div>;
     }
+  };
 
-    public render(): JSX.Element {
-        if (this.state.loader) {
-            return (
-                <div className="Loader">
-                    <Loader />
-                </div>
-            );
-        } else {
-            if (this.state.page === "ViewStatus") {
-                return (
-                    <div className="taskModule">
-                        <Flex column className="formContainer" vAlign="stretch" gap="gap.small">
-                            <Flex className="scrollableContent">
-                                <Flex.Item size="size.half" className="formContentContainer">
-                                    <Flex column>
-                                        <div className="contentField">
-                                            <h3>{this.localize("TitleText")}</h3>
-                                            <span>{this.state.message.title}</span>
-                                        </div>
-                                        <div className="contentField">
-                                            <h3>{this.localize("SendingStarted")}</h3>
-                                            <span>{this.state.message.sendingStartedDate}</span>
-                                        </div>
-                                        <div className="contentField">
-                                            <h3>{this.localize("Completed")}</h3>
-                                            <span>{this.state.message.sentDate}</span>
-                                        </div>
-                                        <div className="contentField">
-                                            <h3>{this.localize("Created By")}</h3>
-                                            <span>{this.state.message.createdBy}</span>
-                                        </div>
-                                        <div className="contentField">
-                                            <h3>{this.localize("Duration")}</h3>
-                                            <span>{this.state.message.sendingDuration}</span>
-                                        </div>
-                                        <div className="contentField">
-                                            <h3>{this.localize("Results")}</h3>
-                                            <label>{this.localize("Success", { "SuccessCount": this.state.message.succeeded })}</label>
-                                            <br />
-                                            <label>{this.localize("Failure", { "FailureCount": this.state.message.failed })}</label>
-                                            {this.state.message.canceled &&
-                                                <>
-                                                    <br />
-                                                    <label>{this.localize("Canceled", { "CanceledCount": this.state.message.canceled })}</label>
-                                                </>
-                                            }
-                                            {this.state.message.unknown &&
-                                                <>
-                                                    <br />
-                                                    <label>{this.localize("Unknown", { "UnknownCount": this.state.message.unknown })}</label>
-                                                </>
-                                            }
-                                        </div>
-                                        <div className="contentField">
-                                            {this.renderAudienceSelection()}
-                                        </div>
-                                        <div className="contentField">
-                                            {this.renderErrorMessage()}
-                                        </div>
-                                        <div className="contentField">
-                                            {this.renderWarningMessage()}
-                                        </div>
-                                    </Flex>
-                                </Flex.Item>
-                                <Flex.Item size="size.half">
-                                    <div className="adaptiveCardContainer">
-                                    </div>
-                                </Flex.Item>
-                            </Flex>
-                            <Flex className="footerContainer" vAlign="end" hAlign="end">
-                                <div className={this.state.message.canDownload ? "" : "disabled"}>
-                                    <Flex className="buttonContainer" gap="gap.small">
-                                        <Flex.Item push>
-                                            <Loader id="sendingLoader" className="hiddenLoader sendingLoader" size="smallest" label={this.localize("ExportLabel")} labelPosition="end" />
-                                        </Flex.Item>
-                                        <Flex.Item>
-                                            <TooltipHost content={!this.state.message.sendingCompleted ? "" : (this.state.message.canDownload ? "" : this.localize("ExportButtonProgressText"))} calloutProps={{ gapSpace: 0 }}>
-                                                <Button icon={<DownloadIcon size="medium" />} disabled={!this.state.message.canDownload || !this.state.message.sendingCompleted} content={this.localize("ExportButtonText")} id="exportBtn" onClick={this.onExport} primary />
-                                            </TooltipHost>
-                                        </Flex.Item>
-                                    </Flex>
-                                </div>
-                            </Flex>
-                        </Flex>
-                    </div>
-                );
-            }
-            else if (this.state.page === "SuccessPage") {
-                return (
-                    <div className="taskModule">
-                        <Flex column className="formContainer" vAlign="stretch" gap="gap.small">
-                            <div className="displayMessageField">
-                                <br />
-                                <br />
-                                <div><span><AcceptIcon className="iconStyle" xSpacing="before" size="largest" outline /></span>
-                                    <h1>{this.localize("ExportQueueTitle")}</h1></div>
-                                <span>{this.localize("ExportQueueSuccessMessage1")}</span>
-                                <br />
-                                <br />
-                                <span>{this.localize("ExportQueueSuccessMessage2")}</span>
-                                <br />
-                                <span>{this.localize("ExportQueueSuccessMessage3")}</span>
-                            </div>
-                            <Flex className="footerContainer" vAlign="end" hAlign="end" gap="gap.small">
-                                <Flex className="buttonContainer">
-                                    <Button content={this.localize("CloseText")} id="closeBtn" onClick={this.onClose} primary />
-                                </Flex>
-                            </Flex>
-                        </Flex>
-                    </div>
-                );
-            }
-            else {
-                return (
-                    <div className="taskModule">
-                        <Flex column className="formContainer" vAlign="stretch" gap="gap.small">
-                            <div className="displayMessageField">
-                                <br />
-                                <br />
-                                <div><span></span>
-                                    <h1 className="light">{this.localize("ExportErrorTitle")}</h1></div>
-                                <span>{this.localize("ExportErrorMessage")}</span>
-                            </div>
-                            <Flex className="footerContainer" vAlign="end" hAlign="end" gap="gap.small">
-                                <Flex className="buttonContainer">
-                                    <Button content={this.localize("CloseText")} id="closeBtn" onClick={this.onClose} primary />
-                                </Flex>
-                            </Flex>
-                        </Flex>
-                    </div>
-                );
-            }
-        }
+  const renderWarningMessage = () => {
+    if (messageState.message.warningMessage) {
+      return (
+        <div>
+          <h3>{t("Warnings")}</h3>
+          <span>{messageState.message.warningMessage}</span>
+        </div>
+      );
+    } else {
+      return <div></div>;
     }
+  };
 
-    private onClose = () => {
-        microsoftTeams.tasks.submitTask();
-    }
-
-    private onExport = async () => {
-        let spanner = document.getElementsByClassName("sendingLoader");
-        spanner[0].classList.remove("hiddenLoader");
-        let payload = {
-            id: this.state.message.id,
-            teamId: this.state.teamId
-        };
-        await exportNotification(payload).then(() => {
-            this.setState({ page: "SuccessPage" });
-        }).catch(() => {
-            this.setState({ page: "ErrorPage" });
-        });
-    }
-
-    private getItemList = (items: string[]) => {
-        let resultedTeams: IListItem[] = [];
-        if (items) {
-            resultedTeams = items.map((element) => {
-                const resultedTeam: IListItem = {
-                    header: element,
-                    media: <Image src={ImageUtil.makeInitialImage(element)} avatar />
-                }
-                return resultedTeam;
-            });
-        }
-        return resultedTeams;
-    }
-    private renderAudienceSelection = () => {
-        if (this.state.message.teamNames && this.state.message.teamNames.length > 0) {
-            return (
-                <div>
-                    <h3>{this.localize("SentToGeneralChannel")}</h3>
-                    <List items={this.getItemList(this.state.message.teamNames)} />
-                </div>);
-        } else if (this.state.message.rosterNames && this.state.message.rosterNames.length > 0) {
-            return (
-                <div>
-                    <h3>{this.localize("SentToRosters")}</h3>
-                    <List items={this.getItemList(this.state.message.rosterNames)} />
-                </div>);
-        } else if (this.state.message.groupNames && this.state.message.groupNames.length > 0) {
-            return (
-                <div>
-                    <h3>{this.localize("SentToGroups1")}</h3>
-                    <span>{this.localize("SentToGroups2")}</span>
-                    <List items={this.getItemList(this.state.message.groupNames)} />
-                </div>);
-        } else if (this.state.message.allUsers) {
-            return (
-                <div>
-                    <h3>{this.localize("SendToAllUsers")}</h3>
-                </div>);
-        } else {
-            return (<div></div>);
-        }
-    }
-    private renderErrorMessage = () => {
-        if (this.state.message.errorMessage) {
-            return (
-                <div>
-                    <h3>{this.localize("Errors")}</h3>
-                    <span>{this.state.message.errorMessage}</span>
-                </div>
-            );
-        } else {
-            return (<div></div>);
-        }
-    }
-
-    private renderWarningMessage = () => {
-        if (this.state.message.warningMessage) {
-            return (
-                <div>
-                    <h3>{this.localize("Warnings")}</h3>
-                    <span>{this.state.message.warningMessage}</span>
-                </div>
-            );
-        } else {
-            return (<div></div>);
-        }
-    }
-}
-
-const StatusTaskModuleWithTranslation = withTranslation()(StatusTaskModule);
-export default StatusTaskModuleWithTranslation;
+  return (
+    <>
+      {messageState.loader && (
+        <div className="Loader">
+          <Loader />
+        </div>
+      )}
+      {!messageState.loader && messageState.page === "ViewStatus" && (
+        <div className="taskModule">
+          <Flex column className="formContainer" vAlign="stretch" gap="gap.small">
+            <Flex className="scrollableContent">
+              <Flex.Item size="size.half" className="formContentContainer">
+                <Flex column>
+                  <div className="contentField">
+                    <h3>{t("TitleText")}</h3>
+                    <span>{messageState.message.title}</span>
+                  </div>
+                  <div className="contentField">
+                    <h3>{t("SendingStarted")}</h3>
+                    <span>{messageState.message.sendingStartedDate}</span>
+                  </div>
+                  <div className="contentField">
+                    <h3>{t("Completed")}</h3>
+                    <span>{messageState.message.sentDate}</span>
+                  </div>
+                  <div className="contentField">
+                    <h3>{t("Created By")}</h3>
+                    <span>{messageState.message.createdBy}</span>
+                  </div>
+                  <div className="contentField">
+                    <h3>{t("Duration")}</h3>
+                    <span>{messageState.message.sendingDuration}</span>
+                  </div>
+                  <div className="contentField">
+                    <h3>{t("Results")}</h3>
+                    <label>{t("Success", { SuccessCount: messageState.message.succeeded })}</label>
+                    <br />
+                    <label>{t("Failure", { FailureCount: messageState.message.failed })}</label>
+                    {messageState.message.canceled && (
+                      <>
+                        <br />
+                        <label>{t("Canceled", { CanceledCount: messageState.message.canceled })}</label>
+                      </>
+                    )}
+                    {messageState.message.unknown && (
+                      <>
+                        <br />
+                        <label>{t("Unknown", { UnknownCount: messageState.message.unknown })}</label>
+                      </>
+                    )}
+                  </div>
+                  <div className="contentField">{renderAudienceSelection()}</div>
+                  <div className="contentField">{renderErrorMessage()}</div>
+                  <div className="contentField">{renderWarningMessage()}</div>
+                </Flex>
+              </Flex.Item>
+              <Flex.Item size="size.half">
+                <div className="adaptiveCardContainer"></div>
+              </Flex.Item>
+            </Flex>
+            <Flex className="footerContainer" vAlign="end" hAlign="end">
+              <div className={messageState.message.canDownload ? "" : "disabled"}>
+                <Flex className="buttonContainer" gap="gap.small">
+                  <Flex.Item push>
+                    <Loader
+                      id="sendingLoader"
+                      className="hiddenLoader sendingLoader"
+                      size="smallest"
+                      label={t("ExportLabel")}
+                      labelPosition="end"
+                    />
+                  </Flex.Item>
+                  <Flex.Item>
+                    <TooltipHost
+                      content={
+                        !messageState.message.sendingCompleted
+                          ? ""
+                          : messageState.message.canDownload
+                          ? ""
+                          : t("ExportButtonProgressText")
+                      }
+                      calloutProps={{ gapSpace: 0 }}
+                    >
+                      <Button
+                        icon={<DownloadIcon size="medium" />}
+                        disabled={!messageState.message.canDownload || !messageState.message.sendingCompleted}
+                        content={t("ExportButtonText")}
+                        id="exportBtn"
+                        onClick={onExport}
+                        primary
+                      />
+                    </TooltipHost>
+                  </Flex.Item>
+                </Flex>
+              </div>
+            </Flex>
+          </Flex>
+        </div>
+      )}
+      {!messageState.loader && messageState.page === "SuccessPage" && (
+        <div className="taskModule">
+          <Flex column className="formContainer" vAlign="stretch" gap="gap.small">
+            <div className="displayMessageField">
+              <br />
+              <br />
+              <div>
+                <span>
+                  <AcceptIcon className="iconStyle" xSpacing="before" size="largest" outline />
+                </span>
+                <h1>{t("ExportQueueTitle")}</h1>
+              </div>
+              <span>{t("ExportQueueSuccessMessage1")}</span>
+              <br />
+              <br />
+              <span>{t("ExportQueueSuccessMessage2")}</span>
+              <br />
+              <span>{t("ExportQueueSuccessMessage3")}</span>
+            </div>
+            <Flex className="footerContainer" vAlign="end" hAlign="end" gap="gap.small">
+              <Flex className="buttonContainer">
+                <Button content={t("CloseText")} id="closeBtn" onClick={onClose} primary />
+              </Flex>
+            </Flex>
+          </Flex>
+        </div>
+      )}
+      {!messageState.loader && messageState.page !== "ViewStatus" && messageState.page !== "SuccessPage" && (
+        <div className="taskModule">
+          <Flex column className="formContainer" vAlign="stretch" gap="gap.small">
+            <div className="displayMessageField">
+              <br />
+              <br />
+              <div>
+                <span></span>
+                <h1 className="light">{t("ExportErrorTitle")}</h1>
+              </div>
+              <span>{t("ExportErrorMessage")}</span>
+            </div>
+            <Flex className="footerContainer" vAlign="end" hAlign="end" gap="gap.small">
+              <Flex className="buttonContainer">
+                <Button content={t("CloseText")} id="closeBtn" onClick={onClose} primary />
+              </Flex>
+            </Flex>
+          </Flex>
+        </div>
+      )}
+    </>
+  );
+};
