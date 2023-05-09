@@ -1,30 +1,25 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import * as React from "react";
-import { RouteComponentProps } from "react-router-dom";
-import { useTranslation, WithTranslation } from "react-i18next";
-import * as AdaptiveCards from "adaptivecards";
-import { Loader, Button, Text, List, Image, Flex } from "@fluentui/react-northstar";
-import * as microsoftTeams from "@microsoft/teams-js";
-
 import "./sendConfirmationTaskModule.scss";
-import { getDraftNotification, getConsentSummaries, sendDraftNotification } from "../../apis/messageListApi";
+
+import * as AdaptiveCards from "adaptivecards";
+import * as React from "react";
+import { useTranslation } from "react-i18next";
+import { useParams } from "react-router-dom";
+import { Flex } from "@fluentui/react-northstar";
+import * as microsoftTeams from "@microsoft/teams-js";
+import { getConsentSummaries, getDraftNotification, sendDraftNotification } from "../../apis/messageListApi";
+import { ImageUtil } from "../../utility/imageutility";
 import {
   getInitAdaptiveCard,
-  setCardTitle,
-  setCardImageLink,
-  setCardSummary,
   setCardAuthor,
   setCardBtn,
+  setCardImageLink,
+  setCardSummary,
+  setCardTitle,
 } from "../AdaptiveCard/adaptiveCard";
-import { ImageUtil } from "../../utility/imageutility";
-import { useParams } from "react-router-dom";
-
-export interface IListItem {
-  header: string;
-  media: JSX.Element;
-}
+import { Button, MenuItem, MenuList, Text, Image, Spinner } from "@fluentui/react-components";
 
 export interface IMessage {
   id: string;
@@ -44,8 +39,6 @@ export interface IMessage {
   createdBy?: string;
 }
 
-export interface SendConfirmationTaskModuleProps extends RouteComponentProps, WithTranslation {}
-
 export interface IStatusState {
   message: IMessage;
   loader: boolean;
@@ -58,6 +51,13 @@ export interface IStatusState {
 
 export const SendConfirmationTaskModule = () => {
   const { t } = useTranslation();
+  const { id } = useParams() as any;
+  let card = getInitAdaptiveCard(t);
+  let adaptiveCard = new AdaptiveCards.AdaptiveCard();
+
+  const [draftMessageItem, setDraftMessageItem] = React.useState(null);
+  const [consentSummaries, setConsentSummaries] = React.useState(null);
+
   const [messageState, setMessageState] = React.useState<IStatusState>({
     message: { id: "", title: "" },
     loader: true,
@@ -68,57 +68,61 @@ export const SendConfirmationTaskModule = () => {
     messageId: 0,
   });
 
-  const { id } = useParams() as any;
-
-  let card: any;
-
   React.useEffect(() => {
-    card = getInitAdaptiveCard(t);
-    initialLoad();
+    getDraftMessage(id);
   }, []);
 
-  const initialLoad = () => {
-    if (id) {
-      getItem(id).then(() => {
-        getConsentSummaries(id).then((response) => {
-          setMessageState({
-            ...messageState,
-            teamNames: response.data.teamNames.sort(),
-            rosterNames: response.data.rosterNames.sort(),
-            groupNames: response.data.groupNames.sort(),
-            allUsers: response.data.allUsers,
-            messageId: id,
-          });
+  React.useEffect(() => {
+    if (draftMessageItem) {
+      getConsents(id);
+    }
+  }, [draftMessageItem]);
 
-          setMessageState({ ...messageState, loader: false });
+  React.useEffect(() => {
+    if (consentSummaries) {
+      setCardTitle(card, messageState.message.title);
+      setCardImageLink(card, messageState.message.imageLink);
+      setCardSummary(card, messageState.message.summary);
+      setCardAuthor(card, messageState.message.author);
+      if (messageState.message.buttonTitle && messageState.message.buttonLink) {
+        setCardBtn(card, messageState.message.buttonTitle, messageState.message.buttonLink);
+      }
+      adaptiveCard.parse(card);
+      let renderedCard = adaptiveCard.render();
+      document.getElementsByClassName("adaptiveCardContainer")[0].appendChild(renderedCard);
+      if (messageState.message.buttonLink) {
+        let link = messageState.message.buttonLink;
+        adaptiveCard.onExecuteAction = function (action) {
+          window.open(link, "_blank");
+        };
+      }
+    }
+  }, [consentSummaries]);
 
-          setCardTitle(card, messageState.message.title);
-          setCardImageLink(card, messageState.message.imageLink);
-          setCardSummary(card, messageState.message.summary);
-          setCardAuthor(card, messageState.message.author);
-          if (messageState.message.buttonTitle && messageState.message.buttonLink) {
-            setCardBtn(card, messageState.message.buttonTitle, messageState.message.buttonLink);
-          }
-
-          let adaptiveCard = new AdaptiveCards.AdaptiveCard();
-          adaptiveCard.parse(card);
-          let renderedCard = adaptiveCard.render();
-          document.getElementsByClassName("adaptiveCardContainer")[0].appendChild(renderedCard);
-          if (messageState.message.buttonLink) {
-            let link = messageState.message.buttonLink;
-            adaptiveCard.onExecuteAction = function (action) {
-              window.open(link, "_blank");
-            };
-          }
-        });
-      });
+  const getDraftMessage = async (id: number) => {
+    try {
+      const response = await getDraftNotification(id);
+      setDraftMessageItem(response.data);
+      setMessageState({ ...messageState, message: response.data });
+    } catch (error) {
+      return error;
     }
   };
 
-  const getItem = async (id: number) => {
+  const getConsents = async (id: number) => {
     try {
-      const response = await getDraftNotification(id);
-      setMessageState({ ...messageState, message: response.data });
+      const response = await getConsentSummaries(id);
+
+      setMessageState({
+        ...messageState,
+        teamNames: response.data.teamNames.sort(),
+        rosterNames: response.data.rosterNames.sort(),
+        groupNames: response.data.groupNames.sort(),
+        allUsers: response.data.allUsers,
+        messageId: id,
+      });
+
+      setConsentSummaries(response.data);
     } catch (error) {
       return error;
     }
@@ -133,14 +137,12 @@ export const SendConfirmationTaskModule = () => {
   };
 
   const getItemList = (items: string[]) => {
-    let resultedTeams: IListItem[] = [];
+    let resultedTeams: any[] = [];
     if (items) {
-      resultedTeams = items.map((element) => {
-        const resultedTeam: IListItem = {
-          header: element,
-          media: <Image src={ImageUtil.makeInitialImage(element)} avatar />,
-        };
-        return resultedTeam;
+      items.map((element) => {
+        resultedTeams.push(
+          <MenuItem icon={<Image src={ImageUtil.makeInitialImage(element)} />}>{element}</MenuItem>
+        );
       });
     }
     return resultedTeams;
@@ -152,7 +154,7 @@ export const SendConfirmationTaskModule = () => {
         <div key="teamNames">
           {" "}
           <span className="label">{t("TeamsLabel")}</span>
-          <List items={getItemList(messageState.teamNames)} />
+          <MenuList>{getItemList(messageState.teamNames)}</MenuList>
         </div>
       );
     } else if (messageState.rosterNames && messageState.rosterNames.length > 0) {
@@ -160,7 +162,7 @@ export const SendConfirmationTaskModule = () => {
         <div key="rosterNames">
           {" "}
           <span className="label">{t("TeamsMembersLabel")}</span>
-          <List items={getItemList(messageState.rosterNames)} />
+          <MenuList>{getItemList(messageState.rosterNames)}</MenuList>
         </div>
       );
     } else if (messageState.groupNames && messageState.groupNames.length > 0) {
@@ -168,7 +170,7 @@ export const SendConfirmationTaskModule = () => {
         <div key="groupNames">
           {" "}
           <span className="label">{t("GroupsMembersLabel")}</span>
-          <List items={getItemList(messageState.groupNames)} />
+          <MenuList>{getItemList(messageState.groupNames)}</MenuList>
         </div>
       );
     } else if (messageState.allUsers) {
@@ -176,7 +178,7 @@ export const SendConfirmationTaskModule = () => {
         <div key="allUsers">
           <span className="label">{t("AllUsersLabel")}</span>
           <div className="noteText">
-            <Text error content={t("SendToAllUsersNote")} />
+            <Text>{t("SendToAllUsersNote")}</Text>
           </div>
         </div>
       );
@@ -189,7 +191,7 @@ export const SendConfirmationTaskModule = () => {
     <>
       {messageState.loader && (
         <div className="Loader">
-          <Loader />
+          <Spinner />
         </div>
       )}
       {!messageState.loader && (
@@ -210,15 +212,15 @@ export const SendConfirmationTaskModule = () => {
             <Flex className="footerContainer" vAlign="end" hAlign="end">
               <Flex className="buttonContainer" gap="gap.small">
                 <Flex.Item push>
-                  <Loader
+                  <Spinner
                     id="sendingLoader"
                     className="hiddenLoader sendingLoader"
-                    size="smallest"
+                    size="small"
                     label={t("PreparingMessageLabel")}
-                    labelPosition="end"
+                    labelPosition="after"
                   />
                 </Flex.Item>
-                <Button content={t("Send")} id="sendBtn" onClick={onSendMessage} primary />
+                <Button id="sendBtn" onClick={onSendMessage} appearance="primary">{t("Send")}</Button>
               </Flex>
             </Flex>
           </Flex>
