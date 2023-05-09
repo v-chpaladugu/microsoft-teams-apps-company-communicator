@@ -101,9 +101,10 @@ export const SendConfirmationTaskModule = () => {
 
   const getDraftMessage = async (id: number) => {
     try {
-      const response = await getDraftNotification(id);
-      setDraftMessageItem(response.data);
-      setMessageState({ ...messageState, message: response.data });
+      await getDraftNotification(id).then((response) => {
+        setDraftMessageItem(response.data);
+        setMessageState({ ...messageState, message: response.data });
+      });
     } catch (error) {
       return error;
     }
@@ -111,18 +112,17 @@ export const SendConfirmationTaskModule = () => {
 
   const getConsents = async (id: number) => {
     try {
-      const response = await getConsentSummaries(id);
-
-      setMessageState({
-        ...messageState,
-        teamNames: response.data.teamNames.sort(),
-        rosterNames: response.data.rosterNames.sort(),
-        groupNames: response.data.groupNames.sort(),
-        allUsers: response.data.allUsers,
-        messageId: id,
+      await getConsentSummaries(id).then((response) => {
+        setMessageState({
+          ...messageState,
+          teamNames: response.data.teamNames.sort(),
+          rosterNames: response.data.rosterNames.sort(),
+          groupNames: response.data.groupNames.sort(),
+          allUsers: response.data.allUsers,
+          messageId: id,
+        });
+        setConsentSummaries(response.data);
       });
-
-      setConsentSummaries(response.data);
     } catch (error) {
       return error;
     }
@@ -140,9 +140,7 @@ export const SendConfirmationTaskModule = () => {
     let resultedTeams: any[] = [];
     if (items) {
       items.map((element) => {
-        resultedTeams.push(
-          <MenuItem icon={<Image src={ImageUtil.makeInitialImage(element)} />}>{element}</MenuItem>
-        );
+        resultedTeams.push(<MenuItem icon={<Image src={ImageUtil.makeInitialImage(element)} />}>{element}</MenuItem>);
       });
     }
     return resultedTeams;
@@ -220,7 +218,9 @@ export const SendConfirmationTaskModule = () => {
                     labelPosition="after"
                   />
                 </Flex.Item>
-                <Button id="sendBtn" onClick={onSendMessage} appearance="primary">{t("Send")}</Button>
+                <Button id="sendBtn" onClick={onSendMessage} appearance="primary">
+                  {t("Send")}
+                </Button>
               </Flex>
             </Flex>
           </Flex>
