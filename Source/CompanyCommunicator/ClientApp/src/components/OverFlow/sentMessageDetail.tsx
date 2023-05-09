@@ -42,7 +42,7 @@ interface ITaskInfo {
 export const SentMessageDetail = (sentMessages: any) => {
   const { t } = useTranslation();
   const keyboardNavAttr = useArrowNavigationGroup({ axis: "grid" });
-  const statusUrl = (id: string) => getBaseUrl() + `/viewstatus/${id}"?locale={locale}`;
+  const statusUrl = (id: string) => getBaseUrl() + `/viewstatus/${id}?locale={locale}`;
 
   const columns = [
     { columnKey: "title", label: t("TitleText") },

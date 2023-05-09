@@ -51,8 +51,8 @@ export const DraftMessageDetail = (draftMessages: any) => {
   const [teamsChannelId, setTeamsChannelId] = React.useState("");
   const dispatch = useAppDispatch();
   const columns = [{ columnKey: "title", label: t("TitleText") }];
-  const sendUrl = (id: string) => getBaseUrl() + `/sendconfirmation/${id}"?locale={locale}`;
-  const editUrl = (id: string) => getBaseUrl() + `/newmessage/${id}"?locale={locale}`;
+  const sendUrl = (id: string) => getBaseUrl() + `/sendconfirmation/${id}?locale={locale}`;
+  const editUrl = (id: string) => getBaseUrl() + `/newmessage/${id}?locale={locale}`;
 
   React.useEffect(() => {
     microsoftTeams.getContext((context: any) => {
