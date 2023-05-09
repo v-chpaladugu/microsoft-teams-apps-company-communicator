@@ -41,7 +41,6 @@ export interface IMessage {
 
 export interface IStatusState {
   message: IMessage;
-  loader: boolean;
   teamNames: string[];
   rosterNames: string[];
   groupNames: string[];
@@ -54,13 +53,12 @@ export const SendConfirmationTaskModule = () => {
   const { id } = useParams() as any;
   let card = getInitAdaptiveCard(t);
   let adaptiveCard = new AdaptiveCards.AdaptiveCard();
-
+  const [loader, setLoader] = React.useState(true);
   const [draftMessageItem, setDraftMessageItem] = React.useState(null);
   const [consentSummaries, setConsentSummaries] = React.useState(null);
 
   const [messageState, setMessageState] = React.useState<IStatusState>({
     message: { id: "", title: "" },
-    loader: true,
     teamNames: [],
     rosterNames: [],
     groupNames: [],
@@ -122,6 +120,7 @@ export const SendConfirmationTaskModule = () => {
           messageId: id,
         });
         setConsentSummaries(response.data);
+        setLoader(false);
       });
     } catch (error) {
       return error;
@@ -129,8 +128,6 @@ export const SendConfirmationTaskModule = () => {
   };
 
   const onSendMessage = () => {
-    let spanner = document.getElementsByClassName("sendingLoader");
-    spanner[0].classList.remove("hiddenLoader");
     sendDraftNotification(messageState.message).then(() => {
       microsoftTeams.tasks.submitTask();
     });
@@ -187,12 +184,12 @@ export const SendConfirmationTaskModule = () => {
 
   return (
     <>
-      {messageState.loader && (
+      {loader && (
         <div className="Loader">
           <Spinner />
         </div>
       )}
-      {!messageState.loader && (
+      {!loader && (
         <div className="taskModule">
           <Flex column className="formContainer" vAlign="stretch" gap="gap.small">
             <Flex className="scrollableContent" gap="gap.small">
@@ -209,15 +206,6 @@ export const SendConfirmationTaskModule = () => {
             </Flex>
             <Flex className="footerContainer" vAlign="end" hAlign="end">
               <Flex className="buttonContainer" gap="gap.small">
-                <Flex.Item push>
-                  <Spinner
-                    id="sendingLoader"
-                    className="hiddenLoader sendingLoader"
-                    size="small"
-                    label={t("PreparingMessageLabel")}
-                    labelPosition="after"
-                  />
-                </Flex.Item>
                 <Button id="sendBtn" onClick={onSendMessage} appearance="primary">
                   {t("Send")}
                 </Button>
