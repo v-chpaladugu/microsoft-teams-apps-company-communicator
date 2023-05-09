@@ -47,7 +47,6 @@ export interface ITaskInfo {
 export const DraftMessageDetail = (draftMessages: any) => {
   const { t } = useTranslation();
   const keyboardNavAttr = useArrowNavigationGroup({ axis: "grid" });
-  const [isOpenTaskModuleAllowed, setIsOpenTaskModuleAllowed] = React.useState(false);
   const [teamsTeamId, setTeamsTeamId] = React.useState("");
   const [teamsChannelId, setTeamsChannelId] = React.useState("");
   const dispatch = useAppDispatch();
@@ -121,7 +120,9 @@ export const DraftMessageDetail = (draftMessages: any) => {
               <b>{column.label}</b>
             </TableHeaderCell>
           ))}
-          <TableHeaderCell />
+          <TableHeaderCell key="actions" style={{ float: "right" }}>
+            <b>Actions</b>
+          </TableHeaderCell>
         </TableRow>
       </TableHeader>
       <TableBody>

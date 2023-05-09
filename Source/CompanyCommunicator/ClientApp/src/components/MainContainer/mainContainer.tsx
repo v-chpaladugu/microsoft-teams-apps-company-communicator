@@ -1,21 +1,27 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import './mainContainer.scss';
-import * as React from 'react';
-import { useTranslation } from 'react-i18next';
+import "./mainContainer.scss";
+import * as React from "react";
+import { useTranslation } from "react-i18next";
 import {
-    Accordion, AccordionHeader, AccordionItem, AccordionPanel, Button, Link
-} from '@fluentui/react-components';
-import {
-    ChatMultiple24Regular, PersonFeedback24Regular, QuestionCircle24Regular
-} from '@fluentui/react-icons';
-import * as microsoftTeams from '@microsoft/teams-js';
-import { GetDraftMessagesAction } from '../../actions';
-import { getBaseUrl } from '../../configVariables';
-import { useAppDispatch } from '../../store';
-import { DraftMessages } from '../DraftMessages/draftMessages';
-import { Messages } from '../Messages/messages';
+  Accordion,
+  AccordionHeader,
+  AccordionItem,
+  AccordionPanel,
+  Button,
+  Divider,
+  Link,
+  Theme,
+  teamsLightTheme,
+} from "@fluentui/react-components";
+import { ChatMultiple24Regular, PersonFeedback24Regular, QuestionCircle24Regular } from "@fluentui/react-icons";
+import * as microsoftTeams from "@microsoft/teams-js";
+import { GetDraftMessagesAction } from "../../actions";
+import { getBaseUrl } from "../../configVariables";
+import { useAppDispatch } from "../../store";
+import { DraftMessages } from "../DraftMessages/draftMessages";
+import { Messages } from "../Messages/messages";
 
 interface ITaskInfo {
   title?: string;
@@ -27,7 +33,11 @@ interface ITaskInfo {
   completionBotId?: string;
 }
 
-export const MainContainer = () => {
+interface IMainContainer {
+  theme: Theme;
+}
+
+export const MainContainer = (props: IMainContainer) => {
   const url = getBaseUrl() + "/newmessage?locale={locale}";
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
@@ -64,7 +74,7 @@ export const MainContainer = () => {
 
   return (
     <>
-      <div className="cc-header">
+      <div className={props.theme === teamsLightTheme ? "cc-header-light" : "cc-header"}>
         <div className="cc-main-left">
           <img
             src={
@@ -91,6 +101,7 @@ export const MainContainer = () => {
           </span>
         </div>
       </div>
+      <Divider />
       <div className="cc-new-message">
         <Button icon={<ChatMultiple24Regular />} appearance="primary" onClick={onNewMessage}>
           {t("NewMessage")}
