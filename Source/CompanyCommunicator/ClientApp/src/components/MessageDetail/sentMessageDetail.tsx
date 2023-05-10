@@ -1,33 +1,23 @@
-import {
-  TableBody,
-  TableCell,
-  TableRow,
-  Table,
-  TableHeader,
-  TableHeaderCell,
-  TableCellLayout,
-  Button,
-  useArrowNavigationGroup,
-} from "@fluentui/react-components";
-import * as React from "react";
-import {
-  OpenRegular,
-  DocumentRegular,
-  MoreHorizontal24Filled,
-  DocumentCopyRegular,
-  CalendarCancel24Regular,
-  CheckmarkSquare24Regular,
-  ShareScreenStop24Regular,
-  Warning24Regular,
-  BookExclamationMark24Regular,
-} from "@fluentui/react-icons";
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 
-import { Menu, MenuTrigger, MenuList, MenuItem, MenuPopover } from "@fluentui/react-components";
-import { useTranslation } from "react-i18next";
-import { formatNumber } from "../../i18n";
-import { TooltipHost } from "office-ui-fabric-react";
-import { cancelSentNotification, duplicateDraftNotification } from "../../apis/messageListApi";
-import { getBaseUrl } from "../../configVariables";
+import { TooltipHost } from 'office-ui-fabric-react';
+import * as React from 'react';
+import { useTranslation } from 'react-i18next';
+import {
+    Button, Menu, MenuItem, MenuList, MenuPopover, MenuTrigger, Table, TableBody, TableCell,
+    TableCellLayout, TableHeader, TableHeaderCell, TableRow, useArrowNavigationGroup
+} from '@fluentui/react-components';
+import {
+    BookExclamationMark24Regular, CalendarCancel24Regular, CheckmarkSquare24Regular,
+    DocumentCopyRegular, DocumentRegular, MoreHorizontal24Filled, OpenRegular,
+    ShareScreenStop24Regular, Warning24Regular
+} from '@fluentui/react-icons';
+import * as microsoftTeams from '@microsoft/teams-js';
+import { cancelSentNotification, duplicateDraftNotification } from '../../apis/messageListApi';
+import { getBaseUrl } from '../../configVariables';
+import { formatNumber } from '../../i18n';
+import { ROUTE_PARTS, ROUTE_QUERY_PARAMS } from '../../routes';
 
 interface ITaskInfo {
   title?: string;
@@ -42,13 +32,7 @@ interface ITaskInfo {
 export const SentMessageDetail = (sentMessages: any) => {
   const { t } = useTranslation();
   const keyboardNavAttr = useArrowNavigationGroup({ axis: "grid" });
-  const statusUrl = (id: string) => getBaseUrl() + `/viewstatus/${id}?locale={locale}`;
-
-  React.useEffect(() => {
-    microsoftTeams.getContext((context: any) => {
-       // Just getting context...
-    });
-  }, []);
+  const statusUrl = (id: string) => getBaseUrl() + `/${ROUTE_PARTS.VIEW_STATUS}/${id}?${ROUTE_QUERY_PARAMS.LOCALE}={locale}`;
 
   const columns = [
     { columnKey: "title", label: t("TitleText") },

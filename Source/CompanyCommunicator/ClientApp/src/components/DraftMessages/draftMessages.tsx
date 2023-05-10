@@ -3,12 +3,10 @@
 
 import * as React from 'react';
 import { useTranslation } from 'react-i18next';
-
 import { Spinner } from '@fluentui/react-components';
-
 import { GetDraftMessagesAction } from '../../actions';
 import { RootState, useAppDispatch, useAppSelector } from '../../store';
-import { DraftMessageDetail } from '../OverFlow/draftMessageDetail';
+import { DraftMessageDetail } from '../MessageDetail/draftMessageDetail';
 
 export const DraftMessages = () => {
   const { t } = useTranslation();

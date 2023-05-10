@@ -1,38 +1,24 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import * as React from "react";
-import { useTranslation } from "react-i18next";
+import * as React from 'react';
+import { useTranslation } from 'react-i18next';
 import {
-  Button,
-  Menu,
-  MenuItem,
-  MenuList,
-  MenuPopover,
-  MenuTrigger,
-  Table,
-  TableBody,
-  TableCell,
-  TableCellLayout,
-  TableHeader,
-  TableHeaderCell,
-  TableRow,
-  useArrowNavigationGroup,
-} from "@fluentui/react-components";
+    Button, Menu, MenuItem, MenuList, MenuPopover, MenuTrigger, Table, TableBody, TableCell,
+    TableCellLayout, TableHeader, TableHeaderCell, TableRow, useArrowNavigationGroup
+} from '@fluentui/react-components';
 import {
-  DocumentRegular,
-  EditRegular,
-  MoreHorizontal24Filled,
-  OpenRegular,
-  SendRegular,
-  DeleteRegular,
-  DocumentCopyRegular,
-} from "@fluentui/react-icons";
-import * as microsoftTeams from "@microsoft/teams-js";
-import { GetDraftMessagesAction, GetSentMessagesAction } from "../../actions";
-import { useAppDispatch } from "../../store";
-import { deleteDraftNotification, duplicateDraftNotification, sendPreview } from "../../apis/messageListApi";
-import { getBaseUrl } from "../../configVariables";
+    DeleteRegular, DocumentCopyRegular, DocumentRegular, EditRegular, MoreHorizontal24Filled,
+    OpenRegular, SendRegular
+} from '@fluentui/react-icons';
+import * as microsoftTeams from '@microsoft/teams-js';
+import { GetDraftMessagesAction, GetSentMessagesAction } from '../../actions';
+import {
+    deleteDraftNotification, duplicateDraftNotification, sendPreview
+} from '../../apis/messageListApi';
+import { getBaseUrl } from '../../configVariables';
+import { ROUTE_PARTS, ROUTE_QUERY_PARAMS } from '../../routes';
+import { useAppDispatch } from '../../store';
 
 export interface ITaskInfo {
   title?: string;
@@ -51,15 +37,17 @@ export const DraftMessageDetail = (draftMessages: any) => {
   const [teamsChannelId, setTeamsChannelId] = React.useState("");
   const dispatch = useAppDispatch();
   const columns = [{ columnKey: "title", label: t("TitleText") }];
-  const sendUrl = (id: string) => getBaseUrl() + `/sendconfirmation/${id}?locale={locale}`;
-  const editUrl = (id: string) => getBaseUrl() + `/newmessage/${id}?locale={locale}`;
+  const sendUrl = (id: string) => getBaseUrl() + `/${ROUTE_PARTS.SEND_CONFIRMATION}/${id}?${ROUTE_QUERY_PARAMS.LOCALE}={locale}`;
+  const editUrl = (id: string) => getBaseUrl() + `/${ROUTE_PARTS.NEW_MESSAGE}/${id}?${ROUTE_QUERY_PARAMS.LOCALE}={locale}`;
 
-  React.useEffect(() => {
-    microsoftTeams.getContext((context: any) => {
-      setTeamsTeamId(context.teamId);
-      setTeamsChannelId(context.channelId);
+  React.useEffect(
+    () => {
+    microsoftTeams.getContext((context: microsoftTeams.Context) => {
+      setTeamsTeamId(context.teamId || "");
+      setTeamsChannelId(context.channelId || "");
     });
-  }, []);
+  },
+  []);
 
   let submitHandler = (err: any, result: any) => {
     GetDraftMessagesAction(dispatch);

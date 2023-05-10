@@ -16,6 +16,7 @@ import SignInPage from "./components/SignInPage/signInPage";
 import SignInSimpleEnd from "./components/SignInPage/signInSimpleEnd";
 import SignInSimpleStart from "./components/SignInPage/signInSimpleStart";
 import { StatusTaskModule } from "./components/StatusTaskModule/statusTaskModule";
+import { ROUTE_PARAMS, ROUTE_PARTS } from "./routes";
 
 export const App = () => {
   const [fluentUITheme, setFluentUITheme] = React.useState(teamsLightTheme);
@@ -23,12 +24,13 @@ export const App = () => {
 
   React.useEffect(() => {
     microsoftTeams.getContext((context: microsoftTeams.Context) => {
-      let theme = context.theme || "default";
+      const theme = context.theme || "default";
       setLocale(context.locale);
       i18n.changeLanguage(context.locale);
       updateTheme(theme);
     });
-    microsoftTeams.registerOnThemeChangeHandler((theme: any) => {
+
+    microsoftTeams.registerOnThemeChangeHandler((theme: string) => {
       updateTheme(theme);
     });
   }, []);
@@ -50,23 +52,25 @@ export const App = () => {
   return (
     <FluentProvider theme={fluentUITheme} dir={i18n.dir(locale)}>
       <Suspense fallback={<div></div>}>
-        <div className="appContainer">
-          <BrowserRouter>
-            <Switch>
-              <Route exact path="/configtab" component={Configuration} />
-              <Route exact path="/messages" render={() => <MainContainer theme={fluentUITheme} />} />
-              <Route exact path="/newmessage" component={NewMessage} />
-              <Route exact path="/newmessage/:id" component={NewMessage} />
-              <Route exact path="/viewstatus/:id" component={StatusTaskModule} />
-              <Route exact path="/sendconfirmation/:id" component={SendConfirmationTaskModule} />
-              <Route exact path="/errorpage" component={ErrorPage} />
-              <Route exact path="/errorpage/:id" component={ErrorPage} />
-              <Route exact path="/signin" component={SignInPage} />
-              <Route exact path="/signin-simple-start" component={SignInSimpleStart} />
-              <Route exact path="/signin-simple-end" component={SignInSimpleEnd} />
-            </Switch>
-          </BrowserRouter>
-        </div>
+        <BrowserRouter>
+          <Switch>
+            <Route exact path={`/${ROUTE_PARTS.CONFIG_TAB}`} component={Configuration} />
+            <Route exact path={`/${ROUTE_PARTS.MESSAGES}`} render={() => <MainContainer theme={fluentUITheme} />} />
+            <Route exact path={`/${ROUTE_PARTS.NEW_MESSAGE}`} component={NewMessage} />
+            <Route exact path={`/${ROUTE_PARTS.NEW_MESSAGE}/:${ROUTE_PARAMS.ID}`} component={NewMessage} />
+            <Route exact path={`/${ROUTE_PARTS.VIEW_STATUS}/:${ROUTE_PARAMS.ID}`} component={StatusTaskModule} />
+            <Route
+              exact
+              path={`/${ROUTE_PARTS.SEND_CONFIRMATION}/:${ROUTE_PARAMS.ID}`}
+              component={SendConfirmationTaskModule}
+            />
+            <Route exact path={`/${ROUTE_PARTS.ERROR_PAGE}`} component={ErrorPage} />
+            <Route exact path={`/${ROUTE_PARTS.ERROR_PAGE}/:${ROUTE_PARAMS.ID}`} component={ErrorPage} />
+            <Route exact path={`/${ROUTE_PARTS.SIGN_IN}`} component={SignInPage} />
+            <Route exact path={`/${ROUTE_PARTS.SIGN_IN_SIMPLE_START}`} component={SignInSimpleStart} />
+            <Route exact path={`/${ROUTE_PARTS.SIGN_IN_SIMPLE_END}`} component={SignInSimpleEnd} />
+          </Switch>
+        </BrowserRouter>
       </Suspense>
     </FluentProvider>
   );

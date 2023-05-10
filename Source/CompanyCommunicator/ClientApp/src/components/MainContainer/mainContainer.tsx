@@ -1,27 +1,22 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import "./mainContainer.scss";
-import * as React from "react";
-import { useTranslation } from "react-i18next";
+import './mainContainer.scss';
+import * as React from 'react';
+import { useTranslation } from 'react-i18next';
 import {
-  Accordion,
-  AccordionHeader,
-  AccordionItem,
-  AccordionPanel,
-  Button,
-  Divider,
-  Link,
-  Theme,
-  teamsLightTheme,
-} from "@fluentui/react-components";
-import { ChatMultiple24Regular, PersonFeedback24Regular, QuestionCircle24Regular } from "@fluentui/react-icons";
-import * as microsoftTeams from "@microsoft/teams-js";
-import { GetDraftMessagesAction } from "../../actions";
-import { getBaseUrl } from "../../configVariables";
-import { useAppDispatch } from "../../store";
-import { DraftMessages } from "../DraftMessages/draftMessages";
-import { Messages } from "../Messages/messages";
+    Accordion, AccordionHeader, AccordionItem, AccordionPanel, Button, Divider, Link,
+    teamsLightTheme, Theme
+} from '@fluentui/react-components';
+import {
+    ChatMultiple24Regular, PersonFeedback24Regular, QuestionCircle24Regular
+} from '@fluentui/react-icons';
+import * as microsoftTeams from '@microsoft/teams-js';
+import { GetDraftMessagesAction } from '../../actions';
+import { getBaseUrl } from '../../configVariables';
+import { useAppDispatch } from '../../store';
+import { DraftMessages } from '../DraftMessages/draftMessages';
+import { Messages } from '../Messages/messages';
 
 interface ITaskInfo {
   title?: string;
