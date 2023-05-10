@@ -1,33 +1,41 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import './statusTaskModule.scss';
+import "./statusTaskModule.scss";
 
-import * as AdaptiveCards from 'adaptivecards';
-import { TooltipHost } from 'office-ui-fabric-react';
-import * as React from 'react';
-import { useTranslation } from 'react-i18next';
-import { useParams } from 'react-router-dom';
+import * as AdaptiveCards from "adaptivecards";
+import { TooltipHost } from "office-ui-fabric-react";
+import * as React from "react";
+import { useTranslation } from "react-i18next";
+import { useParams } from "react-router-dom";
+
+import { AcceptIcon, DownloadIcon, Flex } from "@fluentui/react-northstar";
+
+import * as microsoftTeams from "@microsoft/teams-js";
+
+import { exportNotification, getSentNotification } from "../../apis/messageListApi";
+import { formatDate, formatDuration, formatNumber } from "../../i18n";
+import { ImageUtil } from "../../utility/imageutility";
+
+import { Button, MenuItem, MenuList, Text, Image, Spinner } from "@fluentui/react-components";
+
+import parse from 'html-react-parser';
 
 import {
-    AcceptIcon, Button, DownloadIcon, Flex, Image, List, Loader
-} from '@fluentui/react-northstar';
-
-import * as microsoftTeams from '@microsoft/teams-js';
-
-import { exportNotification, getSentNotification } from '../../apis/messageListApi';
-import { formatDate, formatDuration, formatNumber } from '../../i18n';
-import { ImageUtil } from '../../utility/imageutility';
-import {
-    getInitAdaptiveCard, setCardAuthor, setCardBtn, setCardImageLink, setCardSummary, setCardTitle
-} from '../AdaptiveCard/adaptiveCard';
+  getInitAdaptiveCard,
+  setCardAuthor,
+  setCardBtn,
+  setCardImageLink,
+  setCardSummary,
+  setCardTitle,
+} from "../AdaptiveCard/adaptiveCard";
 
 export interface IListItem {
   header: string;
   media: JSX.Element;
 }
 
-export interface IMessage {
+export interface IMessageState {
   id: string;
   title: string;
   acknowledgements?: string;
@@ -54,76 +62,92 @@ export interface IMessage {
   canDownload?: boolean;
   sendingCompleted?: boolean;
   createdBy?: string;
+
+  isMsgDataUpdated: boolean;
 }
 
 export interface IStatusState {
-  message: IMessage;
-  loader: boolean;
   page: string;
   teamId?: string;
+  isTeamDataUpdated: boolean;
 }
+
+let card: any;
+let renderCard: any;
 
 export const StatusTaskModule = () => {
   const { t } = useTranslation();
-  const {id} = useParams() as any;
-  const [messageState, setMessageState] = React.useState<IStatusState>({
-    message: { id: "", title: "" },
-    loader: true,
-    page: "ViewStatus",
-    teamId: "",
+  const { id } = useParams() as any;
+  const [loader, setLoader] = React.useState(true);
+  const [isCardReady, setIsCardReady] = React.useState(false);
+
+  const [messageState, setMessageState] = React.useState<IMessageState>({
+    id: "",
+    title: "",
+    isMsgDataUpdated: false,
   });
 
-  let card: any;
+  const [statusState, setStatusState] = React.useState<IStatusState>({
+    page: "ViewStatus",
+    teamId: "",
+    isTeamDataUpdated: false,
+  });
 
   React.useEffect(() => {
-    card = getInitAdaptiveCard(t);
-    initialLoad();
+    microsoftTeams.getContext((context) => {
+      setStatusState({ ...statusState, teamId: context.teamId, isTeamDataUpdated: true });
+    });
   }, []);
 
-  const initialLoad = () => {
-    microsoftTeams.getContext((context) => {
-      setMessageState({ ...messageState, teamId: context.teamId });
-    });
-
+  React.useEffect(() => {
     if (id) {
-      getItem(id).then(() => {
-        setMessageState({ ...messageState, loader: false });
+      getMessage(id);
+    }
+  }, [id]);
 
-        setCardTitle(card, messageState.message.title);
-        setCardImageLink(card, messageState.message.imageLink);
-        setCardSummary(card, messageState.message.summary);
-        setCardAuthor(card, messageState.message.author);
-        if (messageState.message.buttonTitle !== "" && messageState.message.buttonLink !== "") {
-          setCardBtn(card, messageState.message.buttonTitle, messageState.message.buttonLink);
-        }
-
-        let adaptiveCard = new AdaptiveCards.AdaptiveCard();
-        adaptiveCard.parse(card);
-        let renderedCard = adaptiveCard.render();
-        document.getElementsByClassName("adaptiveCardContainer")[0].appendChild(renderedCard);
-        let link = messageState.message.buttonLink;
+  React.useEffect(() => {
+    if (isCardReady && messageState.isMsgDataUpdated) {
+      var adaptiveCard = new AdaptiveCards.AdaptiveCard();
+      adaptiveCard.parse(card);
+      renderCard = adaptiveCard.render();
+      if (messageState.buttonLink) {
+        let link = messageState.buttonLink;
         adaptiveCard.onExecuteAction = function (action) {
           window.open(link, "_blank");
         };
-      });
+      }
+      setLoader(false);
     }
-  };
+  }, [isCardReady, messageState.isMsgDataUpdated]);
 
-  const getItem = async (id: number) => {
+  const getMessage = async (id: number) => {
     try {
-      const response = await getSentNotification(id);
-      response.data.sendingDuration = formatDuration(response.data.sendingStartedDate, response.data.sentDate);
-      response.data.sendingStartedDate = formatDate(response.data.sendingStartedDate);
-      response.data.sentDate = formatDate(response.data.sentDate);
-      response.data.succeeded = formatNumber(response.data.succeeded);
-      response.data.failed = formatNumber(response.data.failed);
-      response.data.unknown = response.data.unknown && formatNumber(response.data.unknown);
-      response.data.canceled = response.data.canceled && formatNumber(response.data.canceled);
-      // response.data.createdBy = response.data.createdBy;
-      setMessageState({ ...messageState, message: response.data });
+      await getSentNotification(id).then((response) => {
+        updateCardData(response.data);
+        response.data.sendingDuration = formatDuration(response.data.sendingStartedDate, response.data.sentDate);
+        response.data.sendingStartedDate = formatDate(response.data.sendingStartedDate);
+        response.data.sentDate = formatDate(response.data.sentDate);
+        response.data.succeeded = formatNumber(response.data.succeeded);
+        response.data.failed = formatNumber(response.data.failed);
+        response.data.unknown = response.data.unknown && formatNumber(response.data.unknown);
+        response.data.canceled = response.data.canceled && formatNumber(response.data.canceled);
+        setMessageState({ ...response.data, isMsgDataUpdated: true });
+      });
     } catch (error) {
       return error;
     }
+  };
+
+  const updateCardData = (msg: IMessageState) => {
+    card = getInitAdaptiveCard(t);
+    setCardTitle(card, msg.title);
+    setCardImageLink(card, msg.imageLink);
+    setCardSummary(card, msg.summary);
+    setCardAuthor(card, msg.author);
+    if (msg.buttonTitle && msg.buttonLink) {
+      setCardBtn(card, msg.buttonTitle, msg.buttonLink);
+    }
+    setIsCardReady(true);
   };
 
   const onClose = () => {
@@ -134,56 +158,52 @@ export const StatusTaskModule = () => {
     let spanner = document.getElementsByClassName("sendingLoader");
     spanner[0].classList.remove("hiddenLoader");
     let payload = {
-      id: messageState.message.id,
-      teamId: messageState.teamId,
+      id: messageState.id,
+      teamId: statusState.teamId,
     };
     await exportNotification(payload)
       .then(() => {
-        setMessageState({ ...messageState, page: "SuccessPage" });
+        setStatusState({ ...statusState, page: "SuccessPage" });
       })
       .catch(() => {
-        setMessageState({ ...messageState, page: "ErrorPage" });
+        setStatusState({ ...statusState, page: "ErrorPage" });
       });
   };
 
   const getItemList = (items: string[]) => {
-    let resultedTeams: IListItem[] = [];
+    let resultedTeams: any[] = [];
     if (items) {
-      resultedTeams = items.map((element) => {
-        const resultedTeam: IListItem = {
-          header: element,
-          media: <Image src={ImageUtil.makeInitialImage(element)} avatar />,
-        };
-        return resultedTeam;
+      items.map((element) => {
+        resultedTeams.push(<MenuItem icon={<Image src={ImageUtil.makeInitialImage(element)} />}>{element}</MenuItem>);
       });
     }
     return resultedTeams;
   };
 
   const renderAudienceSelection = () => {
-    if (messageState.message.teamNames && messageState.message.teamNames.length > 0) {
+    if (messageState.teamNames && messageState.teamNames.length > 0) {
       return (
         <div>
           <h3>{t("SentToGeneralChannel")}</h3>
-          <List items={getItemList(messageState.message.teamNames)} />
+          <MenuList>{getItemList(messageState.teamNames)}</MenuList>
         </div>
       );
-    } else if (messageState.message.rosterNames && messageState.message.rosterNames.length > 0) {
+    } else if (messageState.rosterNames && messageState.rosterNames.length > 0) {
       return (
         <div>
           <h3>{t("SentToRosters")}</h3>
-          <List items={getItemList(messageState.message.rosterNames)} />
+          <MenuList>{getItemList(messageState.rosterNames)}</MenuList>
         </div>
       );
-    } else if (messageState.message.groupNames && messageState.message.groupNames.length > 0) {
+    } else if (messageState.groupNames && messageState.groupNames.length > 0) {
       return (
         <div>
           <h3>{t("SentToGroups1")}</h3>
           <span>{t("SentToGroups2")}</span>
-          <List items={getItemList(messageState.message.groupNames)} />
+          <MenuList>{getItemList(messageState.groupNames)}</MenuList>
         </div>
       );
-    } else if (messageState.message.allUsers) {
+    } else if (messageState.allUsers) {
       return (
         <div>
           <h3>{t("SendToAllUsers")}</h3>
@@ -195,11 +215,11 @@ export const StatusTaskModule = () => {
   };
 
   const renderErrorMessage = () => {
-    if (messageState.message.errorMessage) {
+    if (messageState.errorMessage) {
       return (
         <div>
           <h3>{t("Errors")}</h3>
-          <span>{messageState.message.errorMessage}</span>
+          <span>{messageState.errorMessage}</span>
         </div>
       );
     } else {
@@ -208,11 +228,11 @@ export const StatusTaskModule = () => {
   };
 
   const renderWarningMessage = () => {
-    if (messageState.message.warningMessage) {
+    if (messageState.warningMessage) {
       return (
         <div>
           <h3>{t("Warnings")}</h3>
-          <span>{messageState.message.warningMessage}</span>
+          <span>{messageState.warningMessage}</span>
         </div>
       );
     } else {
@@ -222,12 +242,12 @@ export const StatusTaskModule = () => {
 
   return (
     <>
-      {messageState.loader && (
+      {loader && (
         <div className="Loader">
-          <Loader />
+          <Spinner />
         </div>
       )}
-      {!messageState.loader && messageState.page === "ViewStatus" && (
+      {!loader && statusState.page === "ViewStatus" && (
         <div className="taskModule">
           <Flex column className="formContainer" vAlign="stretch" gap="gap.small">
             <Flex className="scrollableContent">
@@ -235,39 +255,39 @@ export const StatusTaskModule = () => {
                 <Flex column>
                   <div className="contentField">
                     <h3>{t("TitleText")}</h3>
-                    <span>{messageState.message.title}</span>
+                    <span>{messageState.title}</span>
                   </div>
                   <div className="contentField">
                     <h3>{t("SendingStarted")}</h3>
-                    <span>{messageState.message.sendingStartedDate}</span>
+                    <span>{messageState.sendingStartedDate}</span>
                   </div>
                   <div className="contentField">
                     <h3>{t("Completed")}</h3>
-                    <span>{messageState.message.sentDate}</span>
+                    <span>{messageState.sentDate}</span>
                   </div>
                   <div className="contentField">
                     <h3>{t("Created By")}</h3>
-                    <span>{messageState.message.createdBy}</span>
+                    <span>{messageState.createdBy}</span>
                   </div>
                   <div className="contentField">
                     <h3>{t("Duration")}</h3>
-                    <span>{messageState.message.sendingDuration}</span>
+                    <span>{messageState.sendingDuration}</span>
                   </div>
                   <div className="contentField">
                     <h3>{t("Results")}</h3>
-                    <label>{t("Success", { SuccessCount: messageState.message.succeeded })}</label>
+                    <label>{t("Success", { SuccessCount: messageState.succeeded })}</label>
                     <br />
-                    <label>{t("Failure", { FailureCount: messageState.message.failed })}</label>
-                    {messageState.message.canceled && (
+                    <label>{t("Failure", { FailureCount: messageState.failed })}</label>
+                    {messageState.canceled && (
                       <>
                         <br />
-                        <label>{t("Canceled", { CanceledCount: messageState.message.canceled })}</label>
+                        <label>{t("Canceled", { CanceledCount: messageState.canceled })}</label>
                       </>
                     )}
-                    {messageState.message.unknown && (
+                    {messageState.unknown && (
                       <>
                         <br />
-                        <label>{t("Unknown", { UnknownCount: messageState.message.unknown })}</label>
+                        <label>{t("Unknown", { UnknownCount: messageState.unknown })}</label>
                       </>
                     )}
                   </div>
@@ -277,27 +297,27 @@ export const StatusTaskModule = () => {
                 </Flex>
               </Flex.Item>
               <Flex.Item size="size.half">
-                <div className="adaptiveCardContainer"></div>
+                <div className="adaptiveCardContainer">{parse(renderCard.outerHTML)}</div>
               </Flex.Item>
             </Flex>
             <Flex className="footerContainer" vAlign="end" hAlign="end">
-              <div className={messageState.message.canDownload ? "" : "disabled"}>
+              <div className={messageState.canDownload ? "" : "disabled"}>
                 <Flex className="buttonContainer" gap="gap.small">
                   <Flex.Item push>
-                    <Loader
+                    <Spinner
                       id="sendingLoader"
                       className="hiddenLoader sendingLoader"
-                      size="smallest"
+                      size="small"
                       label={t("ExportLabel")}
-                      labelPosition="end"
+                      labelPosition="after"
                     />
                   </Flex.Item>
                   <Flex.Item>
                     <TooltipHost
                       content={
-                        !messageState.message.sendingCompleted
+                        !messageState.sendingCompleted
                           ? ""
-                          : messageState.message.canDownload
+                          : messageState.canDownload
                           ? ""
                           : t("ExportButtonProgressText")
                       }
@@ -305,12 +325,13 @@ export const StatusTaskModule = () => {
                     >
                       <Button
                         icon={<DownloadIcon size="medium" />}
-                        disabled={!messageState.message.canDownload || !messageState.message.sendingCompleted}
-                        content={t("ExportButtonText")}
+                        disabled={!messageState.canDownload || !messageState.sendingCompleted}
                         id="exportBtn"
                         onClick={onExport}
-                        primary
-                      />
+                        appearance="primary"
+                      >
+                        {t("ExportButtonText")}
+                      </Button>
                     </TooltipHost>
                   </Flex.Item>
                 </Flex>
@@ -319,7 +340,7 @@ export const StatusTaskModule = () => {
           </Flex>
         </div>
       )}
-      {!messageState.loader && messageState.page === "SuccessPage" && (
+      {!loader && statusState.page === "SuccessPage" && (
         <div className="taskModule">
           <Flex column className="formContainer" vAlign="stretch" gap="gap.small">
             <div className="displayMessageField">
@@ -340,13 +361,13 @@ export const StatusTaskModule = () => {
             </div>
             <Flex className="footerContainer" vAlign="end" hAlign="end" gap="gap.small">
               <Flex className="buttonContainer">
-                <Button content={t("CloseText")} id="closeBtn" onClick={onClose} primary />
+                <Button id="closeBtn" onClick={onClose} appearance="primary">{t("CloseText")}</Button>
               </Flex>
             </Flex>
           </Flex>
         </div>
       )}
-      {!messageState.loader && messageState.page !== "ViewStatus" && messageState.page !== "SuccessPage" && (
+      {!loader && statusState.page !== "ViewStatus" && statusState.page !== "SuccessPage" && (
         <div className="taskModule">
           <Flex column className="formContainer" vAlign="stretch" gap="gap.small">
             <div className="displayMessageField">
@@ -360,7 +381,9 @@ export const StatusTaskModule = () => {
             </div>
             <Flex className="footerContainer" vAlign="end" hAlign="end" gap="gap.small">
               <Flex className="buttonContainer">
-                <Button content={t("CloseText")} id="closeBtn" onClick={onClose} primary />
+                <Button id="closeBtn" onClick={onClose} appearance="primary">
+                  {t("CloseText")}
+                </Button>
               </Flex>
             </Flex>
           </Flex>
