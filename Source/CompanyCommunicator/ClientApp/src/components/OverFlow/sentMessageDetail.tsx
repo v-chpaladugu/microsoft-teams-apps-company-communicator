@@ -44,6 +44,12 @@ export const SentMessageDetail = (sentMessages: any) => {
   const keyboardNavAttr = useArrowNavigationGroup({ axis: "grid" });
   const statusUrl = (id: string) => getBaseUrl() + `/viewstatus/${id}?locale={locale}`;
 
+  React.useEffect(() => {
+    microsoftTeams.getContext((context: any) => {
+       // Just getting context...
+    });
+  }, []);
+
   const columns = [
     { columnKey: "title", label: t("TitleText") },
     { columnKey: "status", label: "Status" },
