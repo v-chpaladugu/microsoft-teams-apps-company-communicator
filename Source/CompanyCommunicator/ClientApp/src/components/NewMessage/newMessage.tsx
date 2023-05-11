@@ -2,28 +2,33 @@
 // Licensed under the MIT License.
 
 import "./newMessage.scss";
-import "./teamTheme.scss";
 
 import * as AdaptiveCards from "adaptivecards";
-import { Icon, TooltipHost } from "office-ui-fabric-react";
 import * as React from "react";
-import { useTranslation, WithTranslation } from "react-i18next";
-import { RouteComponentProps } from "react-router-dom";
-
-import { Spinner } from "@fluentui/react-components";
-import { Button, Dropdown, Flex, Input, Loader, RadioGroup, Text, TextArea } from "@fluentui/react-northstar";
+import { useTranslation } from "react-i18next";
+import { useParams } from "react-router-dom";
+import {
+  Spinner,
+  Field,
+  Input,
+  Button,
+  Textarea,
+  RadioGroup,
+  Radio,
+  Label,
+  Combobox,
+  Option,
+} from "@fluentui/react-components";
 import * as microsoftTeams from "@microsoft/teams-js";
-
+import { GetGroupsAction, GetTeamsDataAction, VerifyGroupAccessAction } from "../../actions";
 import {
   createDraftNotification,
   getDraftNotification,
-  getGroups,
-  getTeams,
   searchGroups,
   updateDraftNotification,
-  verifyGroupAccess,
 } from "../../apis/messageListApi";
 import { getBaseUrl } from "../../configVariables";
+import { RootState, useAppDispatch, useAppSelector } from "../../store";
 import { ImageUtil } from "../../utility/imageutility";
 import {
   getInitAdaptiveCard,
@@ -33,7 +38,8 @@ import {
   setCardSummary,
   setCardTitle,
 } from "../AdaptiveCard/adaptiveCard";
-import { useParams } from 'react-router-dom';
+
+import parse from "html-react-parser";
 
 const validImageTypes = ["image/gif", "image/jpeg", "image/png", "image/jpg"];
 
@@ -47,7 +53,7 @@ type dropdownItem = {
   };
 };
 
-export interface IDraftMessage {
+export interface IDraftMessageState {
   id?: string;
   title: string;
   imageLink?: string;
@@ -80,7 +86,6 @@ export interface formState {
   exists?: boolean;
   messageId: string;
   loader: boolean;
-  groupAccess: boolean;
   loading: boolean;
   noResultMessage: string;
   unstablePinned?: boolean;
@@ -95,17 +100,20 @@ export interface formState {
   errorButtonUrlMessage: string;
 }
 
-export interface INewMessageProps extends RouteComponentProps, WithTranslation {
-  getDraftMessagesList?: any;
-}
+let card: any;
+// let renderCard: string = "<span></span>";
 
-export const NewMessage = (newMessageProps: INewMessageProps) => {
+export const NewMessage = () => {
+  let fileInput = React.createRef();
+  const MAX_SELECTED_TEAMS_NUM: number = 20;
   const { t } = useTranslation();
-  let card = getInitAdaptiveCard(t);
-  let fileInput: any;
-  // const [teams, setTeams] = React.useState(await getTeams());
-  const [loader, setLoader] = React.useState(false);
   const { id } = useParams() as any;
+  const teams = useAppSelector((state: RootState) => state.messages).teamsData.payload;
+  const groups = useAppSelector((state: RootState) => state.messages).groups.payload;
+  // const verifyGroupAccess = useAppSelector((state: RootState) => state.messages).verifyGroup.payload;
+  const [renderCard, setRenderCard] = React.useState("<span></span>");
+
+  const [loader, setLoader] = React.useState(false);
 
   const [formState, setFormState] = React.useState<formState>({
     title: "",
@@ -123,7 +131,6 @@ export const NewMessage = (newMessageProps: INewMessageProps) => {
     groupsOptionSelected: false,
     messageId: "",
     loader: true,
-    groupAccess: false,
     loading: false,
     noResultMessage: "",
     unstablePinned: true,
@@ -138,54 +145,107 @@ export const NewMessage = (newMessageProps: INewMessageProps) => {
     errorButtonUrlMessage: "",
   });
 
+  const dispatch = useAppDispatch();
+
   React.useEffect(() => {
+    GetTeamsDataAction(dispatch);
+    VerifyGroupAccessAction(dispatch);
+    card = getInitAdaptiveCard(t);
     setDefaultCard(card);
-    fileInput = React.createRef();
-    // handleImageSelection = handleImageSelection.bind(this);
-
-    document.addEventListener("keydown", escFunction, false);
-    // let params = props.match.params;
-    setGroupAccess();
-    getTeamList().then(() => {
-      if (id) {
-        // let id = params["id"];
-        getItem(id).then(() => {
-          const selectedTeams = makeDropdownItemList(formState.selectedTeams, formState.teams);
-          const selectedRosters = makeDropdownItemList(formState.selectedRosters, formState.teams);
-          setFormState({
-            ...formState,
-            exists: true,
-            messageId: id,
-            selectedTeams: selectedTeams,
-            selectedRosters: selectedRosters,
-          });
-        });
-        getGroupData(id).then(() => {
-          const selectedGroups = makeDropdownItems(formState.groups);
-          setFormState({ ...formState, selectedGroups: selectedGroups });
-        });
-      } else {
-        setFormState({ ...formState, exists: false, loader: false });
-
-        let adaptiveCard = new AdaptiveCards.AdaptiveCard();
-        adaptiveCard.parse(formState.card);
-        let renderedCard = adaptiveCard.render();
-        document.getElementsByClassName("adaptiveCardContainer")[0].appendChild(renderedCard);
-        if (formState.btnLink) {
-          let link = formState.btnLink;
-          adaptiveCard.onExecuteAction = function (action) {
-            window.open(link, "_blank");
-          };
-        }
-      }
-    });
+    updateAdaptiveCard();
   }, []);
 
-  // public async componentDidMount() {
-  //     // microsoftTeams.initialize();
-  //     //- Handle the Esc key
+  React.useEffect(() => {
+    if (id) {
+      GetGroupsAction(dispatch, id);
+      getDraftNotificationItem(id);
+    }
+  }, [id]);
 
-  // }
+  React.useEffect(() => {
+    if (teams) {
+      makeDropdownItemList(formState.selectedTeams, teams);
+      makeDropdownItemList(formState.selectedRosters, teams);
+    }
+  }, [teams, formState.selectedTeams, formState.selectedRosters]);
+
+  React.useEffect(() => {
+    if (groups) {
+      makeDropdownItems(groups);
+    }
+  }, [groups]);
+
+  const getDraftNotificationItem = async (id: number) => {
+    try {
+      await getDraftNotification(id).then((response) => {
+        const draftMessageDetail = response.data;
+        let selectedRadioButton = "teams";
+        if (draftMessageDetail.rosters.length > 0) {
+          selectedRadioButton = "rosters";
+        } else if (draftMessageDetail.groups.length > 0) {
+          selectedRadioButton = "groups";
+        } else if (draftMessageDetail.allUsers) {
+          selectedRadioButton = "allUsers";
+        }
+        setFormState({
+          ...formState,
+          teamsOptionSelected: draftMessageDetail.teams.length > 0,
+          selectedTeamsNum: draftMessageDetail.teams.length,
+          rostersOptionSelected: draftMessageDetail.rosters.length > 0,
+          selectedRostersNum: draftMessageDetail.rosters.length,
+          groupsOptionSelected: draftMessageDetail.groups.length > 0,
+          selectedGroupsNum: draftMessageDetail.groups.length,
+          selectedRadioBtn: selectedRadioButton,
+          selectedTeams: draftMessageDetail.teams,
+          selectedRosters: draftMessageDetail.rosters,
+          selectedGroups: draftMessageDetail.groups,
+          title: draftMessageDetail.title,
+          summary: draftMessageDetail.summary,
+          btnLink: draftMessageDetail.buttonLink,
+          imageLink: draftMessageDetail.imageLink,
+          btnTitle: draftMessageDetail.buttonTitle,
+          author: draftMessageDetail.author,
+          allUsersOptionSelected: draftMessageDetail.allUsers,
+        });
+
+        setCardTitle(card, draftMessageDetail.title);
+        setCardImageLink(card, draftMessageDetail.imageLink);
+        setCardSummary(card, draftMessageDetail.summary);
+        setCardAuthor(card, draftMessageDetail.author);
+        setCardBtn(card, draftMessageDetail.buttonTitle, draftMessageDetail.buttonLink);
+
+        updateAdaptiveCard();
+      });
+    } catch (error) {
+      return error;
+    }
+  };
+
+  const setDefaultCard = (card: any) => {
+    const titleAsString = t("TitleText");
+    const summaryAsString = t("Summary");
+    const authorAsString = t("Author1");
+    const buttonTitleAsString = t("ButtonTitle");
+
+    setCardTitle(card, titleAsString);
+    let imgUrl = getBaseUrl() + "/image/imagePlaceholder.png";
+    setCardImageLink(card, imgUrl);
+    setCardSummary(card, summaryAsString);
+    setCardAuthor(card, authorAsString);
+    setCardBtn(card, buttonTitleAsString, "https://adaptivecards.io");
+  };
+
+  const updateAdaptiveCard = () => {
+    let adaptiveCard = new AdaptiveCards.AdaptiveCard();
+    adaptiveCard.parse(card);
+    if (formState.btnLink) {
+      let link = formState.btnLink;
+      adaptiveCard.onExecuteAction = function (action) {
+        window.open(link, "_blank");
+      };
+    }
+    setRenderCard(adaptiveCard.render().outerHTML);
+  };
 
   const makeDropdownItems = (items: any[] | undefined) => {
     const resultedTeams: dropdownItem[] = [];
@@ -224,29 +284,6 @@ export const NewMessage = (newMessageProps: INewMessageProps) => {
     return dropdownItemList;
   };
 
-  const setDefaultCard = (card: any) => {
-    const titleAsString = t("TitleText");
-    const summaryAsString = t("Summary");
-    const authorAsString = t("Author1");
-    const buttonTitleAsString = t("ButtonTitle");
-
-    setCardTitle(card, titleAsString);
-    let imgUrl = getBaseUrl() + "/image/imagePlaceholder.png";
-    setCardImageLink(card, imgUrl);
-    setCardSummary(card, summaryAsString);
-    setCardAuthor(card, authorAsString);
-    setCardBtn(card, buttonTitleAsString, "https://adaptivecards.io");
-  };
-
-  const getTeamList = async () => {
-    try {
-      const response = await getTeams();
-      setFormState({ ...formState, teams: response.data });
-    } catch (error) {
-      return error;
-    }
-  };
-
   const getGroupItems = () => {
     if (formState.groups) {
       return makeDropdownItems(formState.groups);
@@ -255,83 +292,9 @@ export const NewMessage = (newMessageProps: INewMessageProps) => {
     return dropdownItems;
   };
 
-  const setGroupAccess = async () => {
-    await verifyGroupAccess()
-      .then(() => {
-        setFormState({ ...formState, groupAccess: true });
-      })
-      .catch((error) => {
-        const errorStatus = error.response.status;
-        if (errorStatus === 403) {
-          setFormState({ ...formState, groupAccess: false });
-        } else {
-          throw error;
-        }
-      });
-  };
-
-  const getGroupData = async (id: number) => {
-    try {
-      const response = await getGroups(id);
-      setFormState({ ...formState, groups: response.data });
-    } catch (error) {
-      return error;
-    }
-  };
-
-  const getItem = async (id: number) => {
-    try {
-      const response = await getDraftNotification(id);
-      const draftMessageDetail = response.data;
-      let selectedRadioButton = "teams";
-      if (draftMessageDetail.rosters.length > 0) {
-        selectedRadioButton = "rosters";
-      } else if (draftMessageDetail.groups.length > 0) {
-        selectedRadioButton = "groups";
-      } else if (draftMessageDetail.allUsers) {
-        selectedRadioButton = "allUsers";
-      }
-      setFormState({
-        ...formState,
-        teamsOptionSelected: draftMessageDetail.teams.length > 0,
-        selectedTeamsNum: draftMessageDetail.teams.length,
-        rostersOptionSelected: draftMessageDetail.rosters.length > 0,
-        selectedRostersNum: draftMessageDetail.rosters.length,
-        groupsOptionSelected: draftMessageDetail.groups.length > 0,
-        selectedGroupsNum: draftMessageDetail.groups.length,
-        selectedRadioBtn: selectedRadioButton,
-        selectedTeams: draftMessageDetail.teams,
-        selectedRosters: draftMessageDetail.rosters,
-        selectedGroups: draftMessageDetail.groups,
-      });
-
-      setCardTitle(card, draftMessageDetail.title);
-      setCardImageLink(card, draftMessageDetail.imageLink);
-      setCardSummary(card, draftMessageDetail.summary);
-      setCardAuthor(card, draftMessageDetail.author);
-      setCardBtn(card, draftMessageDetail.buttonTitle, draftMessageDetail.buttonLink);
-
-      setFormState({
-        ...formState,
-        title: draftMessageDetail.title,
-        summary: draftMessageDetail.summary,
-        btnLink: draftMessageDetail.buttonLink,
-        imageLink: draftMessageDetail.imageLink,
-        btnTitle: draftMessageDetail.buttonTitle,
-        author: draftMessageDetail.author,
-        allUsersOptionSelected: draftMessageDetail.allUsers,
-        loader: false,
-      });
-
-      updateCard();
-    } catch (error) {
-      return error;
-    }
-  };
-
   const handleUploadClick = (event: any) => {
     if (fileInput.current) {
-      fileInput.current.click();
+      // fileInput.current.click();
     }
   };
 
@@ -344,59 +307,59 @@ export const NewMessage = (newMessageProps: INewMessageProps) => {
     else return false;
   };
 
-  const handleImageSelection = () => {
-    const file = fileInput.current.files[0];
+  // const handleImageSelection = () => {
+  //   const file = fileInput.current.files[0];
 
-    if (file) {
-      const fileType = file["type"];
-      const { type: mimeType } = file;
+  //   if (file) {
+  //     const fileType = file["type"];
+  //     const { type: mimeType } = file;
 
-      if (!validImageTypes.includes(fileType)) {
-        setFormState({ ...formState, errorImageUrlMessage: t("ErrorImageTypesMessage") });
-        return;
-      }
+  //     if (!validImageTypes.includes(fileType)) {
+  //       setFormState({ ...formState, errorImageUrlMessage: t("ErrorImageTypesMessage") });
+  //       return;
+  //     }
 
-      setFormState({ ...formState, localImagePath: file["name"] });
-      setFormState({ ...formState, errorImageUrlMessage: "" });
+  //     setFormState({ ...formState, localImagePath: file["name"] });
+  //     setFormState({ ...formState, errorImageUrlMessage: "" });
 
-      const fileReader = new FileReader();
-      fileReader.readAsDataURL(file);
-      fileReader.onload = () => {
-        var image = new Image();
-        image.src = fileReader.result as string;
-        var resizedImageAsBase64 = fileReader.result as string;
+  //     const fileReader = new FileReader();
+  //     fileReader.readAsDataURL(file);
+  //     fileReader.onload = () => {
+  //       var image = new Image();
+  //       image.src = fileReader.result as string;
+  //       var resizedImageAsBase64 = fileReader.result as string;
 
-        image.onload = function (e: any) {
-          const MAX_WIDTH = 1024;
+  //       image.onload = function (e: any) {
+  //         const MAX_WIDTH = 1024;
 
-          if (image.width > MAX_WIDTH) {
-            const canvas = document.createElement("canvas");
-            canvas.width = MAX_WIDTH;
-            canvas.height = ~~(image.height * (MAX_WIDTH / image.width));
-            const context = canvas.getContext("2d", { alpha: false });
-            if (!context) {
-              return;
-            }
-            context.drawImage(image, 0, 0, canvas.width, canvas.height);
-            resizedImageAsBase64 = canvas.toDataURL(mimeType);
-          }
-        };
+  //         if (image.width > MAX_WIDTH) {
+  //           const canvas = document.createElement("canvas");
+  //           canvas.width = MAX_WIDTH;
+  //           canvas.height = ~~(image.height * (MAX_WIDTH / image.width));
+  //           const context = canvas.getContext("2d", { alpha: false });
+  //           if (!context) {
+  //             return;
+  //           }
+  //           context.drawImage(image, 0, 0, canvas.width, canvas.height);
+  //           resizedImageAsBase64 = canvas.toDataURL(mimeType);
+  //         }
+  //       };
 
-        if (!checkValidSizeOfImage(resizedImageAsBase64)) {
-          setFormState({ ...formState, errorImageUrlMessage: t("ErrorImageSizeMessage") });
-          return;
-        }
+  //       if (!checkValidSizeOfImage(resizedImageAsBase64)) {
+  //         setFormState({ ...formState, errorImageUrlMessage: t("ErrorImageSizeMessage") });
+  //         return;
+  //       }
 
-        setCardImageLink(card, resizedImageAsBase64);
-        updateCard();
-        setFormState({ ...formState, imageLink: resizedImageAsBase64 });
-      };
+  //       setCardImageLink(card, resizedImageAsBase64);
+  //       updateCard();
+  //       setFormState({ ...formState, imageLink: resizedImageAsBase64 });
+  //     };
 
-      fileReader.onerror = (error) => {
-        //reject(error);
-      };
-    }
-  };
+  //     fileReader.onerror = (error) => {
+  //       //reject(error);
+  //     };
+  //   }
+  // };
 
   const onGroupSelected = (event: any, data: any) => {
     setFormState({
@@ -467,8 +430,6 @@ export const NewMessage = (newMessageProps: INewMessageProps) => {
     }
     return resultedTeams;
   };
-
-  const MAX_SELECTED_TEAMS_NUM: number = 20;
 
   const onTeamsChange = (event: any, itemsData: any) => {
     if (itemsData.value.length > MAX_SELECTED_TEAMS_NUM) return;
@@ -554,7 +515,7 @@ export const NewMessage = (newMessageProps: INewMessageProps) => {
     formState.selectedRosters.forEach((x) => selctedRosters.push(x.team.id));
     formState.selectedGroups.forEach((x) => selectedGroups.push(x.team.id));
 
-    const draftMessage: IDraftMessage = {
+    const draftMessage: IDraftMessageState = {
       id: formState.messageId,
       title: formState.title,
       imageLink: formState.imageLink,
@@ -582,7 +543,7 @@ export const NewMessage = (newMessageProps: INewMessageProps) => {
     }
   };
 
-  const editDraftMessage = async (draftMessage: IDraftMessage) => {
+  const editDraftMessage = async (draftMessage: IDraftMessageState) => {
     try {
       await updateDraftNotification(draftMessage);
     } catch (error) {
@@ -590,7 +551,7 @@ export const NewMessage = (newMessageProps: INewMessageProps) => {
     }
   };
 
-  const postDraftMessage = async (draftMessage: IDraftMessage) => {
+  const postDraftMessage = async (draftMessage: IDraftMessageState) => {
     try {
       await createDraftNotification(draftMessage);
     } catch (error) {
@@ -598,197 +559,79 @@ export const NewMessage = (newMessageProps: INewMessageProps) => {
     }
   };
 
-  const escFunction = (event: any) => {
-    if (event.keyCode === 27 || event.key === "Escape") {
-      microsoftTeams.tasks.submitTask();
-    }
-  };
-
   const onNext = (event: any) => {
     setFormState({ ...formState, page: "AudienceSelection" });
 
-    updateCard();
+    // updateCard();
   };
 
   const onBack = (event: any) => {
     setFormState({ ...formState, page: "CardCreation" });
-    updateCard();
+    // updateCard();
   };
 
   const onTitleChanged = (event: any) => {
-    let showDefaultCard =
-      !event.target.value &&
-      !formState.imageLink &&
-      !formState.summary &&
-      !formState.author &&
-      !formState.btnTitle &&
-      !formState.btnLink;
     setCardTitle(card, event.target.value);
-    setCardImageLink(card, formState.imageLink);
-    setCardSummary(card, formState.summary);
-    setCardAuthor(card, formState.author);
-    setCardBtn(card, formState.btnTitle, formState.btnLink);
-    setFormState({ ...formState, title: event.target.value, card: card });
-
-    if (showDefaultCard) {
-      setDefaultCard(card);
-    }
-    updateCard();
+    setFormState({ ...formState, title: event.target.value });
+    updateAdaptiveCard();
   };
 
   const onImageLinkChanged = (event: any) => {
-    let url = event.target.value.toLowerCase();
-    if (
-      !(
-        url === "" ||
-        url.startsWith("https://") ||
-        url.startsWith("data:image/png;base64,") ||
-        url.startsWith("data:image/jpeg;base64,") ||
-        url.startsWith("data:image/gif;base64,")
-      )
-    ) {
-      setFormState({ ...formState, errorImageUrlMessage: t("ErrorURLMessage") });
-    } else {
-      setFormState({ ...formState, errorImageUrlMessage: "" });
-    }
-
-    let showDefaultCard =
-      !formState.title &&
-      !event.target.value &&
-      !formState.summary &&
-      !formState.author &&
-      !formState.btnTitle &&
-      !formState.btnLink;
-    setCardTitle(card, formState.title);
-    setCardImageLink(card, event.target.value);
-    setCardSummary(card, formState.summary);
-    setCardAuthor(card, formState.author);
-    setCardBtn(card, formState.btnTitle, formState.btnLink);
-    setFormState({ ...formState, imageLink: event.target.value, card: card });
-    if (showDefaultCard) {
-      setDefaultCard(card);
-    }
-    updateCard();
+    // let url = event.target.value.toLowerCase();
+    // if (
+    //   !(
+    //     url === "" ||
+    //     url.startsWith("https://") ||
+    //     url.startsWith("data:image/png;base64,") ||
+    //     url.startsWith("data:image/jpeg;base64,") ||
+    //     url.startsWith("data:image/gif;base64,")
+    //   )
+    // ) {
+    //   setFormState({ ...formState, errorImageUrlMessage: t("ErrorURLMessage") });
+    // } else {
+    //   setFormState({ ...formState, errorImageUrlMessage: "" });
+    // }
+    // let showDefaultCard =
+    //   !formState.title &&
+    //   !event.target.value &&
+    //   !formState.summary &&
+    //   !formState.author &&
+    //   !formState.btnTitle &&
+    //   !formState.btnLink;
+    // setCardTitle(card, formState.title);
+    // setCardImageLink(card, event.target.value);
+    // setCardSummary(card, formState.summary);
+    // setCardAuthor(card, formState.author);
+    // setCardBtn(card, formState.btnTitle, formState.btnLink);
+    // setFormState({ ...formState, imageLink: event.target.value, card: card });
+    // if (showDefaultCard) {
+    //   setDefaultCard(card);
+    // }
+    // updateCard();
   };
 
   const onSummaryChanged = (event: any) => {
-    let showDefaultCard =
-      !formState.title &&
-      !formState.imageLink &&
-      !event.target.value &&
-      !formState.author &&
-      !formState.btnTitle &&
-      !formState.btnLink;
-    setCardTitle(card, formState.title);
-    setCardImageLink(card, formState.imageLink);
     setCardSummary(card, event.target.value);
-    setCardAuthor(card, formState.author);
-    setCardBtn(card, formState.btnTitle, formState.btnLink);
-    setFormState({ ...formState, summary: event.target.value, card: card });
-
-    setDefaultCard(card);
-
-    updateCard();
+    setFormState({ ...formState, summary: event.target.value });
+    updateAdaptiveCard();
   };
 
   const onAuthorChanged = (event: any) => {
-    let showDefaultCard =
-      !formState.title &&
-      !formState.imageLink &&
-      !formState.summary &&
-      !event.target.value &&
-      !formState.btnTitle &&
-      !formState.btnLink;
-    setCardTitle(card, formState.title);
-    setCardImageLink(card, formState.imageLink);
-    setCardSummary(card, formState.summary);
     setCardAuthor(card, event.target.value);
-    setCardBtn(card, formState.btnTitle, formState.btnLink);
-    setFormState({ ...formState, author: event.target.value, card: card });
-    if (showDefaultCard) {
-      setDefaultCard(card);
-    }
-    updateCard();
+    setFormState({ ...formState, author: event.target.value });
+    updateAdaptiveCard();
   };
 
   const onBtnTitleChanged = (event: any) => {
-    const showDefaultCard =
-      !formState.title &&
-      !formState.imageLink &&
-      !formState.summary &&
-      !formState.author &&
-      !event.target.value &&
-      !formState.btnLink;
-    setCardTitle(card, formState.title);
-    setCardImageLink(card, formState.imageLink);
-    setCardSummary(card, formState.summary);
-    setCardAuthor(card, formState.author);
-    if (event.target.value && formState.btnLink) {
-      setCardBtn(card, event.target.value, formState.btnLink);
-      setFormState({ ...formState, btnTitle: event.target.value, card: card });
-      if (showDefaultCard) {
-        setDefaultCard(card);
-      }
-      updateCard();
-    } else {
-      // delete card.actions;
-      setFormState({ ...formState, btnTitle: event.target.value });
-      if (showDefaultCard) {
-        setDefaultCard(card);
-      }
-      updateCard();
-    }
+    setCardBtn(card, event.target.value, formState.btnLink);
+    setFormState({ ...formState, btnTitle: event.target.value });
+    updateAdaptiveCard();
   };
 
   const onBtnLinkChanged = (event: any) => {
-    if (!(event.target.value === "" || event.target.value.toLowerCase().startsWith("https://"))) {
-      setFormState({ ...formState, errorButtonUrlMessage: t("ErrorURLMessage") });
-    } else {
-      setFormState({ ...formState, errorButtonUrlMessage: "" });
-    }
-
-    const showDefaultCard =
-      !formState.title &&
-      !formState.imageLink &&
-      !formState.summary &&
-      !formState.author &&
-      !formState.btnTitle &&
-      !event.target.value;
-    setCardTitle(card, formState.title);
-    setCardSummary(card, formState.summary);
-    setCardAuthor(card, formState.author);
-    setCardImageLink(card, formState.imageLink);
-    if (formState.btnTitle && event.target.value) {
-      setCardBtn(card, formState.btnTitle, event.target.value);
-      setFormState({ ...formState, btnLink: event.target.value, card: card });
-      if (showDefaultCard) {
-        setDefaultCard(card);
-      }
-      updateCard();
-    } else {
-      // delete card.actions;
-      setFormState({ ...formState, btnLink: event.target.value });
-      if (showDefaultCard) {
-        setDefaultCard(card);
-      }
-      updateCard();
-    }
-  };
-
-  const updateCard = () => {
-    const adaptiveCard = new AdaptiveCards.AdaptiveCard();
-    adaptiveCard.parse(formState.card);
-    const renderedCard = adaptiveCard.render();
-    const container = document.getElementsByClassName("adaptiveCardContainer")[0].firstChild;
-    if (container != null) {
-      container.replaceWith(renderedCard);
-    } else {
-      document.getElementsByClassName("adaptiveCardContainer")[0].appendChild(renderedCard);
-    }
-    const link = formState.btnLink;
-    adaptiveCard.onExecuteAction = function (action) {
-      window.open(link, "_blank");
-    };
+    setCardBtn(card, formState.btnTitle, event.target.value);
+    setFormState({ ...formState, btnLink: event.target.value });
+    updateAdaptiveCard();
   };
 
   return (
@@ -797,23 +640,27 @@ export const NewMessage = (newMessageProps: INewMessageProps) => {
       {!loader && (
         <div>
           {formState.page === "CardCreation" && (
-            <div className="taskModule">
-              <Flex column className="formContainer" vAlign="stretch" gap="gap.small">
-                <Flex className="scrollableContent">
-                  <Flex.Item size="size.half">
-                    <Flex column className="formContentContainer">
-                      <Input
-                        className="inputField"
-                        value={formState.title}
-                        label={t("TitleText")}
-                        placeholder={t("PlaceHolderTitle")}
-                        onChange={onTitleChanged}
-                        autoComplete="off"
-                        fluid
-                      />
-
-                      <Flex gap="gap.small" vAlign="end">
-                        <Input
+            <>
+              <div className="adaptive-task-grid">
+                <div className="form-area">
+                  <Field label={t("TitleText")}>
+                    <Input
+                      placeholder={t("PlaceHolderTitle")}
+                      onChange={onTitleChanged}
+                      autoComplete="off"
+                      value={formState.title}
+                    />
+                  </Field>
+                  <Field label={t("ImageURL")}>
+                    <input
+                      className="file-button"
+                      aria-labelledby="imageLabelId"
+                      type="file"
+                      id="file"
+                      name="file"
+                      aria-label={t("ImageURL")}
+                    />
+                    {/* <Input
                           fluid
                           className="inputField imageField"
                           value={
@@ -855,83 +702,83 @@ export const NewMessage = (newMessageProps: INewMessageProps) => {
                           multiple={false}
                           onChange={handleImageSelection}
                           ref={fileInput}
-                        />
-                      </Flex>
-                      <Text
+                        /> */}
+                  </Field>
+                  {/* <Text
                         className={formState.errorImageUrlMessage === "" ? "hide" : "show"}
                         error
                         size="small"
                         content={formState.errorImageUrlMessage}
-                      />
-
-                      <div className="textArea">
-                        <Text content={t("Summary")} />
-                        <TextArea
-                          autoFocus
-                          placeholder={t("Summary")}
-                          value={formState.summary}
-                          onChange={onSummaryChanged}
-                          fluid
-                        />
-                      </div>
-
-                      <Input
-                        className="inputField"
-                        value={formState.author}
-                        label={t("Author")}
-                        placeholder={t("Author")}
-                        onChange={onAuthorChanged}
-                        autoComplete="off"
-                        fluid
-                      />
-                      <Input
-                        className="inputField"
-                        fluid
-                        value={formState.btnTitle}
-                        label={t("ButtonTitle")}
-                        placeholder={t("ButtonTitle")}
-                        onChange={onBtnTitleChanged}
-                        autoComplete="off"
-                      />
-                      <Input
-                        className="inputField"
-                        fluid
-                        value={formState.btnLink}
-                        label={t("ButtonURL")}
-                        placeholder={t("ButtonURL")}
-                        onChange={onBtnLinkChanged}
-                        error={!(formState.errorButtonUrlMessage === "")}
-                        autoComplete="off"
-                      />
-                      <Text
+                      /> */}
+                  <Field label={t("Summary")}>
+                    <Textarea placeholder={t("Summary")} value={formState.summary} onChange={onSummaryChanged} />
+                  </Field>
+                  <Field label={t("Author")}>
+                    <Input
+                      placeholder={t("Author")}
+                      onChange={onAuthorChanged}
+                      autoComplete="off"
+                      value={formState.author}
+                    />
+                  </Field>
+                  <Field label={t("ButtonTitle")}>
+                    <Input
+                      placeholder={t("ButtonTitle")}
+                      onChange={onBtnTitleChanged}
+                      autoComplete="off"
+                      value={formState.btnTitle}
+                    />
+                  </Field>
+                  <Field label={t("ButtonURL")}>
+                    <Input
+                      placeholder={t("ButtonURL")}
+                      onChange={onBtnLinkChanged}
+                      autoComplete="off"
+                      value={formState.btnLink}
+                    />
+                  </Field>
+                  {/* <Text
                         className={formState.errorButtonUrlMessage === "" ? "hide" : "show"}
                         error
                         size="small"
                         content={formState.errorButtonUrlMessage}
-                      />
-                    </Flex>
-                  </Flex.Item>
-                  <Flex.Item size="size.half">
-                    <div className="adaptiveCardContainer"></div>
-                  </Flex.Item>
-                </Flex>
-
-                <Flex className="footerContainer" vAlign="end" hAlign="end">
-                  <Flex className="buttonContainer">
-                    <Button content={t("Next")} disabled={isNextBtnDisabled()} id="saveBtn" onClick={onNext} primary />
-                  </Flex>
-                </Flex>
-              </Flex>
-            </div>
+                      /> */}
+                </div>
+                <div className="card-area">{parse(renderCard || "<span></span>")}</div>
+              </div>
+              <div>
+                <Button
+                  style={{ float: "right" }}
+                  disabled={isNextBtnDisabled()}
+                  id="saveBtn"
+                  onClick={onNext}
+                  appearance="primary"
+                >
+                  {t("Next")}
+                </Button>
+              </div>
+            </>
           )}
           {formState.page === "AudienceSelection" && (
-            <div className="taskModule">
-              <Flex column className="formContainer" vAlign="stretch" gap="gap.small">
-                <Flex className="scrollableContent">
-                  <Flex.Item size="size.half">
-                    <Flex column className="formContentContainer">
-                      <h3>{t("SendHeadingText")}</h3>
-                      <RadioGroup
+            <>
+              <div className="adaptive-task-grid">
+                <div className="form-area">
+                  <Label id="labelId">
+                    <h3>{t("SendHeadingText")}</h3>
+                  </Label>
+                  <RadioGroup aria-labelledby="labelId">
+                    <Radio value={t("SendToGeneralChannel")} label={t("SendToGeneralChannel")} />
+                    <Label id={"comboId"}>Best pet</Label>
+                    <Combobox aria-labelledby={"comboId"} placeholder="Select an animal">
+                      {getItems().map((opt) => (
+                        <Option key={opt.key}>{opt.header}</Option>
+                      ))}
+                    </Combobox>
+                    <Radio value={t("SendToRosters")} label={t("SendToRosters")} />
+                    <Radio value={t("SendToAllUsers")} label={t("SendToAllUsers")} />
+                    <Radio value={t("SendToGroups")} label={t("SendToGroups")} />
+                  </RadioGroup>
+                  {/* <RadioGroup
                         className="radioBtns"
                         checkedValue={formState.selectedRadioBtn}
                         onCheckedValueChange={onGroupSelected}
@@ -1045,38 +892,24 @@ export const NewMessage = (newMessageProps: INewMessageProps) => {
                             },
                           },
                         ]}
-                      ></RadioGroup>
-                    </Flex>
-                  </Flex.Item>
-                  <Flex.Item size="size.half">
-                    <div className="adaptiveCardContainer"></div>
-                  </Flex.Item>
-                </Flex>
-                <Flex className="footerContainer" vAlign="end" hAlign="end">
-                  <Flex className="buttonContainer" gap="gap.small">
-                    <Flex.Item push>
-                      <Loader
-                        id="draftingLoader"
-                        className="hiddenLoader draftingLoader"
-                        size="smallest"
-                        label={t("DraftingMessageLabel")}
-                        labelPosition="end"
-                      />
-                    </Flex.Item>
-                    <Flex.Item push>
-                      <Button content={t("Back")} onClick={onBack} secondary />
-                    </Flex.Item>
-                    <Button
-                      content={t("SaveAsDraft")}
-                      disabled={isSaveBtnDisabled()}
-                      id="saveBtn"
-                      onClick={onSave}
-                      primary
-                    />
-                  </Flex>
-                </Flex>
-              </Flex>
-            </div>
+                      ></RadioGroup> */}
+                </div>
+                <div className="card-area">{parse(renderCard || "<span></span>")}</div>
+              </div>
+              <Spinner
+                id="draftingLoader"
+                className="hiddenLoader draftingLoader"
+                size="small"
+                label={t("DraftingMessageLabel")}
+                labelPosition="after"
+              />
+              <Button id="backBtn" onClick={onBack} appearance="secondary">
+                {t("Back")}
+              </Button>
+              <Button disabled={isSaveBtnDisabled()} id="saveBtn" onClick={onSave} appearance="primary">
+                {t("SaveAsDraft")}
+              </Button>
+            </>
           )}
           {formState.page !== "CardCreation" && formState.page !== "AudienceSelection" && <div>Error</div>}
         </div>

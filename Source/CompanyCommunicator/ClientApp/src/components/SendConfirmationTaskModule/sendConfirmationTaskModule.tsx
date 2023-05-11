@@ -7,7 +7,6 @@ import * as AdaptiveCards from "adaptivecards";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
-import { Flex } from "@fluentui/react-northstar";
 import * as microsoftTeams from "@microsoft/teams-js";
 import { getConsentSummaries, getDraftNotification, sendDraftNotification } from "../../apis/messageListApi";
 import { ImageUtil } from "../../utility/imageutility";
@@ -21,7 +20,7 @@ import {
 } from "../AdaptiveCard/adaptiveCard";
 import { Button, MenuItem, MenuList, Text, Image, Spinner } from "@fluentui/react-components";
 
-import parse from 'html-react-parser';
+import parse from "html-react-parser";
 
 export interface IMessageState {
   id: string;
@@ -84,7 +83,6 @@ export const SendConfirmationTaskModule = () => {
     }
   }, [id]);
 
-
   React.useEffect(() => {
     if (isCardReady && consentState.isConsentsUpdated && messageState.isDraftMsgUpdated) {
       var adaptiveCard = new AdaptiveCards.AdaptiveCard();
@@ -98,8 +96,7 @@ export const SendConfirmationTaskModule = () => {
       }
       setLoader(false);
     }
-  }, [consentState, isCardReady, consentState.isConsentsUpdated, messageState.isDraftMsgUpdated]);
-
+  }, [isCardReady, consentState.isConsentsUpdated, messageState.isDraftMsgUpdated, messageState.buttonLink]);
 
   const updateCardData = (msg: IMessageState) => {
     card = getInitAdaptiveCard(t);
@@ -141,7 +138,7 @@ export const SendConfirmationTaskModule = () => {
       return error;
     }
   };
-  
+
   const onSendMessage = () => {
     sendDraftNotification(messageState).then(() => {
       microsoftTeams.tasks.submitTask();
@@ -205,29 +202,19 @@ export const SendConfirmationTaskModule = () => {
         </div>
       )}
       {!loader && (
-        <div className="taskModule">
-          <Flex column className="formContainer" vAlign="stretch" gap="gap.small">
-            <Flex className="scrollableContent" gap="gap.small">
-              <Flex.Item size="size.half">
-                <Flex column className="formContentContainer">
-                  <h3>{t("ConfirmToSend")}</h3>
-                  <span>{t("SendToRecipientsLabel")}</span>
-                  <div className="results">{renderAudienceSelection()}</div>
-                </Flex>
-              </Flex.Item>
-              <Flex.Item size="size.half">
-                <div className="adaptiveCardContainer">{parse(renderCard.outerHTML)}</div>
-              </Flex.Item>
-            </Flex>
-            <Flex className="footerContainer" vAlign="end" hAlign="end">
-              <Flex className="buttonContainer" gap="gap.small">
-                <Button id="sendBtn" onClick={onSendMessage} appearance="primary">
-                  {t("Send")}
-                </Button>
-              </Flex>
-            </Flex>
-          </Flex>
-        </div>
+        <>
+          <div className="adaptive-task-grid">
+            <div className="form-area">
+              <h3>{t("ConfirmToSend")}</h3>
+              <span>{t("SendToRecipientsLabel")}</span>
+              <div className="results">{renderAudienceSelection()}</div>
+            </div>
+            <div className="card-area">{parse(renderCard.outerHTML)}</div>
+          </div>
+          <Button id="sendBtn" onClick={onSendMessage} appearance="primary">
+            {t("Send")}
+          </Button>
+        </>
       )}
     </>
   );

@@ -1,167 +1,167 @@
-.taskModule {
+// .taskModule {
 
-    .formContainer {
-        position: absolute;
-        top: 0rem;
-        bottom: 8.4rem;
-        width: 100%;
+//     .formContainer {
+//         position: absolute;
+//         top: 0rem;
+//         bottom: 8.4rem;
+//         width: 100%;
 
-        .scrollableContent {
-            overflow: auto;
-            height: 100%;
-            min-height: 100%;
-            margin-inline-start: 3.2rem;
+//         .scrollableContent {
+//             overflow: auto;
+//             height: 100%;
+//             min-height: 100%;
+//             margin-inline-start: 3.2rem;
 
-            h3 {
-                font-size: 1.6rem;
-                margin: 2rem 0 0 0;
-            }
+//             h3 {
+//                 font-size: 1.6rem;
+//                 margin: 2rem 0 0 0;
+//             }
 
-            h4 {
-                margin: 0.6rem 3.2rem 1rem 3.2rem;
-                font-size: 1.4rem;
-                font-weight: 100;
-            }
+//             h4 {
+//                 margin: 0.6rem 3.2rem 1rem 3.2rem;
+//                 font-size: 1.4rem;
+//                 font-weight: 100;
+//             }
 
-            .formContentContainer {
-                margin-inline-end: 3.5rem;
+//             .formContentContainer {
+//                 margin-inline-end: 3.5rem;
 
-                .inputField {
+//                 .inputField {
 
-                    label {
-                        font-size: 1.2rem;
-                        display: block;
-                        margin: 0.8rem 0rem 0.4rem 0rem;
-                    }
+//                     label {
+//                         font-size: 1.2rem;
+//                         display: block;
+//                         margin: 0.8rem 0rem 0.4rem 0rem;
+//                     }
 
-                    input {
-                        height: 3.2rem;
-                        padding: 0.6rem 1.2rem;
-                        font-size: 1.4rem;
-                        margin: auto 0;
-                    }
+//                     input {
+//                         height: 3.2rem;
+//                         padding: 0.6rem 1.2rem;
+//                         font-size: 1.4rem;
+//                         margin: auto 0;
+//                     }
 
-                    i {
-                        bottom: 0.5rem;
-                    }
-                }
-                
-                .textArea {
+//                     i {
+//                         bottom: 0.5rem;
+//                     }
+//                 }
 
-                    span {
-                        font-size: 1.2rem;
-                        display: block;
-                        margin: 0.8rem 0rem 0.4rem 0rem;
+//                 .textArea {
 
-                        &:nth-child(2) {
-                            color: #C4314B;
-                        }
-                    }
+//                     span {
+//                         font-size: 1.2rem;
+//                         display: block;
+//                         margin: 0.8rem 0rem 0.4rem 0rem;
 
-                    textarea {
-                        height: 9.6rem;
-                        padding: 0.6rem 1.2rem;
-                        font-size: 1.4rem;
-                        margin: auto 0;
-                    }
+//                         &:nth-child(2) {
+//                             color: #C4314B;
+//                         }
+//                     }
 
-                    i {
-                        bottom: 2.5rem;
-                    }
-                }
+//                     textarea {
+//                         height: 9.6rem;
+//                         padding: 0.6rem 1.2rem;
+//                         font-size: 1.4rem;
+//                         margin: auto 0;
+//                     }
 
-                .hide {
-                    display: none;
-                }
+//                     i {
+//                         bottom: 2.5rem;
+//                     }
+//                 }
 
-                .show {
-                    display: inline;
-                }
+//                 .hide {
+//                     display: none;
+//                 }
 
-                .radioBtns {
-                    width: 70%;
+//                 .show {
+//                     display: inline;
+//                 }
 
-                    p {
-                        margin: 1.5rem 0rem;
-                    }
+//                 .radioBtns {
+//                     width: 70%;
 
-                    .ui-dropdown {
-                        margin: 0.6rem 0rem 0.6rem 2.5rem;
-                        width: 30rem;
-                    }
+//                     p {
+//                         margin: 1.5rem 0rem;
+//                     }
 
-                    .noteText {
-                        margin: 1rem 0rem 1rem 2.5rem;
-                    }
+//                     .ui-dropdown {
+//                         margin: 0.6rem 0rem 0.6rem 2.5rem;
+//                         width: 30rem;
+//                     }
 
-                    .hide {
-                        display: none;
-                    }
+//                     .noteText {
+//                         margin: 1rem 0rem 1rem 2.5rem;
+//                     }
 
-                    .hideToggle {
+//                     .hide {
+//                         display: none;
+//                     }
 
-                        .ui-dropdown__toggle-indicator {
-                            visibility: hidden;
-                        }
-                    }
-                }
-            }
+//                     .hideToggle {
 
-            .adaptiveCardContainer {
-                margin: 0 2rem;
-            }
-        }
+//                         .ui-dropdown__toggle-indicator {
+//                             visibility: hidden;
+//                         }
+//                     }
+//                 }
+//             }
 
-        .footerContainer {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            padding: 2rem 0rem 3.2rem 0rem;
-            width: 100%;
+//             .adaptiveCardContainer {
+//                 margin: 0 2rem;
+//             }
+//         }
 
-            .buttonContainer {
-                margin-inline-end: 3.2rem;
+//         .footerContainer {
+//             position: fixed;
+//             bottom: 0;
+//             left: 0;
+//             padding: 2rem 0rem 3.2rem 0rem;
+//             width: 100%;
 
-                #saveBtn {
-                    margin-inline-start: 0.8rem;
-                }
-            }
+//             .buttonContainer {
+//                 margin-inline-end: 3.2rem;
 
-            .hiddenLoader {
-                display: none;
-            }
+//                 #saveBtn {
+//                     margin-inline-start: 0.8rem;
+//                 }
+//             }
 
-            .drfatingLoader {
-                width: 18rem;
-                margin-right: 2rem;
-                height: 3rem;
-            }
-        }
-    }
-}
+//             .hiddenLoader {
+//                 display: none;
+//             }
 
-.ms-Dropdown-container {
-    margin: 0rem 0rem 1rem 0rem;
+//             .drfatingLoader {
+//                 width: 18rem;
+//                 margin-right: 2rem;
+//                 height: 3rem;
+//             }
+//         }
+//     }
+// }
 
-    .ms-Callout-main {
-        max-height: 30rem !important;
-    }
-}
+// .ms-Dropdown-container {
+//     margin: 0rem 0rem 1rem 0rem;
 
-.is-checked {
-    .ms-Checkbox-label {
-        .ms-Checkbox-checkbox {
-            background: #464775 !important;
-            border: #464775 !important;
-        }
-    }
-}
+//     .ms-Callout-main {
+//         max-height: 30rem !important;
+//     }
+// }
 
-.tooltipHostStyles {
-    display: inline-block;
-    cursor: pointer;
-}
+// .is-checked {
+//     .ms-Checkbox-label {
+//         .ms-Checkbox-checkbox {
+//             background: #464775 !important;
+//             border: #464775 !important;
+//         }
+//     }
+// }
 
-.tooltipHostStylesInsideContent {
-    padding-left: 5px;
-}
+// .tooltipHostStyles {
+//     display: inline-block;
+//     cursor: pointer;
+// }
+
+// .tooltipHostStylesInsideContent {
+//     padding-left: 5px;
+// }

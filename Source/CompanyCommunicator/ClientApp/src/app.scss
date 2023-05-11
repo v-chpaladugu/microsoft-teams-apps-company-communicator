@@ -2,3 +2,43 @@
 .fui-TableCell {
     outline-offset: -2px;
 }
+
+@media screen and (min-width: 768px) {
+    .adaptive-task-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        grid-template-areas:
+            'form-area card-area'
+    }
+
+    .form-area {
+        grid-column: 1;
+        padding: 1rem;
+    }
+
+    .card-area {
+        grid-column: 2;
+        border: 2px solid #555;
+        padding: 1rem;
+    }
+}
+
+@media screen and (max-width: 767px) {
+    .adaptive-task-grid {
+        display: grid;
+        grid-template-rows: auto 1fr;
+        grid-template-areas:
+            'form-area card-area'
+    }
+
+    .form-area {
+        grid-row: 1;
+        padding: 1rem;
+    }
+
+    .card-area {
+        grid-row: 2;
+        border: 2px solid #333;
+        padding: 1rem;
+    }
+}

@@ -28,7 +28,7 @@ export const DraftMessages = () => {
     <>
       {loader && <Spinner labelPosition="below" size="large" label="Fetching draft messages..." />}
       {draftMessages && draftMessages.length === 0 && !loader && (
-        <div className="results">{t("EmptyDraftMessages")}</div>
+        <div>{t("EmptyDraftMessages")}</div>
       )}
       {draftMessages && draftMessages.length > 0 && !loader && <DraftMessageDetail draftMessages={draftMessages} />}
     </>

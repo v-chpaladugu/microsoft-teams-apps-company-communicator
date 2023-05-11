@@ -18,16 +18,6 @@ import { useAppDispatch } from '../../store';
 import { DraftMessages } from '../DraftMessages/draftMessages';
 import { Messages } from '../Messages/messages';
 
-interface ITaskInfo {
-  title?: string;
-  height?: number;
-  width?: number;
-  url?: string;
-  card?: string;
-  fallbackUrl?: string;
-  completionBotId?: string;
-}
-
 interface IMainContainer {
   theme: Theme;
 }
@@ -48,11 +38,11 @@ export const MainContainer = (props: IMainContainer) => {
   };
 
   const onNewMessage = () => {
-    let taskInfo: ITaskInfo = {
+    let taskInfo: microsoftTeams.TaskInfo = {
       url,
       title: t("NewMessage"),
-      height: 530,
-      width: 1000,
+      height: microsoftTeams.TaskModuleDimension.Medium,
+      width: microsoftTeams.TaskModuleDimension.Medium,
       fallbackUrl: url,
     };
 

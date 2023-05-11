@@ -4,12 +4,9 @@
 import "./statusTaskModule.scss";
 
 import * as AdaptiveCards from "adaptivecards";
-import { TooltipHost } from "office-ui-fabric-react";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
-
-import { AcceptIcon, DownloadIcon, Flex } from "@fluentui/react-northstar";
 
 import * as microsoftTeams from "@microsoft/teams-js";
 
@@ -17,9 +14,11 @@ import { exportNotification, getSentNotification } from "../../apis/messageListA
 import { formatDate, formatDuration, formatNumber } from "../../i18n";
 import { ImageUtil } from "../../utility/imageutility";
 
-import { Button, MenuItem, MenuList, Text, Image, Spinner } from "@fluentui/react-components";
+import { Button, MenuItem, MenuList, Image, Spinner } from "@fluentui/react-components";
 
-import parse from 'html-react-parser';
+import parse from "html-react-parser";
+
+import { ArrowDownload24Regular, CheckmarkSquare24Regular } from "@fluentui/react-icons";
 
 import {
   getInitAdaptiveCard,
@@ -118,7 +117,7 @@ export const StatusTaskModule = () => {
       }
       setLoader(false);
     }
-  }, [isCardReady, messageState.isMsgDataUpdated]);
+  }, [isCardReady, messageState.isMsgDataUpdated, messageState.buttonLink]);
 
   const getMessage = async (id: number) => {
     try {
@@ -248,145 +247,108 @@ export const StatusTaskModule = () => {
         </div>
       )}
       {!loader && statusState.page === "ViewStatus" && (
-        <div className="taskModule">
-          <Flex column className="formContainer" vAlign="stretch" gap="gap.small">
-            <Flex className="scrollableContent">
-              <Flex.Item size="size.half" className="formContentContainer">
-                <Flex column>
-                  <div className="contentField">
-                    <h3>{t("TitleText")}</h3>
-                    <span>{messageState.title}</span>
-                  </div>
-                  <div className="contentField">
-                    <h3>{t("SendingStarted")}</h3>
-                    <span>{messageState.sendingStartedDate}</span>
-                  </div>
-                  <div className="contentField">
-                    <h3>{t("Completed")}</h3>
-                    <span>{messageState.sentDate}</span>
-                  </div>
-                  <div className="contentField">
-                    <h3>{t("Created By")}</h3>
-                    <span>{messageState.createdBy}</span>
-                  </div>
-                  <div className="contentField">
-                    <h3>{t("Duration")}</h3>
-                    <span>{messageState.sendingDuration}</span>
-                  </div>
-                  <div className="contentField">
-                    <h3>{t("Results")}</h3>
-                    <label>{t("Success", { SuccessCount: messageState.succeeded })}</label>
-                    <br />
-                    <label>{t("Failure", { FailureCount: messageState.failed })}</label>
-                    {messageState.canceled && (
-                      <>
-                        <br />
-                        <label>{t("Canceled", { CanceledCount: messageState.canceled })}</label>
-                      </>
-                    )}
-                    {messageState.unknown && (
-                      <>
-                        <br />
-                        <label>{t("Unknown", { UnknownCount: messageState.unknown })}</label>
-                      </>
-                    )}
-                  </div>
-                  <div className="contentField">{renderAudienceSelection()}</div>
-                  <div className="contentField">{renderErrorMessage()}</div>
-                  <div className="contentField">{renderWarningMessage()}</div>
-                </Flex>
-              </Flex.Item>
-              <Flex.Item size="size.half">
-                <div className="adaptiveCardContainer">{parse(renderCard.outerHTML)}</div>
-              </Flex.Item>
-            </Flex>
-            <Flex className="footerContainer" vAlign="end" hAlign="end">
-              <div className={messageState.canDownload ? "" : "disabled"}>
-                <Flex className="buttonContainer" gap="gap.small">
-                  <Flex.Item push>
-                    <Spinner
-                      id="sendingLoader"
-                      className="hiddenLoader sendingLoader"
-                      size="small"
-                      label={t("ExportLabel")}
-                      labelPosition="after"
-                    />
-                  </Flex.Item>
-                  <Flex.Item>
-                    <TooltipHost
-                      content={
-                        !messageState.sendingCompleted
-                          ? ""
-                          : messageState.canDownload
-                          ? ""
-                          : t("ExportButtonProgressText")
-                      }
-                      calloutProps={{ gapSpace: 0 }}
-                    >
-                      <Button
-                        icon={<DownloadIcon size="medium" />}
-                        disabled={!messageState.canDownload || !messageState.sendingCompleted}
-                        id="exportBtn"
-                        onClick={onExport}
-                        appearance="primary"
-                      >
-                        {t("ExportButtonText")}
-                      </Button>
-                    </TooltipHost>
-                  </Flex.Item>
-                </Flex>
+        <>
+          <div className="adaptive-task-grid">
+            <div className="form-area">
+              <div className="contentField">
+                <h3>{t("TitleText")}</h3>
+                <span>{messageState.title}</span>
               </div>
-            </Flex>
-          </Flex>
-        </div>
+              <div className="contentField">
+                <h3>{t("SendingStarted")}</h3>
+                <span>{messageState.sendingStartedDate}</span>
+              </div>
+              <div className="contentField">
+                <h3>{t("Completed")}</h3>
+                <span>{messageState.sentDate}</span>
+              </div>
+              <div className="contentField">
+                <h3>{t("Created By")}</h3>
+                <span>{messageState.createdBy}</span>
+              </div>
+              <div className="contentField">
+                <h3>{t("Duration")}</h3>
+                <span>{messageState.sendingDuration}</span>
+              </div>
+              <div className="contentField">
+                <h3>{t("Results")}</h3>
+                <label>{t("Success", { SuccessCount: messageState.succeeded })}</label>
+                <br />
+                <label>{t("Failure", { FailureCount: messageState.failed })}</label>
+                {messageState.canceled && (
+                  <>
+                    <br />
+                    <label>{t("Canceled", { CanceledCount: messageState.canceled })}</label>
+                  </>
+                )}
+                {messageState.unknown && (
+                  <>
+                    <br />
+                    <label>{t("Unknown", { UnknownCount: messageState.unknown })}</label>
+                  </>
+                )}
+              </div>
+              <div className="contentField">{renderAudienceSelection()}</div>
+              <div className="contentField">{renderErrorMessage()}</div>
+              <div className="contentField">{renderWarningMessage()}</div>
+            </div>
+            <div className="card-area">{parse(renderCard.outerHTML)}</div>
+          </div>
+          <Spinner
+            id="sendingLoader"
+            className="hiddenLoader sendingLoader"
+            size="small"
+            label={t("ExportLabel")}
+            labelPosition="after"
+          />
+          <Button
+            icon={<ArrowDownload24Regular />}
+            disabled={!messageState.canDownload || !messageState.sendingCompleted}
+            id="exportBtn"
+            onClick={onExport}
+            appearance="primary"
+          >
+            {t("ExportButtonText")}
+          </Button>
+        </>
       )}
       {!loader && statusState.page === "SuccessPage" && (
         <div className="taskModule">
-          <Flex column className="formContainer" vAlign="stretch" gap="gap.small">
-            <div className="displayMessageField">
-              <br />
-              <br />
-              <div>
-                <span>
-                  <AcceptIcon className="iconStyle" xSpacing="before" size="largest" outline />
-                </span>
-                <h1>{t("ExportQueueTitle")}</h1>
-              </div>
-              <span>{t("ExportQueueSuccessMessage1")}</span>
-              <br />
-              <br />
-              <span>{t("ExportQueueSuccessMessage2")}</span>
-              <br />
-              <span>{t("ExportQueueSuccessMessage3")}</span>
+          <div className="displayMessageField">
+            <br />
+            <br />
+            <div>
+              <span>
+                <CheckmarkSquare24Regular />
+              </span>
+              <h1>{t("ExportQueueTitle")}</h1>
             </div>
-            <Flex className="footerContainer" vAlign="end" hAlign="end" gap="gap.small">
-              <Flex className="buttonContainer">
-                <Button id="closeBtn" onClick={onClose} appearance="primary">{t("CloseText")}</Button>
-              </Flex>
-            </Flex>
-          </Flex>
+            <span>{t("ExportQueueSuccessMessage1")}</span>
+            <br />
+            <br />
+            <span>{t("ExportQueueSuccessMessage2")}</span>
+            <br />
+            <span>{t("ExportQueueSuccessMessage3")}</span>
+          </div>
+          <Button id="closeBtn" onClick={onClose} appearance="primary">
+            {t("CloseText")}
+          </Button>
         </div>
       )}
       {!loader && statusState.page !== "ViewStatus" && statusState.page !== "SuccessPage" && (
         <div className="taskModule">
-          <Flex column className="formContainer" vAlign="stretch" gap="gap.small">
-            <div className="displayMessageField">
-              <br />
-              <br />
-              <div>
-                <span></span>
-                <h1 className="light">{t("ExportErrorTitle")}</h1>
-              </div>
-              <span>{t("ExportErrorMessage")}</span>
+          <div className="displayMessageField">
+            <br />
+            <br />
+            <div>
+              <span></span>
+              <h1 className="light">{t("ExportErrorTitle")}</h1>
             </div>
-            <Flex className="footerContainer" vAlign="end" hAlign="end" gap="gap.small">
-              <Flex className="buttonContainer">
-                <Button id="closeBtn" onClick={onClose} appearance="primary">
-                  {t("CloseText")}
-                </Button>
-              </Flex>
-            </Flex>
-          </Flex>
+            <span>{t("ExportErrorMessage")}</span>
+          </div>
+          <Button id="closeBtn" onClick={onClose} appearance="primary">
+            {t("CloseText")}
+          </Button>
         </div>
       )}
     </>

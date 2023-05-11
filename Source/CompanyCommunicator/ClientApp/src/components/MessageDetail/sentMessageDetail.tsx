@@ -19,16 +19,6 @@ import { getBaseUrl } from '../../configVariables';
 import { formatNumber } from '../../i18n';
 import { ROUTE_PARTS, ROUTE_QUERY_PARAMS } from '../../routes';
 
-interface ITaskInfo {
-  title?: string;
-  height?: number;
-  width?: number;
-  url?: string;
-  card?: string;
-  fallbackUrl?: string;
-  completionBotId?: string;
-}
-
 export const SentMessageDetail = (sentMessages: any) => {
   const { t } = useTranslation();
   const keyboardNavAttr = useArrowNavigationGroup({ axis: "grid" });
@@ -59,7 +49,6 @@ export const SentMessageDetail = (sentMessages: any) => {
           (message.succeeded ? message.succeeded : 0) +
           (message.failed ? message.failed : 0) +
           (message.unknown ? message.unknown : 0);
-
         text = t("SendingMessages", {
           SentCount: formatNumber(sentCount),
           TotalCount: formatNumber(message.totalMessageCount),
@@ -92,11 +81,11 @@ export const SentMessageDetail = (sentMessages: any) => {
   };
 
   const onOpenTaskModule = (event: any, url: string, title: string) => {
-    let taskInfo: ITaskInfo = {
+    let taskInfo: microsoftTeams.TaskInfo = {
       url: url,
       title: title,
-      height: 530,
-      width: 1000,
+      height: microsoftTeams.TaskModuleDimension.Medium,
+      width: microsoftTeams.TaskModuleDimension.Medium,
       fallbackUrl: url,
     };
     let submitHandler = (err: any, result: any) => {};

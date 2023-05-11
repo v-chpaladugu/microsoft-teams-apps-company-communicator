@@ -20,16 +20,6 @@ import { getBaseUrl } from '../../configVariables';
 import { ROUTE_PARTS, ROUTE_QUERY_PARAMS } from '../../routes';
 import { useAppDispatch } from '../../store';
 
-// export interface ITaskInfo {
-//   title?: string;
-//   height?: number;
-//   width?: number;
-//   url?: string;
-//   card?: string;
-//   fallbackUrl?: string;
-//   completionBotId?: string;
-// }
-
 export const DraftMessageDetail = (draftMessages: any) => {
   const { t } = useTranslation();
   const keyboardNavAttr = useArrowNavigationGroup({ axis: "grid" });
