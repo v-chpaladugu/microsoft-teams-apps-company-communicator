@@ -1,11 +1,7 @@
-// this can be removed in future. setting this as fluent_ui table has offset issues.
-.fui-TableCell {
-    outline-offset: -2px;
-}
-
 @media screen and (min-width: 768px) {
     .adaptive-task-grid {
         display: grid;
+        padding-bottom: 8rem;
         grid-template-columns: 1fr 1fr;
         grid-template-areas:
             'form-area card-area'
@@ -18,14 +14,24 @@
 
     .card-area {
         grid-column: 2;
-        border: 2px solid #555;
+        box-shadow: 0 0 4px var(--colorNeutralForeground3Selected);
         padding: 1rem;
+    }
+
+    .card-area:hover {
+        box-shadow: 0 0 6px var(--colorBrandForegroundLink);
+    }
+
+
+    .big-screen-visible {
+        display: block;
     }
 }
 
 @media screen and (max-width: 767px) {
     .adaptive-task-grid {
         display: grid;
+        padding-bottom: 8rem;
         grid-template-rows: auto 1fr;
         grid-template-areas:
             'form-area card-area'
@@ -38,7 +44,55 @@
 
     .card-area {
         grid-row: 2;
-        border: 2px solid #333;
+        box-shadow: 0 0 4px var(--colorNeutralForeground3Selected);
         padding: 1rem;
     }
+
+    .card-area:hover {
+        box-shadow: 0 0 6px var(--colorBrandForegroundLink);
+    }
+
+
+    .big-screen-visible {
+        display: none;
+    }
+}
+
+.fixed-footer {
+    position: fixed;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    background: #fefefe;
+}
+
+button#sendBtn {
+    float: right;
+    margin: 1rem;
+}
+
+// .ac-container {
+//     border: 0.2rem solid #fff;
+//     border-radius: 0.3rem;
+//     width: 42rem;
+//     padding: 1.6rem !important;
+//     background-color: #000 !important;
+//     margin-top: 0.6rem !important;
+// }
+
+// .ac-textBlock {
+//     color: #fff !important;
+// }
+
+.ac-pushButton {
+    padding: 1rem;
+    height: 4rem;
+    color: var(--colorBrandForegroundLink);
+    border: 0.2rem solid var(--colorBrandForegroundLink);
+    border-radius: 0.4rem;
+}
+
+// this can be removed in future. setting this as fluent_ui table has offset issues.
+.fui-TableCell {
+    outline-offset: -2px;
 }

@@ -1,36 +1,47 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { TooltipHost } from 'office-ui-fabric-react';
-import * as React from 'react';
-import { useTranslation } from 'react-i18next';
+import { TooltipHost } from "office-ui-fabric-react";
+import * as React from "react";
+import { useTranslation } from "react-i18next";
 import {
-    Button, Menu, MenuItem, MenuList, MenuPopover, MenuTrigger, Table, TableBody, TableCell,
-    TableCellLayout, TableHeader, TableHeaderCell, TableRow, useArrowNavigationGroup
-} from '@fluentui/react-components';
+  Button,
+  Menu,
+  MenuItem,
+  MenuList,
+  MenuPopover,
+  MenuTrigger,
+  Table,
+  TableBody,
+  TableCell,
+  TableCellLayout,
+  TableHeader,
+  TableHeaderCell,
+  TableRow,
+  useArrowNavigationGroup,
+} from "@fluentui/react-components";
 import {
-    BookExclamationMark24Regular, CalendarCancel24Regular, CheckmarkSquare24Regular,
-    DocumentCopyRegular, DocumentRegular, MoreHorizontal24Filled, OpenRegular,
-    ShareScreenStop24Regular, Warning24Regular
-} from '@fluentui/react-icons';
-import * as microsoftTeams from '@microsoft/teams-js';
-import { cancelSentNotification, duplicateDraftNotification } from '../../apis/messageListApi';
-import { getBaseUrl } from '../../configVariables';
-import { formatNumber } from '../../i18n';
-import { ROUTE_PARTS, ROUTE_QUERY_PARAMS } from '../../routes';
+  BookExclamationMark24Regular,
+  CalendarCancel24Regular,
+  CheckmarkSquare24Regular,
+  DocumentCopyRegular,
+  DocumentRegular,
+  MoreHorizontal24Filled,
+  OpenRegular,
+  ShareScreenStop24Regular,
+  Warning24Regular,
+} from "@fluentui/react-icons";
+import * as microsoftTeams from "@microsoft/teams-js";
+import { cancelSentNotification, duplicateDraftNotification } from "../../apis/messageListApi";
+import { getBaseUrl } from "../../configVariables";
+import { formatNumber } from "../../i18n";
+import { ROUTE_PARTS, ROUTE_QUERY_PARAMS } from "../../routes";
 
 export const SentMessageDetail = (sentMessages: any) => {
   const { t } = useTranslation();
   const keyboardNavAttr = useArrowNavigationGroup({ axis: "grid" });
-  const statusUrl = (id: string) => getBaseUrl() + `/${ROUTE_PARTS.VIEW_STATUS}/${id}?${ROUTE_QUERY_PARAMS.LOCALE}={locale}`;
-
-  const columns = [
-    { columnKey: "title", label: t("TitleText") },
-    { columnKey: "status", label: "Status" },
-    { columnKey: "recipients", label: t("Recipients") },
-    { columnKey: "sent", label: t("Sent") },
-    { columnKey: "createdBy", label: t("CreatedBy") },
-  ];
+  const statusUrl = (id: string) =>
+    getBaseUrl() + `/${ROUTE_PARTS.VIEW_STATUS}/${id}?${ROUTE_QUERY_PARAMS.LOCALE}={locale}`;
 
   const renderSendingText = (message: any) => {
     var text = "";
@@ -109,14 +120,22 @@ export const SentMessageDetail = (sentMessages: any) => {
   };
 
   return (
-    <Table {...keyboardNavAttr} role="grid" aria-label="Table with grid keyboard navigation">
+    <Table {...keyboardNavAttr} role="grid" aria-label="Sent messages table with grid keyboard navigation">
       <TableHeader>
         <TableRow>
-          {columns.map((column) => (
-            <TableHeaderCell key={column.columnKey}>
-              <b>{column.label}</b>
-            </TableHeaderCell>
-          ))}
+          <TableHeaderCell key="title">
+            <b>{t("TitleText")}</b>
+          </TableHeaderCell>
+          <TableHeaderCell key="status" />
+          <TableHeaderCell key="recipients">
+            <b>{t("Recipients")}</b>
+          </TableHeaderCell>
+          <TableHeaderCell key="sent">
+            <b>{t("Sent")}</b>
+          </TableHeaderCell>
+          <TableHeaderCell key="createdBy">
+            <b className="big-screen-visible">{t("CreatedBy")}</b>
+          </TableHeaderCell>
           <TableHeaderCell key="actions" style={{ float: "right" }}>
             <b>Actions</b>
           </TableHeaderCell>
@@ -124,12 +143,14 @@ export const SentMessageDetail = (sentMessages: any) => {
       </TableHeader>
       <TableBody>
         {sentMessages!.sentMessages!.map((item: any) => (
-          <TableRow>
+          <TableRow key={item.id + 'key'}>
             <TableCell tabIndex={0} role="gridcell">
               <TableCellLayout media={<DocumentRegular />}>{item.title}</TableCellLayout>
             </TableCell>
             <TableCell tabIndex={0} role="gridcell">
-              <TableCellLayout>{renderSendingText(item)}</TableCellLayout>
+              <TableCellLayout>
+                <span className="big-screen-visible">{renderSendingText(item)}</span>
+              </TableCellLayout>
             </TableCell>
             <TableCell tabIndex={0} role="gridcell">
               <TableCellLayout>
@@ -181,8 +202,10 @@ export const SentMessageDetail = (sentMessages: any) => {
             <TableCell tabIndex={0} role="gridcell">
               <TableCellLayout>{item.sentDate}</TableCellLayout>
             </TableCell>
-            <TableCell tabIndex={0} role="gridcell" style={{ textOverflow: "ellipsis" }}>
-              <TableCellLayout>{item.createdBy}</TableCellLayout>
+            <TableCell tabIndex={0} role="gridcell">
+              <TableCellLayout>
+                <span className="big-screen-visible">{item.createdBy}</span>
+              </TableCellLayout>
             </TableCell>
             <TableCell role="gridcell">
               <TableCellLayout style={{ float: "right" }}>
@@ -194,20 +217,19 @@ export const SentMessageDetail = (sentMessages: any) => {
                     <MenuList>
                       <MenuItem
                         icon={<OpenRegular />}
+                        key={"viewStatusKey"}
                         onClick={() => onOpenTaskModule(null, statusUrl(item.id), t("ViewStatus"))}
                       >
                         {t("ViewStatus")}
                       </MenuItem>
-                      <MenuItem icon={<DocumentCopyRegular />} onClick={() => duplicateDraftMessage(item.id)}>
+                      <MenuItem key={"duplicateKey"} icon={<DocumentCopyRegular />} onClick={() => duplicateDraftMessage(item.id)}>
                         {t("Duplicate")}
                       </MenuItem>
-                      <MenuItem
-                        icon={<CalendarCancel24Regular />}
-                        onClick={() => cancelSentMessage(item.id)}
-                        disabled={shouldNotShowCancel(item)}
-                      >
-                        {t("Cancel")}
-                      </MenuItem>
+                      {!shouldNotShowCancel(item) && (
+                        <MenuItem key={"cancelKey"} icon={<CalendarCancel24Regular />} onClick={() => cancelSentMessage(item.id)}>
+                          {t("Cancel")}
+                        </MenuItem>
+                      )}
                     </MenuList>
                   </MenuPopover>
                 </Menu>

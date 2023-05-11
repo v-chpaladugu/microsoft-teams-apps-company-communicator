@@ -1,41 +1,37 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import './mainContainer.scss';
-import * as React from 'react';
-import { useTranslation } from 'react-i18next';
+import "./mainContainer.scss";
+import * as React from "react";
+import { useTranslation } from "react-i18next";
 import {
-    Accordion, AccordionHeader, AccordionItem, AccordionPanel, Button, Divider, Link,
-    teamsLightTheme, Theme
-} from '@fluentui/react-components';
-import {
-    ChatMultiple24Regular, PersonFeedback24Regular, QuestionCircle24Regular
-} from '@fluentui/react-icons';
-import * as microsoftTeams from '@microsoft/teams-js';
-import { GetDraftMessagesAction } from '../../actions';
-import { getBaseUrl } from '../../configVariables';
-import { useAppDispatch } from '../../store';
-import { DraftMessages } from '../DraftMessages/draftMessages';
-import { Messages } from '../Messages/messages';
+  Accordion,
+  AccordionHeader,
+  AccordionItem,
+  AccordionPanel,
+  Button,
+  Divider,
+  Link,
+  teamsLightTheme,
+  Theme,
+} from "@fluentui/react-components";
+import { ChatMultiple24Regular, PersonFeedback24Regular, QuestionCircle24Regular } from "@fluentui/react-icons";
+import * as microsoftTeams from "@microsoft/teams-js";
+import { GetDraftMessagesAction } from "../../actions";
+import { getBaseUrl } from "../../configVariables";
+import { ROUTE_PARTS, ROUTE_QUERY_PARAMS } from "../../routes";
+import { useAppDispatch } from "../../store";
+import { DraftMessages } from "../DraftMessages/draftMessages";
+import { Messages } from "../Messages/messages";
 
 interface IMainContainer {
   theme: Theme;
 }
 
 export const MainContainer = (props: IMainContainer) => {
-  const url = getBaseUrl() + "/newmessage?locale={locale}";
+  const url = getBaseUrl() + `/${ROUTE_PARTS.NEW_MESSAGE}?${ROUTE_QUERY_PARAMS.LOCALE}={locale}`;
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
-
-  React.useEffect(() => {
-    document.addEventListener("keydown", escFunction, false);
-  }, []);
-
-  const escFunction = (event: any) => {
-    if (event.keyCode === 27 || event.key === "Escape") {
-      microsoftTeams.tasks.submitTask();
-    }
-  };
 
   const onNewMessage = () => {
     let taskInfo: microsoftTeams.TaskInfo = {
@@ -51,6 +47,17 @@ export const MainContainer = (props: IMainContainer) => {
     };
 
     microsoftTeams.tasks.startTask(taskInfo, submitHandler);
+  };
+
+  React.useEffect(() => {
+    //- Handle the Esc key
+    document.addEventListener("keydown", escFunction, false);
+  }, []);
+
+  const escFunction = (event: any) => {
+    if (event.keyCode === 27 || event.key === "Escape") {
+      microsoftTeams.tasks.submitTask();
+    }
   };
 
   const customHeaderImagePath = process.env.REACT_APP_HEADERIMAGE;
@@ -93,13 +100,13 @@ export const MainContainer = (props: IMainContainer) => {
         </Button>
       </div>
       <Accordion defaultOpenItems={["1", "2"]} multiple collapsible>
-        <AccordionItem value="1">
+        <AccordionItem value="1" key="draftMessagesKey">
           <AccordionHeader>{t("DraftMessagesSectionTitle")}</AccordionHeader>
           <AccordionPanel className="cc-accordion-panel">
             <DraftMessages />
           </AccordionPanel>
         </AccordionItem>
-        <AccordionItem value="2">
+        <AccordionItem value="2" key="sentMessagesKey">
           <AccordionHeader>{t("SentMessagesSectionTitle")}</AccordionHeader>
           <AccordionPanel className="cc-accordion-panel">
             <Messages />

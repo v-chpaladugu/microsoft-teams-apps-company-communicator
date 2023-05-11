@@ -26,7 +26,6 @@ export const DraftMessageDetail = (draftMessages: any) => {
   const [teamsTeamId, setTeamsTeamId] = React.useState("");
   const [teamsChannelId, setTeamsChannelId] = React.useState("");
   const dispatch = useAppDispatch();
-  const columns = [{ columnKey: "title", label: t("TitleText") }];
   const sendUrl = (id: string) => getBaseUrl() + `/${ROUTE_PARTS.SEND_CONFIRMATION}/${id}?${ROUTE_QUERY_PARAMS.LOCALE}={locale}`;
   const editUrl = (id: string) => getBaseUrl() + `/${ROUTE_PARTS.NEW_MESSAGE}/${id}?${ROUTE_QUERY_PARAMS.LOCALE}={locale}`;
 
@@ -39,7 +38,7 @@ export const DraftMessageDetail = (draftMessages: any) => {
   },
   []);
 
-  let submitHandler = (err: any, result: any) => {
+  const submitHandler = (err: any, result: any) => {
     GetDraftMessagesAction(dispatch);
     GetSentMessagesAction(dispatch);
   };
@@ -90,14 +89,12 @@ export const DraftMessageDetail = (draftMessages: any) => {
   };
 
   return (
-    <Table {...keyboardNavAttr} role="grid" aria-label="Table with grid keyboard navigation">
+    <Table {...keyboardNavAttr} role="grid" aria-label="Draft messages table with grid keyboard navigation">
       <TableHeader>
         <TableRow>
-          {columns.map((column) => (
-            <TableHeaderCell key={column.columnKey}>
-              <b>{column.label}</b>
-            </TableHeaderCell>
-          ))}
+          <TableHeaderCell key="title">
+              <b>{t("TitleText")}</b>
+          </TableHeaderCell>
           <TableHeaderCell key="actions" style={{ float: "right" }}>
             <b>Actions</b>
           </TableHeaderCell>
@@ -105,7 +102,7 @@ export const DraftMessageDetail = (draftMessages: any) => {
       </TableHeader>
       <TableBody>
         {draftMessages!.draftMessages!.map((item: any) => (
-          <TableRow>
+          <TableRow key={item.id + 'key'}>
             <TableCell tabIndex={0} role="gridcell">
               <TableCellLayout
                 media={<DocumentRegular />}
@@ -124,23 +121,25 @@ export const DraftMessageDetail = (draftMessages: any) => {
                     <MenuList>
                       <MenuItem
                         icon={<SendRegular />}
+                        key={"sendConfirmationKey"} 
                         onClick={() => onOpenTaskModule(null, sendUrl(item.id), t("SendConfirmation"))}
                       >
                         {t("Send")}
                       </MenuItem>
-                      <MenuItem icon={<OpenRegular />} onClick={() => checkPreviewMessage(item.id)}>
+                      <MenuItem key={"previewInThisChannelKey"} icon={<OpenRegular />} onClick={() => checkPreviewMessage(item.id)}>
                         {t("PreviewInThisChannel")}
                       </MenuItem>
                       <MenuItem
                         icon={<EditRegular />}
+                        key={"editMessageKey"} 
                         onClick={() => onOpenTaskModule(null, editUrl(item.id), t("EditMessage"))}
                       >
                         {t("Edit")}
                       </MenuItem>
-                      <MenuItem icon={<DocumentCopyRegular />} onClick={() => duplicateDraftMessage(item.id)}>
+                      <MenuItem key={"duplicateKey"}  icon={<DocumentCopyRegular />} onClick={() => duplicateDraftMessage(item.id)}>
                         {t("Duplicate")}
                       </MenuItem>
-                      <MenuItem icon={<DeleteRegular />} onClick={() => deleteDraftMessage(item.id)}>
+                      <MenuItem key={"deleteKey"}  icon={<DeleteRegular />} onClick={() => deleteDraftMessage(item.id)}>
                         {t("Delete")}
                       </MenuItem>
                     </MenuList>

@@ -746,7 +746,7 @@ export const NewMessage = () => {
                 </div>
                 <div className="card-area">{parse(renderCard || "<span></span>")}</div>
               </div>
-              <div>
+              <div className="fixed-footer">
                 <Button
                   style={{ float: "right" }}
                   disabled={isNextBtnDisabled()}

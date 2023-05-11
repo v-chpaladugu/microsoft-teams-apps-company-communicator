@@ -1,26 +1,22 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import "./sendConfirmationTaskModule.scss";
-
-import * as AdaptiveCards from "adaptivecards";
-import * as React from "react";
-import { useTranslation } from "react-i18next";
-import { useParams } from "react-router-dom";
-import * as microsoftTeams from "@microsoft/teams-js";
-import { getConsentSummaries, getDraftNotification, sendDraftNotification } from "../../apis/messageListApi";
-import { ImageUtil } from "../../utility/imageutility";
+import * as AdaptiveCards from 'adaptivecards';
+import parse from 'html-react-parser';
+import * as React from 'react';
+import { useTranslation } from 'react-i18next';
+import { useParams } from 'react-router-dom';
 import {
-  getInitAdaptiveCard,
-  setCardAuthor,
-  setCardBtn,
-  setCardImageLink,
-  setCardSummary,
-  setCardTitle,
-} from "../AdaptiveCard/adaptiveCard";
-import { Button, MenuItem, MenuList, Text, Image, Spinner } from "@fluentui/react-components";
-
-import parse from "html-react-parser";
+    Button, Image, Label, MenuItem, MenuList, Spinner, Text
+} from '@fluentui/react-components';
+import * as microsoftTeams from '@microsoft/teams-js';
+import {
+    getConsentSummaries, getDraftNotification, sendDraftNotification
+} from '../../apis/messageListApi';
+import { ImageUtil } from '../../utility/imageutility';
+import {
+    getInitAdaptiveCard, setCardAuthor, setCardBtn, setCardImageLink, setCardSummary, setCardTitle
+} from '../AdaptiveCard/adaptiveCard';
 
 export interface IMessageState {
   id: string;
@@ -48,7 +44,6 @@ export interface IConsentState {
   groupNames: string[];
   allUsers: boolean;
   messageId: number;
-
   isConsentsUpdated: boolean;
 }
 
@@ -60,6 +55,7 @@ export const SendConfirmationTaskModule = () => {
   const { id } = useParams() as any;
   const [loader, setLoader] = React.useState(true);
   const [isCardReady, setIsCardReady] = React.useState(false);
+  
 
   const [messageState, setMessageState] = React.useState<IMessageState>({
     id: "",
@@ -83,6 +79,7 @@ export const SendConfirmationTaskModule = () => {
     }
   }, [id]);
 
+ 
   React.useEffect(() => {
     if (isCardReady && consentState.isConsentsUpdated && messageState.isDraftMsgUpdated) {
       var adaptiveCard = new AdaptiveCards.AdaptiveCard();
@@ -99,7 +96,7 @@ export const SendConfirmationTaskModule = () => {
   }, [isCardReady, consentState.isConsentsUpdated, messageState.isDraftMsgUpdated, messageState.buttonLink]);
 
   const updateCardData = (msg: IMessageState) => {
-    card = getInitAdaptiveCard(t);
+    card = getInitAdaptiveCard(t)
     setCardTitle(card, msg.title);
     setCardImageLink(card, msg.imageLink);
     setCardSummary(card, msg.summary);
@@ -159,24 +156,21 @@ export const SendConfirmationTaskModule = () => {
     if (consentState.teamNames && consentState.teamNames.length > 0) {
       return (
         <div key="teamNames">
-          {" "}
-          <span className="label">{t("TeamsLabel")}</span>
+          <Label>{t("TeamsLabel")}</Label>
           <MenuList>{getItemList(consentState.teamNames)}</MenuList>
         </div>
       );
     } else if (consentState.rosterNames && consentState.rosterNames.length > 0) {
       return (
         <div key="rosterNames">
-          {" "}
-          <span className="label">{t("TeamsMembersLabel")}</span>
+          <Label>{t("TeamsMembersLabel")}</Label>
           <MenuList>{getItemList(consentState.rosterNames)}</MenuList>
         </div>
       );
     } else if (consentState.groupNames && consentState.groupNames.length > 0) {
       return (
         <div key="groupNames">
-          {" "}
-          <span className="label">{t("GroupsMembersLabel")}</span>
+          <Label>{t("GroupsMembersLabel")}</Label>
           <MenuList>{getItemList(consentState.groupNames)}</MenuList>
         </div>
       );
@@ -197,23 +191,23 @@ export const SendConfirmationTaskModule = () => {
   return (
     <>
       {loader && (
-        <div className="Loader">
-          <Spinner />
-        </div>
+        <Spinner />
       )}
       {!loader && (
         <>
           <div className="adaptive-task-grid">
             <div className="form-area">
               <h3>{t("ConfirmToSend")}</h3>
-              <span>{t("SendToRecipientsLabel")}</span>
-              <div className="results">{renderAudienceSelection()}</div>
+              <Label>{t("SendToRecipientsLabel")}</Label>
+              <div style={{margin: '16px'}}>{renderAudienceSelection()}</div>
             </div>
             <div className="card-area">{parse(renderCard.outerHTML)}</div>
           </div>
-          <Button id="sendBtn" onClick={onSendMessage} appearance="primary">
-            {t("Send")}
-          </Button>
+          <div className="fixed-footer">
+            <Button id="sendBtn" onClick={onSendMessage} appearance="primary">
+              {t("Send")}
+            </Button>
+          </div>
         </>
       )}
     </>

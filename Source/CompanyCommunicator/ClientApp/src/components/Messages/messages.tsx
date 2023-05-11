@@ -11,22 +11,16 @@ import { SentMessageDetail } from "../MessageDetail/sentMessageDetail";
 export const Messages = () => {
   const { t } = useTranslation();
   const sentMessages = useAppSelector((state: RootState) => state.messages).sentMessages.payload;
-  const [loader, setLoader] = React.useState(true);
+  const loader = useAppSelector((state: RootState) => state.messages).isSentMessagesFetchOn.payload;
   const dispatch = useAppDispatch();
 
   React.useEffect(() => {
     GetSentMessagesAction(dispatch);
   }, []);
 
-  React.useEffect(() => {
-    if (sentMessages && sentMessages.length > 0) {
-      setLoader(false);
-    }
-  }, [sentMessages]);
-
   return (
     <>
-      {loader && <Spinner labelPosition="below" size="large" label="Fetching sent messages..." />}
+      {loader && <Spinner labelPosition="below" label="Fetching sent messages..." />}
       {sentMessages && sentMessages.length === 0 && !loader && <div>{t("EmptySentMessages")}</div>}
       {sentMessages && sentMessages.length > 0 && !loader && <SentMessageDetail sentMessages={sentMessages} />}
     </>

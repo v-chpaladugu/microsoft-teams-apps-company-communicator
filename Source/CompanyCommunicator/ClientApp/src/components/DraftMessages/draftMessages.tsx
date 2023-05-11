@@ -11,22 +11,16 @@ import { DraftMessageDetail } from '../MessageDetail/draftMessageDetail';
 export const DraftMessages = () => {
   const { t } = useTranslation();
   const draftMessages = useAppSelector((state: RootState) => state.messages).draftMessages.payload;
-  const [loader, setLoader] = React.useState(true);
+  const loader = useAppSelector((state: RootState) => state.messages).isDraftMessagesFetchOn.payload;
   const dispatch = useAppDispatch();
 
   React.useEffect(() => {
     GetDraftMessagesAction(dispatch);
   }, []);
 
-  React.useEffect(() => {
-    if (draftMessages && draftMessages.length > 0) {
-      setLoader(false);
-    }
-  }, [draftMessages]);
-
   return (
     <>
-      {loader && <Spinner labelPosition="below" size="large" label="Fetching draft messages..." />}
+      {loader && <Spinner labelPosition="below" label="Fetching draft messages..." />}
       {draftMessages && draftMessages.length === 0 && !loader && (
         <div>{t("EmptyDraftMessages")}</div>
       )}

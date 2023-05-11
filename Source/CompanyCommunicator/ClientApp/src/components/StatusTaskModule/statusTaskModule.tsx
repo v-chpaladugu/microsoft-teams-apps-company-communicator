@@ -28,6 +28,7 @@ import {
   setCardSummary,
   setCardTitle,
 } from "../AdaptiveCard/adaptiveCard";
+import { List } from "@fluentui/react-northstar";
 
 export interface IListItem {
   header: string;

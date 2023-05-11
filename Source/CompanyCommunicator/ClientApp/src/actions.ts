@@ -41,6 +41,7 @@ export const SelectedMessageAction = (dispatch: typeof store.dispatch, payload: 
 };
 
 export const GetSentMessagesAction = (dispatch: typeof store.dispatch) => {
+  SentMessageFetchStatusAction(dispatch, true);
   getSentNotifications().then((response) => {
     const notificationList: Notification[] = response.data;
     notificationList.forEach((notification) => {
@@ -48,13 +49,18 @@ export const GetSentMessagesAction = (dispatch: typeof store.dispatch) => {
       notification.sentDate = formatDate(notification.sentDate);
     });
     dispatch(sentMessages({ type: "FETCH_MESSAGES", payload: notificationList }));
+  }).finally(() => {
+    SentMessageFetchStatusAction(dispatch, false);
   });
 };
 
 export const GetDraftMessagesAction = (dispatch: typeof store.dispatch) => {
+  DraftMessageFetchStatusAction(dispatch, true);
   getDraftNotifications().then((response) => {
     dispatch(draftMessages({ type: "FETCH_DRAFT_MESSAGES", payload: response.data }));
-  });
+  }).finally(() => {
+    DraftMessageFetchStatusAction(dispatch, false);
+  });;
 };
 
 export const GetTeamsDataAction = (dispatch: typeof store.dispatch) => {
