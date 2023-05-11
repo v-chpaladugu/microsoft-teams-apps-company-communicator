@@ -20,15 +20,15 @@ import { getBaseUrl } from '../../configVariables';
 import { ROUTE_PARTS, ROUTE_QUERY_PARAMS } from '../../routes';
 import { useAppDispatch } from '../../store';
 
-export interface ITaskInfo {
-  title?: string;
-  height?: number;
-  width?: number;
-  url?: string;
-  card?: string;
-  fallbackUrl?: string;
-  completionBotId?: string;
-}
+// export interface ITaskInfo {
+//   title?: string;
+//   height?: number;
+//   width?: number;
+//   url?: string;
+//   card?: string;
+//   fallbackUrl?: string;
+//   completionBotId?: string;
+// }
 
 export const DraftMessageDetail = (draftMessages: any) => {
   const { t } = useTranslation();
@@ -55,11 +55,11 @@ export const DraftMessageDetail = (draftMessages: any) => {
   };
 
   const onOpenTaskModule = (event: any, url: string, title: string) => {
-    let taskInfo: ITaskInfo = {
+    let taskInfo: microsoftTeams.TaskInfo = {
       url: url,
       title: title,
-      height: 530,
-      width: 1000,
+      height: microsoftTeams.TaskModuleDimension.Medium,
+      width: microsoftTeams.TaskModuleDimension.Medium,
       fallbackUrl: url,
     };
 
