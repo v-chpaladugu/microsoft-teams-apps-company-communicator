@@ -183,7 +183,20 @@ export const getDraftNotification = async (id: number): Promise<any> => {
 //   return await axios.get(url);
   
 return new Promise((resolve, reject) => {
-    resolve({ data: {"teams":["19:-NerdIDjIGqfzXbVO7NcJwX6MNj8irw2OhCbsfcYtoQ1@thread.tacv2"],"rosters":[],"groups":[],"allUsers":false,"id":"0638192293612328690","title":"Test 123 (copy)","imageLink":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAOEAAADhCAMAAAAJbSJIAAAAclBMVEXz8/PzUyWBvAYFpvD/ugj19Pbz+fr39fr69vPy9fr29PPzRAB5uAAAofD/tgDz29bh6tTzTBbzmoiw0oGBxfH70IHU5vP16tTz5OHo7eDzPADzlIGs0Hnf6/N5wvH7znn07eAAnvDzvrTL3rCv1/L43rD2QPCNAAABfklEQVR4nO3cOXLCQBRFUXkQg0DMoxAIPOx/i06gCdxVjj4EPncDr0510tEvCkmS9JzK8HKr1TS6XQLuZ9HlhNNmFFtz6F2n+u04ulnmFaejl9jmiyRcvgZHSEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhI+FhhM49tdBe242cId4dFcB83YfnZLmNr97k7u73w0lTZjy57SFiSpD+rBtFVaascRpcDHk+r2E5fN2L53a1j684Z4eZSB3caXLeG3SS67e9PTbWp32KrV0m4nrzHRkhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISPhYYfT90suT75cWxSa6Yzqze95GV2WARRXefauMLgeUJOn/9gOEMUYmQwAZiQAAAABJRU5ErkJggg==","imageBase64BlobName":"0638192293612328690","summary":"Test","author":"Test","buttonTitle":"Test","buttonLink":"https://google.com","createdDateTime":"2023-05-09T11:42:41.232874Z"} });
+    resolve({ data: {
+      "teams":["19:-NerdIDjIGqfzXbVO7NcJwX6MNj8irw2OhCbsfcYtoQ1@thread.tacv2"],
+      "rosters":[],
+      "groups":[],
+      "allUsers":false,
+      "id":"0638192293612328690",
+      "title":"Test 123 (copy)",
+      "imageLink":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAOEAAADhCAMAAAAJbSJIAAAAclBMVEXz8/PzUyWBvAYFpvD/ugj19Pbz+fr39fr69vPy9fr29PPzRAB5uAAAofD/tgDz29bh6tTzTBbzmoiw0oGBxfH70IHU5vP16tTz5OHo7eDzPADzlIGs0Hnf6/N5wvH7znn07eAAnvDzvrTL3rCv1/L43rD2QPCNAAABfklEQVR4nO3cOXLCQBRFUXkQg0DMoxAIPOx/i06gCdxVjj4EPncDr0510tEvCkmS9JzK8HKr1TS6XQLuZ9HlhNNmFFtz6F2n+u04ulnmFaejl9jmiyRcvgZHSEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhI+FhhM49tdBe242cId4dFcB83YfnZLmNr97k7u73w0lTZjy57SFiSpD+rBtFVaascRpcDHk+r2E5fN2L53a1j684Z4eZSB3caXLeG3SS67e9PTbWp32KrV0m4nrzHRkhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISPhYYfT90suT75cWxSa6Yzqze95GV2WARRXefauMLgeUJOn/9gOEMUYmQwAZiQAAAABJRU5ErkJggg==",
+      "imageBase64BlobName":"0638192293612328690",
+      "summary":"Test",
+      "author":"Test",
+      "buttonTitle":"Test",
+      "buttonLink":"https://google.com",
+      "createdDateTime":"2023-05-09T11:42:41.232874Z"} });
 });
 };
 

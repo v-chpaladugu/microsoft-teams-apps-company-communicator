@@ -74,20 +74,29 @@
     display: inline;
 }
 
-button#sendBtn {
+
+.footer-actions {
     float: right;
-    margin: 1rem;
 }
 
-button#exportBtn {
-    float: right;
-    margin: 1rem;
+.footer-button {
+    padding: 1rem;
 }
 
-.spinner-wheel {
-    float: right;
-    margin: 1rem;
-}
+// button#sendBtn {
+//     float: right;
+//     margin: 1rem;
+// }
+
+// button#exportBtn {
+//     float: right;
+//     margin: 1rem;
+// }
+
+// .spinner-wheel {
+//     float: right;
+//     margin: 1rem;
+// }
 
 .ac-pushButton {
     padding: 1rem;

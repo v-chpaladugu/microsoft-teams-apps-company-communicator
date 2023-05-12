@@ -7,29 +7,28 @@ import * as AdaptiveCards from "adaptivecards";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
+
 import {
-  Spinner,
+  Button,
+  Combobox,
+  ComboboxProps,
   Field,
   Input,
-  Button,
-  Textarea,
-  RadioGroup,
-  Radio,
   Label,
-  Combobox,
-  Option,
-  useId,
-  ComboboxProps,
-  shorthands,
-  tokens,
   makeStyles,
-  Dropdown,
+  Option,
+  Radio,
+  RadioGroup,
+  shorthands,
+  Spinner,
+  Textarea,
+  tokens,
+  useId,
 } from "@fluentui/react-components";
-
-import { Dismiss12Regular, ArrowUpload24Regular } from "@fluentui/react-icons";
-
+import { ArrowUpload24Regular, Dismiss12Regular } from "@fluentui/react-icons";
 import * as microsoftTeams from "@microsoft/teams-js";
-import { GetGroupsAction, GetTeamsDataAction, VerifyGroupAccessAction, SearchGroupsAction } from "../../actions";
+
+import { GetGroupsAction, GetTeamsDataAction, SearchGroupsAction, VerifyGroupAccessAction } from "../../actions";
 import {
   createDraftNotification,
   getDraftNotification,
@@ -50,61 +49,18 @@ import {
 
 const validImageTypes = ["image/gif", "image/jpeg", "image/png", "image/jpg"];
 
-type dropdownItem = {
-  key: string;
-  header: string;
-  content: string;
-  image: string;
-  team: {
-    id: string;
-  };
-};
-
-export interface IDraftMessageState {
+export interface formState {
   id?: string;
   title: string;
   imageLink?: string;
   summary?: string;
-  author: string;
+  author?: string;
   buttonTitle?: string;
   buttonLink?: string;
   teams: any[];
   rosters: any[];
   groups: any[];
   allUsers: boolean;
-}
-
-export interface formState {
-  title: string;
-  summary?: string;
-  btnLink?: string;
-  imageLink?: string;
-  localImagePath?: string;
-  btnTitle?: string;
-  author: string;
-  card?: any;
-  page: string;
-  teamsOptionSelected: boolean;
-  rostersOptionSelected: boolean;
-  allUsersOptionSelected: boolean;
-  groupsOptionSelected: boolean;
-  teams?: any[];
-  groups?: any[];
-  exists?: boolean;
-  messageId: string;
-  loader: boolean;
-  loading: boolean;
-  noResultMessage: string;
-  unstablePinned?: boolean;
-  selectedTeamsNum: number;
-  selectedRostersNum: number;
-  selectedGroupsNum: number;
-  selectedRadioBtn: string;
-  selectedTeams: dropdownItem[];
-  selectedRosters: dropdownItem[];
-  selectedGroups: dropdownItem[];
-  errorImageUrlMessage: string;
-  errorButtonUrlMessage: string;
 }
 
 let card: any;
@@ -128,6 +84,19 @@ const useStyles = makeStyles({
   },
 });
 
+enum AudienceSelection {
+  Teams = "Teams",
+  Rosters = "Rosters",
+  Groups = "Groups",
+  AllUsers = "AllUsers",
+  None = "None",
+}
+
+enum CurrentPageSelection {
+  CardCreation = "CardCreation",
+  AudienceSelection = "AudienceSelection",
+}
+
 export const NewMessage = () => {
   let fileInput = React.createRef<any>();
   const MAX_SELECTED_TEAMS_NUM: number = 20;
@@ -139,36 +108,16 @@ export const NewMessage = () => {
 
   // const verifyGroupAccess = useAppSelector((state: RootState) => state.messages).verifyGroup.payload;
 
-  const [loader, setLoader] = React.useState(false);
+  const [selectedRadioButton, setSelectedRadioButton] = React.useState(AudienceSelection.None);
+  const [pageSelection, setPageSelection] = React.useState(CurrentPageSelection.CardCreation);
 
+  const [loader, setLoader] = React.useState(false);
   const [formState, setFormState] = React.useState<formState>({
     title: "",
-    summary: "",
-    author: "",
-    btnLink: "",
-    imageLink: "",
-    localImagePath: "",
-    btnTitle: "",
-    card: card,
-    page: "CardCreation",
-    teamsOptionSelected: true,
-    rostersOptionSelected: false,
-    allUsersOptionSelected: false,
-    groupsOptionSelected: false,
-    messageId: "",
-    loader: true,
-    loading: false,
-    noResultMessage: "",
-    unstablePinned: true,
-    selectedTeamsNum: 0,
-    selectedRostersNum: 0,
-    selectedGroupsNum: 0,
-    selectedRadioBtn: "teams",
-    selectedTeams: [],
-    selectedRosters: [],
-    selectedGroups: [],
-    errorImageUrlMessage: "",
-    errorButtonUrlMessage: "",
+    teams: [],
+    rosters: [],
+    groups: [],
+    allUsers: false,
   });
 
   const dispatch = useAppDispatch();
@@ -183,55 +132,39 @@ export const NewMessage = () => {
 
   React.useEffect(() => {
     if (id) {
-      GetGroupsAction(dispatch, id);
+      GetGroupsAction(dispatch, { id });
       getDraftNotificationItem(id);
     }
   }, [id]);
-
-  React.useEffect(() => {
-    if (teams) {
-      makeDropdownItemList(formState.selectedTeams, teams);
-      makeDropdownItemList(formState.selectedRosters, teams);
-    }
-  }, [teams, formState.selectedTeams, formState.selectedRosters]);
-
-  React.useEffect(() => {
-    if (groups) {
-      makeDropdownItems(groups);
-    }
-  }, [groups]);
 
   const getDraftNotificationItem = async (id: number) => {
     try {
       await getDraftNotification(id).then((response) => {
         const draftMessageDetail = response.data;
-        let selectedRadioButton = "teams";
-        if (draftMessageDetail.rosters.length > 0) {
-          selectedRadioButton = "rosters";
+
+        if (draftMessageDetail.teams.length > 0) {
+          setSelectedRadioButton(AudienceSelection.Teams);
+        } else if (draftMessageDetail.rosters.length > 0) {
+          setSelectedRadioButton(AudienceSelection.Rosters);
         } else if (draftMessageDetail.groups.length > 0) {
-          selectedRadioButton = "groups";
+          setSelectedRadioButton(AudienceSelection.Groups);
         } else if (draftMessageDetail.allUsers) {
-          selectedRadioButton = "allUsers";
+          setSelectedRadioButton(AudienceSelection.AllUsers);
         }
+
         setFormState({
           ...formState,
-          teamsOptionSelected: draftMessageDetail.teams.length > 0,
-          selectedTeamsNum: draftMessageDetail.teams.length,
-          rostersOptionSelected: draftMessageDetail.rosters.length > 0,
-          selectedRostersNum: draftMessageDetail.rosters.length,
-          groupsOptionSelected: draftMessageDetail.groups.length > 0,
-          selectedGroupsNum: draftMessageDetail.groups.length,
-          selectedRadioBtn: selectedRadioButton,
-          selectedTeams: draftMessageDetail.teams,
-          selectedRosters: draftMessageDetail.rosters,
-          selectedGroups: draftMessageDetail.groups,
+          id: draftMessageDetail.id,
           title: draftMessageDetail.title,
-          summary: draftMessageDetail.summary,
-          btnLink: draftMessageDetail.buttonLink,
           imageLink: draftMessageDetail.imageLink,
-          btnTitle: draftMessageDetail.buttonTitle,
+          summary: draftMessageDetail.summary,
           author: draftMessageDetail.author,
-          allUsersOptionSelected: draftMessageDetail.allUsers,
+          buttonTitle: draftMessageDetail.buttonTitle,
+          buttonLink: draftMessageDetail.buttonLink,
+          teams: draftMessageDetail.teams,
+          rosters: draftMessageDetail.rosters,
+          groups: draftMessageDetail.groups,
+          allUsers: draftMessageDetail.allUsers,
         });
 
         setCardTitle(card, draftMessageDetail.title);
@@ -252,7 +185,6 @@ export const NewMessage = () => {
     const summaryAsString = t("Summary");
     const authorAsString = t("Author1");
     const buttonTitleAsString = t("ButtonTitle");
-
     setCardTitle(card, titleAsString);
     let imgUrl = getBaseUrl() + "/image/imagePlaceholder.png";
     setCardImageLink(card, imgUrl);
@@ -273,51 +205,6 @@ export const NewMessage = () => {
       window.open(action.url, "_blank");
     };
     setLoader(false);
-  };
-
-  const makeDropdownItems = (items: any[] | undefined) => {
-    const resultedTeams: dropdownItem[] = [];
-    if (items) {
-      items.forEach((element) => {
-        resultedTeams.push({
-          key: element.id,
-          header: element.name,
-          content: element.mail,
-          image: ImageUtil.makeInitialImage(element.name),
-          team: {
-            id: element.id,
-          },
-        });
-      });
-    }
-    return resultedTeams;
-  };
-
-  const makeDropdownItemList = (items: any[], fromItems: any[] | undefined) => {
-    const dropdownItemList: dropdownItem[] = [];
-    items.forEach((element) =>
-      dropdownItemList.push(
-        typeof element !== "string"
-          ? element
-          : {
-              key: fromItems!.find((x) => x.id === element).id,
-              header: fromItems!.find((x) => x.id === element).name,
-              image: ImageUtil.makeInitialImage(fromItems!.find((x) => x.id === element).name),
-              team: {
-                id: element,
-              },
-            }
-      )
-    );
-    return dropdownItemList;
-  };
-
-  const getGroupItems = () => {
-    if (formState.groups) {
-      return makeDropdownItems(formState.groups);
-    }
-    const dropdownItems: dropdownItem[] = [];
-    return dropdownItems;
   };
 
   const handleUploadClick = (event: any) => {
@@ -343,12 +230,12 @@ export const NewMessage = () => {
       const { type: mimeType } = file;
 
       if (!validImageTypes.includes(fileType)) {
-        setFormState({ ...formState, errorImageUrlMessage: t("ErrorImageTypesMessage") });
+        // setFormState({ ...formState, errorImageUrlMessage: t("ErrorImageTypesMessage") });
         return;
       }
 
-      setFormState({ ...formState, localImagePath: file["name"] });
-      setFormState({ ...formState, errorImageUrlMessage: "" });
+      // setFormState({ ...formState, localImagePath: file["name"] });
+      // setFormState({ ...formState, errorImageUrlMessage: "" });
 
       const fileReader = new FileReader();
       fileReader.readAsDataURL(file);
@@ -374,7 +261,7 @@ export const NewMessage = () => {
         };
 
         if (!checkValidSizeOfImage(resizedImageAsBase64)) {
-          setFormState({ ...formState, errorImageUrlMessage: t("ErrorImageSizeMessage") });
+          // setFormState({ ...formState, errorImageUrlMessage: t("ErrorImageSizeMessage") });
           return;
         }
 
@@ -389,189 +276,53 @@ export const NewMessage = () => {
     }
   };
 
-  const onGroupSelected = (event: any, data: any) => {
-    setFormState({
-      ...formState,
-      selectedRadioBtn: data.value,
-      teamsOptionSelected: data.value === "teams",
-      rostersOptionSelected: data.value === "rosters",
-      groupsOptionSelected: data.value === "groups",
-      allUsersOptionSelected: data.value === "allUsers",
-      selectedTeams: data.value === "teams" ? formState.selectedTeams : [],
-      selectedTeamsNum: data.value === "teams" ? formState.selectedTeamsNum : 0,
-      selectedRosters: data.value === "rosters" ? formState.selectedRosters : [],
-      selectedRostersNum: data.value === "rosters" ? formState.selectedRostersNum : 0,
-      selectedGroups: data.value === "groups" ? formState.selectedGroups : [],
-      selectedGroupsNum: data.value === "groups" ? formState.selectedGroupsNum : 0,
-    });
-  };
-
   const isSaveBtnDisabled = () => {
-    const teamsSelectionIsValid =
-      (formState.teamsOptionSelected && formState.selectedTeamsNum !== 0) || !formState.teamsOptionSelected;
-    const rostersSelectionIsValid =
-      (formState.rostersOptionSelected && formState.selectedRostersNum !== 0) || !formState.rostersOptionSelected;
-    const groupsSelectionIsValid =
-      (formState.groupsOptionSelected && formState.selectedGroupsNum !== 0) || !formState.groupsOptionSelected;
-    const nothingSelected =
-      !formState.teamsOptionSelected &&
-      !formState.rostersOptionSelected &&
-      !formState.groupsOptionSelected &&
-      !formState.allUsersOptionSelected;
-    return !teamsSelectionIsValid || !rostersSelectionIsValid || !groupsSelectionIsValid || nothingSelected;
+    return true;
   };
 
   const isNextBtnDisabled = () => {
-    const title = formState.title;
-    const btnTitle = formState.btnTitle;
-    const btnLink = formState.btnLink;
-    return !(
-      title &&
-      ((btnTitle && btnLink) || (!btnTitle && !btnLink)) &&
-      formState.errorImageUrlMessage === "" &&
-      formState.errorButtonUrlMessage === ""
-    );
-  };
-
-  const getItems = () => {
-    const resultedTeams: dropdownItem[] = [];
-    if (formState.teams) {
-      let remainingUserTeams = formState.teams;
-      if (formState.selectedRadioBtn !== "allUsers") {
-        if (formState.selectedRadioBtn === "teams") {
-          formState.teams.filter((x) => formState.selectedTeams.findIndex((y) => y.team.id === x.id) < 0);
-        } else if (formState.selectedRadioBtn === "rosters") {
-          formState.teams.filter((x) => formState.selectedRosters.findIndex((y) => y.team.id === x.id) < 0);
-        }
-      }
-      remainingUserTeams.forEach((element) => {
-        resultedTeams.push({
-          key: element.id,
-          header: element.name,
-          content: element.mail,
-          image: ImageUtil.makeInitialImage(element.name),
-          team: {
-            id: element.id,
-          },
-        });
-      });
-    }
-    return resultedTeams;
+    return true;
   };
 
   const onTeamsChange = (event: any, itemsData: any) => {
-    if (itemsData.value.length > MAX_SELECTED_TEAMS_NUM) return;
     setFormState({
       ...formState,
-      selectedTeams: itemsData.value,
-      selectedTeamsNum: itemsData.value.length,
-      selectedRosters: [],
-      selectedRostersNum: 0,
-      selectedGroups: [],
-      selectedGroupsNum: 0,
+      teams: [],
+      allUsers: false,
     });
   };
 
   const onRostersChange = (event: any, itemsData: any) => {
-    if (itemsData.value.length > MAX_SELECTED_TEAMS_NUM) return;
     setFormState({
       ...formState,
-      selectedRosters: itemsData.value,
-      selectedRostersNum: itemsData.value.length,
-      selectedTeams: [],
-      selectedTeamsNum: 0,
-      selectedGroups: [],
-      selectedGroupsNum: 0,
+      rosters: [],
+      allUsers: false,
     });
   };
 
-  const onGroupsChange = (event: any, itemsData: any) => {
+  const onGroupsChange = (event: any, data: any) => {
     setFormState({
       ...formState,
-      selectedGroups: itemsData.value,
-      selectedGroupsNum: itemsData.value.length,
       groups: [],
-      selectedTeams: [],
-      selectedTeamsNum: 0,
-      selectedRosters: [],
-      selectedRostersNum: 0,
+      allUsers: false,
     });
   };
 
-  const onGroupSearch = (itemList: any, searchQuery: string) => {
-    const result = itemList.filter(
-      (item: { header: string; content: string }) =>
-        (item.header && item.header.toLowerCase().indexOf(searchQuery.toLowerCase()) !== -1) ||
-        (item.content && item.content.toLowerCase().indexOf(searchQuery.toLowerCase()) !== -1)
-    );
-    return result;
-  };
-
-  const onGroupSearchQueryChange = async (event: any, itemsData: any) => {
-    if (!itemsData.searchQuery) {
-      setFormState({ ...formState, groups: [], noResultMessage: "" });
-    } else if (itemsData.searchQuery && itemsData.searchQuery.length <= 2) {
-      setFormState({ ...formState, loading: false, noResultMessage: t("NoMatchMessage") });
-    } else if (itemsData.searchQuery && itemsData.searchQuery.length > 2) {
-      // handle event trigger on item select.
-      const result =
-        itemsData.items &&
-        itemsData.items.find(
-          (item: { header: string }) => item.header.toLowerCase() === itemsData.searchQuery.toLowerCase()
-        );
-      if (result) {
-        return;
-      }
-
-      setFormState({ ...formState, loading: true, noResultMessage: "" });
-
-      try {
-        const query = encodeURIComponent(itemsData.searchQuery);
-        const response = await searchGroups(query);
-        setFormState({ ...formState, groups: response.data, loading: false, noResultMessage: t("NoMatchMessage") });
-      } catch (error) {
-        return error;
-      }
-    }
-  };
+  // encodeURIComponent(itemsData.searchQuery);
 
   const onSave = () => {
-    const selectedTeams: string[] = [];
-    const selctedRosters: string[] = [];
-    const selectedGroups: string[] = [];
-    formState.selectedTeams.forEach((x) => selectedTeams.push(x.team.id));
-    formState.selectedRosters.forEach((x) => selctedRosters.push(x.team.id));
-    formState.selectedGroups.forEach((x) => selectedGroups.push(x.team.id));
-
-    const draftMessage: IDraftMessageState = {
-      id: formState.messageId,
-      title: formState.title,
-      imageLink: formState.imageLink,
-      summary: formState.summary,
-      author: formState.author,
-      buttonTitle: formState.btnTitle,
-      buttonLink: formState.btnLink,
-      teams: selectedTeams,
-      rosters: selctedRosters,
-      groups: selectedGroups,
-      allUsers: formState.allUsersOptionSelected,
-    };
-
-    let spanner = document.getElementsByClassName("draftingLoader");
-    spanner[0].classList.remove("hiddenLoader");
-
-    if (formState.exists) {
-      editDraftMessage(draftMessage).then(() => {
-        microsoftTeams.tasks.submitTask();
-      });
-    } else {
-      postDraftMessage(draftMessage).then(() => {
-        microsoftTeams.tasks.submitTask();
-      });
-    }
+    // if (formState.exists) {
+    //   editDraftMessage(draftMessage).then(() => {
+    //     microsoftTeams.tasks.submitTask();
+    //   });
+    // } else {
+    //   postDraftMessage(draftMessage).then(() => {
+    //     microsoftTeams.tasks.submitTask();
+    //   });
+    // }
   };
 
-  const editDraftMessage = async (draftMessage: IDraftMessageState) => {
+  const editDraftMessage = async (draftMessage: formState) => {
     try {
       await updateDraftNotification(draftMessage);
     } catch (error) {
@@ -579,7 +330,7 @@ export const NewMessage = () => {
     }
   };
 
-  const postDraftMessage = async (draftMessage: IDraftMessageState) => {
+  const postDraftMessage = async (draftMessage: formState) => {
     try {
       await createDraftNotification(draftMessage);
     } catch (error) {
@@ -588,14 +339,11 @@ export const NewMessage = () => {
   };
 
   const onNext = (event: any) => {
-    setFormState({ ...formState, page: "AudienceSelection" });
-
-    // updateCard();
+    setPageSelection(CurrentPageSelection.AudienceSelection);
   };
 
   const onBack = (event: any) => {
-    setFormState({ ...formState, page: "CardCreation" });
-    // updateCard();
+    setPageSelection(CurrentPageSelection.CardCreation);
   };
 
   const onTitleChanged = (event: any) => {
@@ -651,14 +399,14 @@ export const NewMessage = () => {
   };
 
   const onBtnTitleChanged = (event: any) => {
-    setCardBtn(card, event.target.value, formState.btnLink);
-    setFormState({ ...formState, btnTitle: event.target.value });
+    setCardBtn(card, event.target.value, formState.buttonLink);
+    setFormState({ ...formState, buttonTitle: event.target.value });
     updateAdaptiveCard();
   };
 
   const onBtnLinkChanged = (event: any) => {
-    setCardBtn(card, formState.btnTitle, event.target.value);
-    setFormState({ ...formState, btnLink: event.target.value });
+    setCardBtn(card, formState.buttonTitle, event.target.value);
+    setFormState({ ...formState, buttonLink: event.target.value });
     updateAdaptiveCard();
   };
 
@@ -758,13 +506,13 @@ export const NewMessage = () => {
     searchSelectedOptions.length > 0 ? `${searchComboId} ${searchSelectedListId}` : searchComboId;
 
   const styles = useStyles();
- 
+
   return (
     <>
       {loader && <Spinner labelPosition="below" />}
       {!loader && (
         <div>
-          {formState.page === "CardCreation" && (
+          {pageSelection === CurrentPageSelection.CardCreation && (
             <>
               <div className="adaptive-task-grid">
                 <div className="form-area">
@@ -779,8 +527,14 @@ export const NewMessage = () => {
                     />
                   </Field>
                   <Field size="large" label={t("ImageURL")}>
-                    <div style={{display: 'grid', gridTemplateColumns: '1fr auto', gridTemplateAreas: 'inp-area btn-area'}}>
-                    {/* <input
+                    <div
+                      style={{
+                        display: "grid",
+                        gridTemplateColumns: "1fr auto",
+                        gridTemplateAreas: "inp-area btn-area",
+                      }}
+                    >
+                      {/* <input
                       className="file-button"
                       aria-labelledby="imageLabelId"
                       type="file"
@@ -788,29 +542,36 @@ export const NewMessage = () => {
                       name="file"
                       aria-label={t("ImageURL")}
                     /> */}
-                    <Input
-                      size="large"
-                      style={{gridColumn: "1"}}
-                      appearance="filled-darker"
-                      value={
-                        formState.imageLink && formState.imageLink.startsWith("data:")
-                          ? formState.localImagePath
-                          : formState.imageLink
-                      }
-                      placeholder={t("ImageURL")}
-                      onChange={onImageLinkChanged}
-                    />
-                    <Button style={{gridColumn: "2", marginLeft: '5px'}} onClick={handleUploadClick}  size="large" appearance="secondary" icon={<ArrowUpload24Regular />}>
-                      {t("Upload")}
-                    </Button>
-                    <input
-                      type="file"
-                      accept=".jpg, .jpeg, .png, .gif"
-                      style={{ display: "none" }}
-                      multiple={false}
-                      onChange={handleImageSelection}
-                      ref={fileInput}
-                    />
+                      <Input
+                        size="large"
+                        style={{ gridColumn: "1" }}
+                        appearance="filled-darker"
+                        // value={
+                        //   formState.imageLink && formState.imageLink.startsWith("data:")
+                        //     ? formState.localImagePath
+                        //     : formState.imageLink
+                        // }
+                        value={formState.imageLink}
+                        placeholder={t("ImageURL")}
+                        onChange={onImageLinkChanged}
+                      />
+                      <Button
+                        style={{ gridColumn: "2", marginLeft: "5px" }}
+                        onClick={handleUploadClick}
+                        size="large"
+                        appearance="secondary"
+                        icon={<ArrowUpload24Regular />}
+                      >
+                        {t("Upload")}
+                      </Button>
+                      <input
+                        type="file"
+                        accept=".jpg, .jpeg, .png, .gif"
+                        style={{ display: "none" }}
+                        multiple={false}
+                        onChange={handleImageSelection}
+                        ref={fileInput}
+                      />
                     </div>
                   </Field>
                   {/* <Text
@@ -845,7 +606,7 @@ export const NewMessage = () => {
                       onChange={onBtnTitleChanged}
                       autoComplete="off"
                       appearance="filled-darker"
-                      value={formState.btnTitle}
+                      value={formState.buttonTitle}
                     />
                   </Field>
                   <Field size="large" label={t("ButtonURL")}>
@@ -855,7 +616,7 @@ export const NewMessage = () => {
                       onChange={onBtnLinkChanged}
                       autoComplete="off"
                       appearance="filled-darker"
-                      value={formState.btnLink}
+                      value={formState.buttonLink}
                     />
                   </Field>
                   {/* <Text
@@ -868,19 +629,23 @@ export const NewMessage = () => {
                 <div className="card-area"></div>
               </div>
               <div className="fixed-footer">
-                <Button
-                  style={{ float: "right" }}
-                  disabled={isNextBtnDisabled()}
-                  id="saveBtn"
-                  onClick={onNext}
-                  appearance="primary"
-                >
-                  {t("Next")}
-                </Button>
+                <div className="footer-actions">
+                  <div className="footer-button">
+                    <Button
+                      style={{ float: "right" }}
+                      disabled={isNextBtnDisabled()}
+                      id="saveBtn"
+                      onClick={onNext}
+                      appearance="primary"
+                    >
+                      {t("Next")}
+                    </Button>
+                  </div>
+                </div>
               </div>
             </>
           )}
-          {formState.page === "AudienceSelection" && (
+          {pageSelection === CurrentPageSelection.AudienceSelection && (
             <>
               <div className="adaptive-task-grid">
                 <div className="form-area">
@@ -1132,22 +897,29 @@ export const NewMessage = () => {
                 </div>
                 <div className="card-area"></div>
               </div>
-              <Spinner
-                id="draftingLoader"
-                className="hiddenLoader draftingLoader"
-                size="small"
-                label={t("DraftingMessageLabel")}
-                labelPosition="after"
-              />
-              <Button id="backBtn" onClick={onBack} appearance="secondary">
-                {t("Back")}
-              </Button>
-              <Button disabled={isSaveBtnDisabled()} id="saveBtn" onClick={onSave} appearance="primary">
-                {t("SaveAsDraft")}
-              </Button>
+              <div className="fixed-footer">
+                <div className="footer-actions">
+                  <Spinner
+                    id="draftingLoader"
+                    className="hiddenLoader draftingLoader"
+                    size="small"
+                    label={t("DraftingMessageLabel")}
+                    labelPosition="after"
+                  />
+                  <div className="footer-button">
+                    <Button id="backBtn" onClick={onBack} appearance="secondary">
+                      {t("Back")}
+                    </Button>
+                  </div>
+                  <div className="footer-button">
+                    <Button disabled={isSaveBtnDisabled()} id="saveBtn" onClick={onSave} appearance="primary">
+                      {t("SaveAsDraft")}
+                    </Button>
+                  </div>
+                </div>
+              </div>
             </>
           )}
-          {formState.page !== "CardCreation" && formState.page !== "AudienceSelection" && <div>Error</div>}
         </div>
       )}
     </>
