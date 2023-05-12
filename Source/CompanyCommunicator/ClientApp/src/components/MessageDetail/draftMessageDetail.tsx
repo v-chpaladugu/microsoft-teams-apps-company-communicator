@@ -47,8 +47,8 @@ export const DraftMessageDetail = (draftMessages: any) => {
     let taskInfo: microsoftTeams.TaskInfo = {
       url: url,
       title: title,
-      height: microsoftTeams.TaskModuleDimension.Medium,
-      width: microsoftTeams.TaskModuleDimension.Medium,
+      height: microsoftTeams.TaskModuleDimension.Large,
+      width: microsoftTeams.TaskModuleDimension.Large,
       fallbackUrl: url,
     };
 

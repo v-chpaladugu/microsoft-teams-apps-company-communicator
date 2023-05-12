@@ -37,8 +37,8 @@ export const MainContainer = (props: IMainContainer) => {
     let taskInfo: microsoftTeams.TaskInfo = {
       url,
       title: t("NewMessage"),
-      height: microsoftTeams.TaskModuleDimension.Medium,
-      width: microsoftTeams.TaskModuleDimension.Medium,
+      height: microsoftTeams.TaskModuleDimension.Large,
+      width: microsoftTeams.TaskModuleDimension.Large,
       fallbackUrl: url,
     };
 
@@ -47,17 +47,6 @@ export const MainContainer = (props: IMainContainer) => {
     };
 
     microsoftTeams.tasks.startTask(taskInfo, submitHandler);
-  };
-
-  React.useEffect(() => {
-    //- Handle the Esc key
-    document.addEventListener("keydown", escFunction, false);
-  }, []);
-
-  const escFunction = (event: any) => {
-    if (event.keyCode === 27 || event.key === "Escape") {
-      microsoftTeams.tasks.submitTask();
-    }
   };
 
   const customHeaderImagePath = process.env.REACT_APP_HEADERIMAGE;

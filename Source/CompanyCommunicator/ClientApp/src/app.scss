@@ -14,12 +14,12 @@
 
     .card-area {
         grid-column: 2;
-        box-shadow: 0 0 4px var(--colorNeutralForeground3Selected);
+        box-shadow: 0 0 2px var(--colorNeutralForeground3Selected);
         padding: 1rem;
     }
 
     .card-area:hover {
-        box-shadow: 0 0 6px var(--colorBrandForegroundLink);
+        box-shadow: 0 0 4px var(--colorBrandForegroundLink);
     }
 
 
@@ -44,12 +44,12 @@
 
     .card-area {
         grid-row: 2;
-        box-shadow: 0 0 4px var(--colorNeutralForeground3Selected);
+        box-shadow: 0 0 2px var(--colorNeutralForeground3Selected);
         padding: 1rem;
     }
 
     .card-area:hover {
-        box-shadow: 0 0 6px var(--colorBrandForegroundLink);
+        box-shadow: 0 0 4px var(--colorBrandForegroundLink);
     }
 
 

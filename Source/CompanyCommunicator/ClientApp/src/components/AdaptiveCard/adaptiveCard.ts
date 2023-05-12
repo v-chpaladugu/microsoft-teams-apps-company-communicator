@@ -26,8 +26,8 @@ export const getInitAdaptiveCard = (t: TFunction) => {
         type: "Image",
         spacing: "Default",
         url: "",
-        size: "Stretch",
         altText: "",
+        size: "Auto",
       },
       {
         type: "TextBlock",
@@ -40,9 +40,9 @@ export const getInitAdaptiveCard = (t: TFunction) => {
         size: "Small",
         weight: "Lighter",
         text: "",
-      },
+      }
     ],
-    $schema: "https://adaptivecards.io/schemas/adaptive-card.json",
+    $schema: "http://adaptivecards.io/schemas/adaptive-card.json",
     version: "1.0",
   };
 };

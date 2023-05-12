@@ -39,7 +39,6 @@ import {
   setCardTitle,
 } from "../AdaptiveCard/adaptiveCard";
 
-import parse from "html-react-parser";
 
 const validImageTypes = ["image/gif", "image/jpeg", "image/png", "image/jpg"];
 
@@ -101,7 +100,6 @@ export interface formState {
 }
 
 let card: any;
-// let renderCard: string = "<span></span>";
 
 export const NewMessage = () => {
   let fileInput = React.createRef();
@@ -111,7 +109,6 @@ export const NewMessage = () => {
   const teams = useAppSelector((state: RootState) => state.messages).teamsData.payload;
   const groups = useAppSelector((state: RootState) => state.messages).groups.payload;
   // const verifyGroupAccess = useAppSelector((state: RootState) => state.messages).verifyGroup.payload;
-  const [renderCard, setRenderCard] = React.useState("<span></span>");
 
   const [loader, setLoader] = React.useState(false);
 
@@ -236,15 +233,17 @@ export const NewMessage = () => {
   };
 
   const updateAdaptiveCard = () => {
-    let adaptiveCard = new AdaptiveCards.AdaptiveCard();
+    var adaptiveCard = new AdaptiveCards.AdaptiveCard();
     adaptiveCard.parse(card);
-    if (formState.btnLink) {
-      let link = formState.btnLink;
-      adaptiveCard.onExecuteAction = function (action) {
-        window.open(link, "_blank");
-      };
+    const renderCard = adaptiveCard.render();
+    if (renderCard) {
+      document.getElementsByClassName("card-area")[0].innerHTML = '';
+      document.getElementsByClassName("card-area")[0].appendChild(renderCard);
     }
-    setRenderCard(adaptiveCard.render().outerHTML);
+    adaptiveCard.onExecuteAction = function (action: any) {
+      window.open(action.url, "_blank");
+    };
+    setLoader(false);
   };
 
   const makeDropdownItems = (items: any[] | undefined) => {
@@ -643,15 +642,17 @@ export const NewMessage = () => {
             <>
               <div className="adaptive-task-grid">
                 <div className="form-area">
-                  <Field label={t("TitleText")}>
+                  <Field size="large" label={t("TitleText")}>
                     <Input
                       placeholder={t("PlaceHolderTitle")}
                       onChange={onTitleChanged}
                       autoComplete="off"
+                      size="large"
+                      appearance="filled-darker"
                       value={formState.title}
                     />
                   </Field>
-                  <Field label={t("ImageURL")}>
+                  <Field size="large" label={t("ImageURL")}>
                     <input
                       className="file-button"
                       aria-labelledby="imageLabelId"
@@ -710,27 +711,30 @@ export const NewMessage = () => {
                         size="small"
                         content={formState.errorImageUrlMessage}
                       /> */}
-                  <Field label={t("Summary")}>
-                    <Textarea placeholder={t("Summary")} value={formState.summary} onChange={onSummaryChanged} />
+                  <Field size="large" label={t("Summary")}>
+                    <Textarea size="large" placeholder={t("Summary")} value={formState.summary} onChange={onSummaryChanged} />
                   </Field>
-                  <Field label={t("Author")}>
+                  <Field size="large" label={t("Author")}>
                     <Input
                       placeholder={t("Author")}
+                      size="large"
                       onChange={onAuthorChanged}
                       autoComplete="off"
                       value={formState.author}
                     />
                   </Field>
-                  <Field label={t("ButtonTitle")}>
+                  <Field size="large" label={t("ButtonTitle")}>
                     <Input
+                      size="large"
                       placeholder={t("ButtonTitle")}
                       onChange={onBtnTitleChanged}
                       autoComplete="off"
                       value={formState.btnTitle}
                     />
                   </Field>
-                  <Field label={t("ButtonURL")}>
+                  <Field size="large" label={t("ButtonURL")}>
                     <Input
+                      size="large"
                       placeholder={t("ButtonURL")}
                       onChange={onBtnLinkChanged}
                       autoComplete="off"
@@ -744,7 +748,7 @@ export const NewMessage = () => {
                         content={formState.errorButtonUrlMessage}
                       /> */}
                 </div>
-                <div className="card-area">{parse(renderCard || "<span></span>")}</div>
+                <div className="card-area"></div>
               </div>
               <div className="fixed-footer">
                 <Button
@@ -894,7 +898,7 @@ export const NewMessage = () => {
                         ]}
                       ></RadioGroup> */}
                 </div>
-                <div className="card-area">{parse(renderCard || "<span></span>")}</div>
+                <div className="card-area"></div>
               </div>
               <Spinner
                 id="draftingLoader"
