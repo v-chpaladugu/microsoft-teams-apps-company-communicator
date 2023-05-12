@@ -1,6 +1,7 @@
 @media screen and (min-width: 768px) {
     .adaptive-task-grid {
         display: grid;
+        min-height: 400px;
         padding: 2rem 2rem 8rem 2rem;
         grid-template-columns: 1fr 1fr;
         grid-template-areas:
@@ -15,15 +16,16 @@
     .card-area {
         grid-column: 2;
         padding: 1rem;
-
-        border-radius: 2px;
-        box-shadow: 0 0 2px var(--colorNeutralForeground3Selected);
-        transition: 0.3s;
+        
+        // border-radius: 2px;
+        // box-shadow: 0 0 2px var(--colorNeutralForeground3Selected);
+        // transition: 0.3s;
+        border: 2px solid var(--colorBrandBackgroundSelected);
     }
 
-    .card-area:hover {
-        box-shadow: 0 0 4px var(--colorNeutralForeground3Selected);
-    }
+    // .card-area:hover {
+    //     box-shadow: 0 0 4px var(--colorNeutralForeground3Selected);
+    // }
 
 
     .big-screen-visible {
@@ -34,6 +36,7 @@
 @media screen and (max-width: 767px) {
     .adaptive-task-grid {
         display: grid;
+        min-height: 400px;
         padding: 2rem 2rem 8rem 2rem;
         grid-template-rows: auto 1fr;
         grid-template-areas:
@@ -49,39 +52,51 @@
         grid-row: 2;
         padding: 1rem;
 
-        border-radius: 2px;
-        box-shadow: 0px 0px 2px var(--colorNeutralForeground3Selected);
-        transition: 0.3s;
+        // border-radius: 2px;
+        // box-shadow: 0px 0px 2px var(--colorNeutralForeground3Selected);
+        // transition: 0.3s;
+
+        border: 2px solid var(--colorBrandBackgroundSelected);
     }
 
-    .card-area:hover {
-        box-shadow: 0 0px 4px var(--colorNeutralForeground3Selected);
-    }
-
+    // .card-area:hover {
+    //     box-shadow: 0 0px 4px var(--colorNeutralForeground3Selected);
+    // }
 
     .big-screen-visible {
         display: none;
     }
 }
 
-.fixed-footer {
-    position: fixed;
-    left: 0;
-    bottom: 0;
-    width: 100%;
-    min-height: 72px;
-    background: #fefefe;
-    display: inline;
+// .fixed-footer {
+//     position: fixed;
+//     left: 0;
+//     bottom: 0;
+//     width: 100%;
+//     min-height: 72px;
+//     background: #fefefe;
+//     display: inline;
+// }
+
+.footer-actions-inline {
+   display: inline;
 }
 
-
-.footer-actions {
+.footer-action-right {
     float: right;
 }
 
-.footer-button {
-    padding: 1rem;
+.footer-action-left {
+    float: left;
 }
+
+.footer-actions-flex {
+    display: inline-flex;
+}
+
+// .footer-button {
+//     padding: 1rem;
+// }
 
 // button#sendBtn {
 //     float: right;

@@ -281,7 +281,7 @@ export const NewMessage = () => {
   };
 
   const isNextBtnDisabled = () => {
-    return true;
+    return false;
   };
 
   const onTeamsChange = (event: any, itemsData: any) => {
@@ -628,19 +628,17 @@ export const NewMessage = () => {
                 </div>
                 <div className="card-area"></div>
               </div>
-              <div className="fixed-footer">
-                <div className="footer-actions">
-                  <div className="footer-button">
-                    <Button
-                      style={{ float: "right" }}
-                      disabled={isNextBtnDisabled()}
-                      id="saveBtn"
-                      onClick={onNext}
-                      appearance="primary"
-                    >
-                      {t("Next")}
-                    </Button>
-                  </div>
+              <div className="footer-actions-inline">
+                <div className="footer-action-right">
+                  <Button
+                    style={{ margin: "16px" }}
+                    disabled={isNextBtnDisabled()}
+                    id="saveBtn"
+                    onClick={onNext}
+                    appearance="primary"
+                  >
+                    {t("Next")}
+                  </Button>
                 </div>
               </div>
             </>
@@ -897,24 +895,31 @@ export const NewMessage = () => {
                 </div>
                 <div className="card-area"></div>
               </div>
-              <div className="fixed-footer">
-                <div className="footer-actions">
-                  <Spinner
-                    id="draftingLoader"
-                    className="hiddenLoader draftingLoader"
-                    size="small"
-                    label={t("DraftingMessageLabel")}
-                    labelPosition="after"
-                  />
-                  <div className="footer-button">
+              <div>
+                <div className="footer-actions-inline">
+                  <div className="footer-action-left">
                     <Button id="backBtn" onClick={onBack} appearance="secondary">
                       {t("Back")}
                     </Button>
                   </div>
-                  <div className="footer-button">
-                    <Button disabled={isSaveBtnDisabled()} id="saveBtn" onClick={onSave} appearance="primary">
-                      {t("SaveAsDraft")}
-                    </Button>
+                  <div className="footer-action-right">
+                    <div className="footer-actions-flex">
+                      <Spinner
+                        id="draftingLoader"
+                        size="small"
+                        label={t("DraftingMessageLabel")}
+                        labelPosition="after"
+                      />
+                      <Button
+                        style={{ margin: "16px" }}
+                        disabled={isSaveBtnDisabled()}
+                        id="saveBtn"
+                        onClick={onSave}
+                        appearance="primary"
+                      >
+                        {t("SaveAsDraft")}
+                      </Button>
+                    </div>
                   </div>
                 </div>
               </div>

@@ -207,13 +207,11 @@ export const SendConfirmationTaskModule = () => {
           </div>
           <div className="card-area"></div>
         </div>
-        <div className="fixed-footer">
-          <div className="footer-actions">
-            <div className="footer-button">
-              <Button onClick={onSendMessage} appearance="primary">
+        <div className="footer-actions-inline">
+            <div className="footer-action-right">
+              <Button style={{margin:"16px"}} onClick={onSendMessage} appearance="primary">
                 {t("Send")}
               </Button>
-            </div>
           </div>
         </div>
       </>

@@ -307,18 +307,19 @@ export const StatusTaskModule = () => {
             </div>
             <div className="card-area"></div>
           </div>
-          <div className="fixed-footer">
-            <div className="footer-actions">
-              <Spinner
-                id="sendingLoader"
-                size="small"
-                className="spinner-wheel-1"
-                label={t("ExportLabel")}
-                labelPosition="after"
-              />
-              <div className="footer-button">
+          <div className="footer-actions-inline">
+            <div className="footer-action-right">
+              <div className="footer-actions-flex">
+                <Spinner
+                  id="sendingLoader"
+                  size="small"
+                  className="spinner-wheel-1"
+                  label={t("ExportLabel")}
+                  labelPosition="after"
+                />
                 <Button
                   icon={<ArrowDownload24Regular />}
+                  style={{ margin: "16px" }}
                   disabled={!messageState.canDownload || !messageState.sendingCompleted}
                   onClick={onExport}
                   appearance="primary"
