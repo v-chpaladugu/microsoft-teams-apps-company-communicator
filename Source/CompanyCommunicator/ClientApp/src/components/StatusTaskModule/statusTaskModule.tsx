@@ -308,25 +308,24 @@ export const StatusTaskModule = () => {
             <div className="card-area"></div>
           </div>
           <div className="fixed-footer">
-            <div style={{float:"right"}}>
-            <Spinner
-              id="sendingLoader"
-              size="small"
-              className="spinner-wheel-1"
-              label={t("ExportLabel")}
-              labelPosition="after"
-            />
-            <div style={{padding: "16px"}}>
-            <Button
-              icon={<ArrowDownload24Regular />}
-              disabled={!messageState.canDownload || !messageState.sendingCompleted}
-              id="exportBtn1"
-              onClick={onExport}
-              appearance="primary"
-            >
-              {t("ExportButtonText")}
-            </Button>
-            </div>
+            <div className="footer-actions">
+              <Spinner
+                id="sendingLoader"
+                size="small"
+                className="spinner-wheel-1"
+                label={t("ExportLabel")}
+                labelPosition="after"
+              />
+              <div className="footer-button">
+                <Button
+                  icon={<ArrowDownload24Regular />}
+                  disabled={!messageState.canDownload || !messageState.sendingCompleted}
+                  onClick={onExport}
+                  appearance="primary"
+                >
+                  {t("ExportButtonText")}
+                </Button>
+              </div>
             </div>
           </div>
         </>
