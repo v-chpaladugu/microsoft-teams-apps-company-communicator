@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import "./statusTaskModule.scss";
+// import "./statusTaskModule.scss";
 
 import * as AdaptiveCards from "adaptivecards";
 import * as React from "react";
@@ -14,7 +14,19 @@ import { exportNotification, getSentNotification } from "../../apis/messageListA
 import { formatDate, formatDuration, formatNumber } from "../../i18n";
 import { ImageUtil } from "../../utility/imageutility";
 
-import { Button, MenuItem, MenuList, Image, Spinner } from "@fluentui/react-components";
+import {
+  Button,
+  MenuItem,
+  MenuList,
+  Image,
+  Spinner,
+  Label,
+  Text,
+  Divider,
+  Field,
+  makeResetStyles,
+  tokens,
+} from "@fluentui/react-components";
 
 import { ArrowDownload24Regular, CheckmarkSquare24Regular } from "@fluentui/react-icons";
 
@@ -170,7 +182,12 @@ export const StatusTaskModule = () => {
     let resultedTeams: any[] = [];
     if (items) {
       items.map((element) => {
-        resultedTeams.push(<MenuItem icon={<Image src={ImageUtil.makeInitialImage(element)} />}>{element}</MenuItem>);
+        resultedTeams.push(
+          <li>
+            <Image src={ImageUtil.makeInitialImage(element)} />
+            <span style={{ verticalAlign: "top", paddingLeft: "5px" }}>{element}</span>
+          </li>
+        );
       });
     }
     return resultedTeams;
@@ -179,31 +196,28 @@ export const StatusTaskModule = () => {
   const renderAudienceSelection = () => {
     if (messageState.teamNames && messageState.teamNames.length > 0) {
       return (
-        <div>
-          <h3>{t("SentToGeneralChannel")}</h3>
-          <MenuList>{getItemList(messageState.teamNames)}</MenuList>
-        </div>
+        <Field size="large" label={t("SentToGeneralChannel")}>
+          <ul style={{ listStyleType: "none" }}>{getItemList(messageState.teamNames)}</ul>
+        </Field>
       );
     } else if (messageState.rosterNames && messageState.rosterNames.length > 0) {
       return (
-        <div>
-          <h3>{t("SentToRosters")}</h3>
-          <MenuList>{getItemList(messageState.rosterNames)}</MenuList>
-        </div>
+        <Field size="large" label={t("SentToRosters")}>
+          <ul style={{ listStyleType: "none" }}>{getItemList(messageState.rosterNames)}</ul>
+        </Field>
       );
     } else if (messageState.groupNames && messageState.groupNames.length > 0) {
       return (
-        <div>
-          <h3>{t("SentToGroups1")}</h3>
+        <Field size="large" label={t("SentToGroups1")}>
           <span>{t("SentToGroups2")}</span>
-          <MenuList>{getItemList(messageState.groupNames)}</MenuList>
-        </div>
+          <ul style={{ listStyleType: "none" }}>{getItemList(messageState.groupNames)}</ul>
+        </Field>
       );
     } else if (messageState.allUsers) {
       return (
-        <div>
-          <h3>{t("SendToAllUsers")}</h3>
-        </div>
+        <>
+          <Text size={500}>{t("SendToAllUsers")}</Text>
+        </>
       );
     } else {
       return <div></div>;
@@ -249,69 +263,71 @@ export const StatusTaskModule = () => {
             <div className="form-area">
               {!loader && (
                 <>
-                  <div className="contentField">
-                    <h3>{t("TitleText")}</h3>
-                    <span>{messageState.title}</span>
+                  <div style={{ paddingBottom: "16px" }}>
+                    <Field size="large" label={t("TitleText")}>
+                      <Text>{messageState.title}</Text>
+                    </Field>
                   </div>
-                  <div className="contentField">
-                    <h3>{t("SendingStarted")}</h3>
-                    <span>{messageState.sendingStartedDate}</span>
+                  <div style={{ paddingBottom: "16px" }}>
+                    <Field className="spacingVerticalM" size="large" label={t("SendingStarted")}>
+                      <Text>{messageState.sendingStartedDate}</Text>
+                    </Field>
                   </div>
-                  <div className="contentField">
-                    <h3>{t("Completed")}</h3>
-                    <span>{messageState.sentDate}</span>
+                  <div style={{ paddingBottom: "16px" }}>
+                    <Field size="large" label={t("Completed")}>
+                      <Text>{messageState.sentDate}</Text>
+                    </Field>
                   </div>
-                  <div className="contentField">
-                    <h3>{t("Created By")}</h3>
-                    <span>{messageState.createdBy}</span>
+                  <div style={{ paddingBottom: "16px" }}>
+                    <Field size="large" label={t("CreatedBy")}>
+                      <Text>{messageState.createdBy}</Text>
+                    </Field>
                   </div>
-                  <div className="contentField">
-                    <h3>{t("Duration")}</h3>
-                    <span>{messageState.sendingDuration}</span>
+                  <div style={{ paddingBottom: "16px" }}>
+                    <Field size="large" label={t("Duration")}>
+                      <Text>{messageState.sendingDuration}</Text>
+                    </Field>
                   </div>
-                  <div className="contentField">
-                    <h3>{t("Results")}</h3>
-                    <label>{t("Success", { SuccessCount: messageState.succeeded })}</label>
-                    <br />
-                    <label>{t("Failure", { FailureCount: messageState.failed })}</label>
-                    {messageState.canceled && (
-                      <>
-                        <br />
-                        <label>{t("Canceled", { CanceledCount: messageState.canceled })}</label>
-                      </>
-                    )}
-                    {messageState.unknown && (
-                      <>
-                        <br />
-                        <label>{t("Unknown", { UnknownCount: messageState.unknown })}</label>
-                      </>
-                    )}
+                  <div style={{ paddingBottom: "16px" }}>
+                    <Field size="large" label={t("Results")}>
+                      <Text>{t("Success", { SuccessCount: messageState.succeeded })}</Text>
+                      <Text>{t("Failure", { FailureCount: messageState.failed })}</Text>
+                      {messageState.unknown && (
+                        <>
+                          <Text>{t("Unknown", { UnknownCount: messageState.unknown })}</Text>
+                        </>
+                      )}
+                    </Field>
                   </div>
-                  <div className="contentField">{renderAudienceSelection()}</div>
-                  <div className="contentField">{renderErrorMessage()}</div>
-                  <div className="contentField">{renderWarningMessage()}</div>
+                  <div style={{ paddingBottom: "16px" }}>{renderAudienceSelection()}</div>
+                  <div style={{ paddingBottom: "16px" }}>{renderErrorMessage()}</div>
+                  <div style={{ paddingBottom: "16px" }}>{renderWarningMessage()}</div>
                 </>
               )}
             </div>
             <div className="card-area"></div>
           </div>
           <div className="fixed-footer">
+            <div style={{float:"right"}}>
             <Spinner
               id="sendingLoader"
-              className="spinner-wheel"
               size="small"
+              className="spinner-wheel-1"
               label={t("ExportLabel")}
-              labelPosition="before"
+              labelPosition="after"
             />
+            <div style={{padding: "16px"}}>
             <Button
               icon={<ArrowDownload24Regular />}
               disabled={!messageState.canDownload || !messageState.sendingCompleted}
-              id="exportBtn"
+              id="exportBtn1"
               onClick={onExport}
               appearance="primary"
             >
               {t("ExportButtonText")}
             </Button>
+            </div>
+            </div>
           </div>
         </>
       )}

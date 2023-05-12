@@ -5,7 +5,7 @@ import * as AdaptiveCards from "adaptivecards";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
-import { Button, Image, Label, MenuItem, MenuList, Spinner, Text } from "@fluentui/react-components";
+import { Button, Field, Image, Label,  Spinner, Text } from "@fluentui/react-components";
 import * as microsoftTeams from "@microsoft/teams-js";
 import { getConsentSummaries, getDraftNotification, sendDraftNotification } from "../../apis/messageListApi";
 import { ImageUtil } from "../../utility/imageutility";
@@ -143,7 +143,7 @@ export const SendConfirmationTaskModule = () => {
     let resultedTeams: any[] = [];
     if (items) {
       items.map((element) => {
-        resultedTeams.push(<MenuItem icon={<Image src={ImageUtil.makeInitialImage(element)} />}>{element}</MenuItem>);
+        resultedTeams.push(<li><Image src={ImageUtil.makeInitialImage(element)} /><span style={{verticalAlign: 'top', paddingLeft: '5px'}}>{element}</span></li>);
       });
     }
     return resultedTeams;
@@ -154,21 +154,21 @@ export const SendConfirmationTaskModule = () => {
       return (
         <div key="teamNames">
           <Label>{t("TeamsLabel")}</Label>
-          <MenuList>{getItemList(consentState.teamNames)}</MenuList>
+          <ul style={{listStyleType: 'none'}}>{getItemList(consentState.teamNames)}</ul>
         </div>
       );
     } else if (consentState.rosterNames && consentState.rosterNames.length > 0) {
       return (
         <div key="rosterNames">
           <Label>{t("TeamsMembersLabel")}</Label>
-          <MenuList>{getItemList(consentState.rosterNames)}</MenuList>
+          <ul style={{listStyleType: 'none'}}>{getItemList(consentState.rosterNames)}</ul>
         </div>
       );
     } else if (consentState.groupNames && consentState.groupNames.length > 0) {
       return (
         <div key="groupNames">
           <Label>{t("GroupsMembersLabel")}</Label>
-          <MenuList>{getItemList(consentState.groupNames)}</MenuList>
+          <ul style={{listStyleType: 'none'}}>{getItemList(consentState.groupNames)}</ul>
         </div>
       );
     } else if (consentState.allUsers) {
@@ -193,8 +193,9 @@ export const SendConfirmationTaskModule = () => {
           <div className="form-area">
             {!loader && (
               <>
-                <h3>{t("ConfirmToSend")}</h3>
-                <Label>{t("SendToRecipientsLabel")}</Label>
+                 <Field size="large" label={t("ConfirmToSend")}>
+                    <Text>{t("SendToRecipientsLabel")}</Text>
+                  </Field>
                 <div style={{ margin: "16px" }}>{renderAudienceSelection()}</div>
               </>
             )}

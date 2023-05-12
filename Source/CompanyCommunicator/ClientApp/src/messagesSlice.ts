@@ -4,8 +4,9 @@ export interface MessagesState {
   draftMessages: { action: string; payload: [] };
   sentMessages: { action: string; payload: [] };
   selectedMessage: { action: string; payload: {} };
-  teamsData: { action: string; payload: [] };
+  teamsData: { action: string; payload: any[] };
   groups: { action: string; payload: [] },
+  queryGroups: { action: string; payload: any[] },
   verifyGroup: { action: string; payload: boolean },
   isDraftMessagesFetchOn: { action: string; payload: boolean },
   isSentMessagesFetchOn: { action: string; payload: boolean }
@@ -17,6 +18,7 @@ const initialState: MessagesState = {
   selectedMessage: { action: "MESSAGE_SELECTED", payload: [] },
   teamsData: { action: "GET_TEAMS_DATA", payload: [] },
   groups: { action: "GET_GROUPS", payload: [] },
+  queryGroups: { action: "SEARCH_GROUPS", payload: [] },
   verifyGroup: { action: "VERIFY_GROUP_ACCESS", payload: false },
   isDraftMessagesFetchOn: { action: "DRAFT_MESSAGES_FETCH_STATUS", payload: false },
   isSentMessagesFetchOn: { action: "SENT_MESSAGES_FETCH_STATUS", payload: false }
@@ -41,6 +43,9 @@ export const messagesSlice = createSlice({
     groups: (state, action) => {
       state.groups = action.payload;
     },
+    queryGroups: (state, action) => {
+      state.queryGroups = action.payload;
+    },
     verifyGroup: (state, action) => {
       state.groups = action.payload;
     },
@@ -53,6 +58,6 @@ export const messagesSlice = createSlice({
   },
 });
 
-export const { draftMessages, sentMessages, selectedMessage, teamsData, groups, verifyGroup, isDraftMessagesFetchOn, isSentMessagesFetchOn} = messagesSlice.actions;
+export const { draftMessages, sentMessages, selectedMessage, teamsData, groups, queryGroups, verifyGroup, isDraftMessagesFetchOn, isSentMessagesFetchOn} = messagesSlice.actions;
 
 export default messagesSlice.reducer;

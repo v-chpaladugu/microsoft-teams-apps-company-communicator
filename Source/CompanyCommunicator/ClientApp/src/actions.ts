@@ -7,6 +7,7 @@ import {
   getTeams,
   getGroups,
   verifyGroupAccess,
+  searchGroups,
 } from "./apis/messageListApi";
 import { formatDate } from "./i18n";
 import {
@@ -18,6 +19,7 @@ import {
   selectedMessage,
   sentMessages,
   teamsData,
+  queryGroups,
 } from "./messagesSlice";
 import { store } from "./store";
 
@@ -72,6 +74,12 @@ export const GetTeamsDataAction = (dispatch: typeof store.dispatch) => {
 export const GetGroupsAction = (dispatch: typeof store.dispatch, payload: { id: number }) => {
   getGroups(payload.id).then((response) => {
     dispatch(groups({ type: "GET_GROUPS", payload: response.data }));
+  });
+};
+
+export const SearchGroupsAction = (dispatch: typeof store.dispatch, payload: { query: string }) => {
+  searchGroups(payload.query).then((response) => {
+    dispatch(queryGroups({ type: "SEARCH_GROUPS", payload: response.data }));
   });
 };
 

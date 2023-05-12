@@ -1,7 +1,7 @@
 @media screen and (min-width: 768px) {
     .adaptive-task-grid {
         display: grid;
-        padding-bottom: 8rem;
+        padding: 2rem 2rem 8rem 2rem;
         grid-template-columns: 1fr 1fr;
         grid-template-areas:
             'form-area card-area'
@@ -14,12 +14,15 @@
 
     .card-area {
         grid-column: 2;
-        box-shadow: 0 0 2px var(--colorNeutralForeground3Selected);
         padding: 1rem;
+
+        border-radius: 2px;
+        box-shadow: 0 0 2px var(--colorNeutralForeground3Selected);
+        transition: 0.3s;
     }
 
     .card-area:hover {
-        box-shadow: 0 0 4px var(--colorBrandForegroundLink);
+        box-shadow: 0 0 4px var(--colorNeutralForeground3Selected);
     }
 
 
@@ -31,7 +34,7 @@
 @media screen and (max-width: 767px) {
     .adaptive-task-grid {
         display: grid;
-        padding-bottom: 8rem;
+        padding: 2rem 2rem 8rem 2rem;
         grid-template-rows: auto 1fr;
         grid-template-areas:
             'form-area card-area'
@@ -44,12 +47,15 @@
 
     .card-area {
         grid-row: 2;
-        box-shadow: 0 0 2px var(--colorNeutralForeground3Selected);
         padding: 1rem;
+
+        border-radius: 2px;
+        box-shadow: 0px 0px 2px var(--colorNeutralForeground3Selected);
+        transition: 0.3s;
     }
 
     .card-area:hover {
-        box-shadow: 0 0 4px var(--colorBrandForegroundLink);
+        box-shadow: 0 0px 4px var(--colorNeutralForeground3Selected);
     }
 
 
@@ -63,7 +69,9 @@
     left: 0;
     bottom: 0;
     width: 100%;
+    min-height: 72px;
     background: #fefefe;
+    display: inline;
 }
 
 button#sendBtn {

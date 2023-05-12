@@ -18,9 +18,18 @@ import {
   Label,
   Combobox,
   Option,
+  useId,
+  ComboboxProps,
+  shorthands,
+  tokens,
+  makeStyles,
+  Dropdown,
 } from "@fluentui/react-components";
+
+import { Dismiss12Regular, ArrowUpload24Regular } from "@fluentui/react-icons";
+
 import * as microsoftTeams from "@microsoft/teams-js";
-import { GetGroupsAction, GetTeamsDataAction, VerifyGroupAccessAction } from "../../actions";
+import { GetGroupsAction, GetTeamsDataAction, VerifyGroupAccessAction, SearchGroupsAction } from "../../actions";
 import {
   createDraftNotification,
   getDraftNotification,
@@ -38,7 +47,6 @@ import {
   setCardSummary,
   setCardTitle,
 } from "../AdaptiveCard/adaptiveCard";
-
 
 const validImageTypes = ["image/gif", "image/jpeg", "image/png", "image/jpg"];
 
@@ -101,13 +109,34 @@ export interface formState {
 
 let card: any;
 
+const useStyles = makeStyles({
+  root: {
+    // Stack the label above the field with a gap
+    display: "grid",
+    gridTemplateRows: "repeat(1fr)",
+    justifyItems: "start",
+    ...shorthands.gap("2px"),
+    paddingLeft: "36px",
+  },
+  tagsList: {
+    listStyleType: "none",
+    marginBottom: tokens.spacingVerticalXXS,
+    marginTop: 0,
+    paddingLeft: 0,
+    display: "flex",
+    gridGap: tokens.spacingHorizontalXXS,
+  },
+});
+
 export const NewMessage = () => {
-  let fileInput = React.createRef();
+  let fileInput = React.createRef<any>();
   const MAX_SELECTED_TEAMS_NUM: number = 20;
   const { t } = useTranslation();
   const { id } = useParams() as any;
   const teams = useAppSelector((state: RootState) => state.messages).teamsData.payload;
   const groups = useAppSelector((state: RootState) => state.messages).groups.payload;
+  const queryGroups = useAppSelector((state: RootState) => state.messages).queryGroups.payload;
+
   // const verifyGroupAccess = useAppSelector((state: RootState) => state.messages).verifyGroup.payload;
 
   const [loader, setLoader] = React.useState(false);
@@ -237,7 +266,7 @@ export const NewMessage = () => {
     adaptiveCard.parse(card);
     const renderCard = adaptiveCard.render();
     if (renderCard) {
-      document.getElementsByClassName("card-area")[0].innerHTML = '';
+      document.getElementsByClassName("card-area")[0].innerHTML = "";
       document.getElementsByClassName("card-area")[0].appendChild(renderCard);
     }
     adaptiveCard.onExecuteAction = function (action: any) {
@@ -293,7 +322,7 @@ export const NewMessage = () => {
 
   const handleUploadClick = (event: any) => {
     if (fileInput.current) {
-      // fileInput.current.click();
+      fileInput.current.click();
     }
   };
 
@@ -306,59 +335,59 @@ export const NewMessage = () => {
     else return false;
   };
 
-  // const handleImageSelection = () => {
-  //   const file = fileInput.current.files[0];
+  const handleImageSelection = () => {
+    const file = fileInput.current.files[0];
 
-  //   if (file) {
-  //     const fileType = file["type"];
-  //     const { type: mimeType } = file;
+    if (file) {
+      const fileType = file["type"];
+      const { type: mimeType } = file;
 
-  //     if (!validImageTypes.includes(fileType)) {
-  //       setFormState({ ...formState, errorImageUrlMessage: t("ErrorImageTypesMessage") });
-  //       return;
-  //     }
+      if (!validImageTypes.includes(fileType)) {
+        setFormState({ ...formState, errorImageUrlMessage: t("ErrorImageTypesMessage") });
+        return;
+      }
 
-  //     setFormState({ ...formState, localImagePath: file["name"] });
-  //     setFormState({ ...formState, errorImageUrlMessage: "" });
+      setFormState({ ...formState, localImagePath: file["name"] });
+      setFormState({ ...formState, errorImageUrlMessage: "" });
 
-  //     const fileReader = new FileReader();
-  //     fileReader.readAsDataURL(file);
-  //     fileReader.onload = () => {
-  //       var image = new Image();
-  //       image.src = fileReader.result as string;
-  //       var resizedImageAsBase64 = fileReader.result as string;
+      const fileReader = new FileReader();
+      fileReader.readAsDataURL(file);
+      fileReader.onload = () => {
+        var image = new Image();
+        image.src = fileReader.result as string;
+        var resizedImageAsBase64 = fileReader.result as string;
 
-  //       image.onload = function (e: any) {
-  //         const MAX_WIDTH = 1024;
+        image.onload = function (e: any) {
+          const MAX_WIDTH = 1024;
 
-  //         if (image.width > MAX_WIDTH) {
-  //           const canvas = document.createElement("canvas");
-  //           canvas.width = MAX_WIDTH;
-  //           canvas.height = ~~(image.height * (MAX_WIDTH / image.width));
-  //           const context = canvas.getContext("2d", { alpha: false });
-  //           if (!context) {
-  //             return;
-  //           }
-  //           context.drawImage(image, 0, 0, canvas.width, canvas.height);
-  //           resizedImageAsBase64 = canvas.toDataURL(mimeType);
-  //         }
-  //       };
+          if (image.width > MAX_WIDTH) {
+            const canvas = document.createElement("canvas");
+            canvas.width = MAX_WIDTH;
+            canvas.height = ~~(image.height * (MAX_WIDTH / image.width));
+            const context = canvas.getContext("2d", { alpha: false });
+            if (!context) {
+              return;
+            }
+            context.drawImage(image, 0, 0, canvas.width, canvas.height);
+            resizedImageAsBase64 = canvas.toDataURL(mimeType);
+          }
+        };
 
-  //       if (!checkValidSizeOfImage(resizedImageAsBase64)) {
-  //         setFormState({ ...formState, errorImageUrlMessage: t("ErrorImageSizeMessage") });
-  //         return;
-  //       }
+        if (!checkValidSizeOfImage(resizedImageAsBase64)) {
+          setFormState({ ...formState, errorImageUrlMessage: t("ErrorImageSizeMessage") });
+          return;
+        }
 
-  //       setCardImageLink(card, resizedImageAsBase64);
-  //       updateCard();
-  //       setFormState({ ...formState, imageLink: resizedImageAsBase64 });
-  //     };
+        setCardImageLink(card, resizedImageAsBase64);
+        // updateCard();
+        setFormState({ ...formState, imageLink: resizedImageAsBase64 });
+      };
 
-  //     fileReader.onerror = (error) => {
-  //       //reject(error);
-  //     };
-  //   }
-  // };
+      fileReader.onerror = (error) => {
+        //reject(error);
+      };
+    }
+  };
 
   const onGroupSelected = (event: any, data: any) => {
     setFormState({
@@ -633,9 +662,106 @@ export const NewMessage = () => {
     updateAdaptiveCard();
   };
 
+  // generate ids for handling labelling
+  const teamsComboId = useId("teams-combo-multi");
+  const teamsSelectedListId = `${teamsComboId}-selection`;
+
+  const rostersComboId = useId("rosters-combo-multi");
+  const rostersSelectedListId = `${rostersComboId}-selection`;
+
+  const searchComboId = useId("search-combo-multi");
+  const searchSelectedListId = `${searchComboId}-selection`;
+
+  // refs for managing focus when removing tags
+  const teamsSelectedListRef = React.useRef<HTMLUListElement>(null);
+  const teamsComboboxInputRef = React.useRef<HTMLInputElement>(null);
+  const rostersSelectedListRef = React.useRef<HTMLUListElement>(null);
+  const rostersComboboxInputRef = React.useRef<HTMLInputElement>(null);
+  const searchSelectedListRef = React.useRef<HTMLUListElement>(null);
+  const searchComboboxInputRef = React.useRef<HTMLInputElement>(null);
+
+  // Handle selectedOptions both when an option is selected or deselected in the Combobox,
+  // and when an option is removed by clicking on a tag
+  const [teamsSelectedOptions, setTeamsSelectedOptions] = React.useState<string[]>([]);
+  const [rostersSelectedOptions, setRostersSelectedOptions] = React.useState<string[]>([]);
+
+  const [searchSelectedOptions, setSearchSelectedOptions] = React.useState<string[]>([]);
+
+  const onTeamsSelect: ComboboxProps["onOptionSelect"] = (event, data) => {
+    setTeamsSelectedOptions(data.selectedOptions);
+  };
+
+  const onRostersSelect: ComboboxProps["onOptionSelect"] = (event, data) => {
+    setRostersSelectedOptions(data.selectedOptions);
+  };
+
+  const onSearchSelect: ComboboxProps["onOptionSelect"] = (event, data) => {
+    if (data.optionText && !searchSelectedOptions.find((x) => x === data.optionText)) {
+      setSearchSelectedOptions([...searchSelectedOptions, data.optionText]);
+    }
+  };
+
+  const onSearchChange = (event: any) => {
+    if (event && event.target && event.target.value) {
+      SearchGroupsAction(dispatch, { query: event.target.value });
+    }
+    // console.log(event.target.value);
+  };
+
+  const onTeamsTagClick = (option: string, index: number) => {
+    // remove selected option
+    setTeamsSelectedOptions(teamsSelectedOptions.filter((o) => o !== option));
+
+    // focus previous or next option, defaulting to focusing back to the combo input
+    const indexToFocus = index === 0 ? 1 : index - 1;
+    const optionToFocus = teamsSelectedListRef.current?.querySelector(`#${teamsComboId}-remove-${indexToFocus}`);
+    if (optionToFocus) {
+      (optionToFocus as HTMLButtonElement).focus();
+    } else {
+      teamsComboboxInputRef.current?.focus();
+    }
+  };
+
+  const onRostersTagClick = (option: string, index: number) => {
+    // remove selected option
+    setRostersSelectedOptions(rostersSelectedOptions.filter((o) => o !== option));
+
+    // focus previous or next option, defaulting to focusing back to the combo input
+    const indexToFocus = index === 0 ? 1 : index - 1;
+    const optionToFocus = rostersSelectedListRef.current?.querySelector(`#${rostersComboId}-remove-${indexToFocus}`);
+    if (optionToFocus) {
+      (optionToFocus as HTMLButtonElement).focus();
+    } else {
+      rostersComboboxInputRef.current?.focus();
+    }
+  };
+
+  const onSearchTagClick = (option: string, index: number) => {
+    // remove selected option
+    setSearchSelectedOptions(searchSelectedOptions.filter((o) => o !== option));
+
+    // focus previous or next option, defaulting to focusing back to the combo input
+    const indexToFocus = index === 0 ? 1 : index - 1;
+    const optionToFocus = searchSelectedListRef.current?.querySelector(`#${searchComboId}-remove-${indexToFocus}`);
+    if (optionToFocus) {
+      (optionToFocus as HTMLButtonElement).focus();
+    } else {
+      searchComboboxInputRef.current?.focus();
+    }
+  };
+
+  const teamsLabelledBy = teamsSelectedOptions.length > 0 ? `${teamsComboId} ${teamsSelectedListId}` : teamsComboId;
+  const rostersLabelledBy =
+    rostersSelectedOptions.length > 0 ? `${rostersComboId} ${rostersSelectedListId}` : rostersComboId;
+
+  const searchLabelledBy =
+    searchSelectedOptions.length > 0 ? `${searchComboId} ${searchSelectedListId}` : searchComboId;
+
+  const styles = useStyles();
+ 
   return (
     <>
-      {loader && <Spinner labelPosition="below" size="large" />}
+      {loader && <Spinner labelPosition="below" />}
       {!loader && (
         <div>
           {formState.page === "CardCreation" && (
@@ -653,57 +779,39 @@ export const NewMessage = () => {
                     />
                   </Field>
                   <Field size="large" label={t("ImageURL")}>
-                    <input
+                    <div style={{display: 'grid', gridTemplateColumns: '1fr auto', gridTemplateAreas: 'inp-area btn-area'}}>
+                    {/* <input
                       className="file-button"
                       aria-labelledby="imageLabelId"
                       type="file"
                       id="file"
                       name="file"
                       aria-label={t("ImageURL")}
+                    /> */}
+                    <Input
+                      size="large"
+                      style={{gridColumn: "1"}}
+                      appearance="filled-darker"
+                      value={
+                        formState.imageLink && formState.imageLink.startsWith("data:")
+                          ? formState.localImagePath
+                          : formState.imageLink
+                      }
+                      placeholder={t("ImageURL")}
+                      onChange={onImageLinkChanged}
                     />
-                    {/* <Input
-                          fluid
-                          className="inputField imageField"
-                          value={
-                            formState.imageLink && formState.imageLink.startsWith("data:")
-                              ? formState.localImagePath
-                              : formState.imageLink
-                          }
-                          label={
-                            <>
-                              {t("ImageURL")}
-                              <TooltipHost
-                                content={t("ImageSizeInfoContent")}
-                                calloutProps={{ gapSpace: 0 }}
-                                hostClassName="tooltipHostStyles"
-                              >
-                                <Icon aria-label="Info" iconName="Info" className="tooltipHostStylesInsideContent" />
-                              </TooltipHost>
-                            </>
-                          }
-                          placeholder={t("ImageURL")}
-                          onChange={onImageLinkChanged}
-                          error={!(formState.errorImageUrlMessage === "")}
-                          autoComplete="off"
-                        />
-
-                        <Flex.Item push>
-                          <Button
-                            onClick={handleUploadClick}
-                            size="medium"
-                            className="inputField"
-                            content={t("Upload")}
-                            iconPosition="before"
-                          />
-                        </Flex.Item>
-                        <input
-                          type="file"
-                          accept=".jpg, .jpeg, .png, .gif"
-                          style={{ display: "none" }}
-                          multiple={false}
-                          onChange={handleImageSelection}
-                          ref={fileInput}
-                        /> */}
+                    <Button style={{gridColumn: "2", marginLeft: '5px'}} onClick={handleUploadClick}  size="large" appearance="secondary" icon={<ArrowUpload24Regular />}>
+                      {t("Upload")}
+                    </Button>
+                    <input
+                      type="file"
+                      accept=".jpg, .jpeg, .png, .gif"
+                      style={{ display: "none" }}
+                      multiple={false}
+                      onChange={handleImageSelection}
+                      ref={fileInput}
+                    />
+                    </div>
                   </Field>
                   {/* <Text
                         className={formState.errorImageUrlMessage === "" ? "hide" : "show"}
@@ -712,7 +820,13 @@ export const NewMessage = () => {
                         content={formState.errorImageUrlMessage}
                       /> */}
                   <Field size="large" label={t("Summary")}>
-                    <Textarea size="large" placeholder={t("Summary")} value={formState.summary} onChange={onSummaryChanged} />
+                    <Textarea
+                      size="large"
+                      appearance="filled-darker"
+                      placeholder={t("Summary")}
+                      value={formState.summary}
+                      onChange={onSummaryChanged}
+                    />
                   </Field>
                   <Field size="large" label={t("Author")}>
                     <Input
@@ -720,6 +834,7 @@ export const NewMessage = () => {
                       size="large"
                       onChange={onAuthorChanged}
                       autoComplete="off"
+                      appearance="filled-darker"
                       value={formState.author}
                     />
                   </Field>
@@ -729,6 +844,7 @@ export const NewMessage = () => {
                       placeholder={t("ButtonTitle")}
                       onChange={onBtnTitleChanged}
                       autoComplete="off"
+                      appearance="filled-darker"
                       value={formState.btnTitle}
                     />
                   </Field>
@@ -738,6 +854,7 @@ export const NewMessage = () => {
                       placeholder={t("ButtonURL")}
                       onChange={onBtnLinkChanged}
                       autoComplete="off"
+                      appearance="filled-darker"
                       value={formState.btnLink}
                     />
                   </Field>
@@ -772,15 +889,130 @@ export const NewMessage = () => {
                   </Label>
                   <RadioGroup aria-labelledby="labelId">
                     <Radio value={t("SendToGeneralChannel")} label={t("SendToGeneralChannel")} />
-                    <Label id={"comboId"}>Best pet</Label>
-                    <Combobox aria-labelledby={"comboId"} placeholder="Select an animal">
-                      {getItems().map((opt) => (
-                        <Option key={opt.key}>{opt.header}</Option>
-                      ))}
-                    </Combobox>
+                    <div className={styles.root}>
+                      <Label id={teamsComboId}>Pick Teams</Label>
+                      {teamsSelectedOptions.length ? (
+                        <ul id={teamsSelectedListId} className={styles.tagsList} ref={teamsSelectedListRef}>
+                          {/* The "Remove" span is used for naming the buttons without affecting the Combobox name */}
+                          <span id={`${teamsComboId}-remove`} hidden>
+                            Remove
+                          </span>
+                          {teamsSelectedOptions.map((option, i) => (
+                            <li key={option}>
+                              <Button
+                                size="small"
+                                shape="circular"
+                                appearance="primary"
+                                icon={<Dismiss12Regular />}
+                                iconPosition="after"
+                                onClick={() => onTeamsTagClick(option, i)}
+                                id={`${teamsComboId}-remove-${i}`}
+                                aria-labelledby={`${teamsComboId}-remove ${teamsComboId}-remove-${i}`}
+                              >
+                                {option}
+                              </Button>
+                            </li>
+                          ))}
+                        </ul>
+                      ) : null}
+                      <Combobox
+                        multiselect={true}
+                        selectedOptions={teamsSelectedOptions}
+                        appearance="filled-darker"
+                        size="large"
+                        onOptionSelect={onTeamsSelect}
+                        ref={teamsComboboxInputRef}
+                        aria-labelledby={teamsLabelledBy}
+                        placeholder="Pick one or more teams"
+                      >
+                        {teams.map((opt) => (
+                          <Option key={opt?.id}>{opt?.name}</Option>
+                        ))}
+                      </Combobox>
+                    </div>
                     <Radio value={t("SendToRosters")} label={t("SendToRosters")} />
+                    <div className={styles.root}>
+                      <Label id={rostersComboId}>Pick Teams</Label>
+                      {rostersSelectedOptions.length ? (
+                        <ul id={rostersSelectedListId} className={styles.tagsList} ref={rostersSelectedListRef}>
+                          {/* The "Remove" span is used for naming the buttons without affecting the Combobox name */}
+                          <span id={`${rostersComboId}-remove`} hidden>
+                            Remove
+                          </span>
+                          {rostersSelectedOptions.map((option, i) => (
+                            <li key={option}>
+                              <Button
+                                size="small"
+                                shape="circular"
+                                appearance="primary"
+                                icon={<Dismiss12Regular />}
+                                iconPosition="after"
+                                onClick={() => onRostersTagClick(option, i)}
+                                id={`${rostersComboId}-remove-${i}`}
+                                aria-labelledby={`${rostersComboId}-remove ${rostersComboId}-remove-${i}`}
+                              >
+                                {option}
+                              </Button>
+                            </li>
+                          ))}
+                        </ul>
+                      ) : null}
+                      <Combobox
+                        multiselect={true}
+                        selectedOptions={rostersSelectedOptions}
+                        appearance="filled-darker"
+                        size="large"
+                        onOptionSelect={onRostersSelect}
+                        ref={rostersComboboxInputRef}
+                        aria-labelledby={rostersLabelledBy}
+                        placeholder="Pick one or more teams"
+                      >
+                        {teams.map((opt) => (
+                          <Option key={opt?.id}>{opt?.name}</Option>
+                        ))}
+                      </Combobox>
+                    </div>
                     <Radio value={t("SendToAllUsers")} label={t("SendToAllUsers")} />
                     <Radio value={t("SendToGroups")} label={t("SendToGroups")} />
+                    <div className={styles.root}>
+                      <Label id={searchComboId}>Search Groups</Label>
+                      {searchSelectedOptions.length ? (
+                        <ul id={searchSelectedListId} className={styles.tagsList} ref={searchSelectedListRef}>
+                          {/* The "Remove" span is used for naming the buttons without affecting the Combobox name */}
+                          <span id={`${searchComboId}-remove`} hidden>
+                            Remove
+                          </span>
+                          {searchSelectedOptions.map((option, i) => (
+                            <li key={option}>
+                              <Button
+                                size="small"
+                                shape="circular"
+                                appearance="primary"
+                                icon={<Dismiss12Regular />}
+                                iconPosition="after"
+                                onClick={() => onSearchTagClick(option, i)}
+                                id={`${searchComboId}-remove-${i}`}
+                                aria-labelledby={`${searchComboId}-remove ${searchComboId}-remove-${i}`}
+                              >
+                                {option}
+                              </Button>
+                            </li>
+                          ))}
+                        </ul>
+                      ) : null}
+                      <Combobox
+                        appearance="filled-darker"
+                        size="large"
+                        onOptionSelect={onSearchSelect}
+                        onChange={onSearchChange}
+                        placeholder="Search for groups"
+                      >
+                        {queryGroups.map((opt) => (
+                          <Option key={opt?.id}>{opt?.name}</Option>
+                        ))}
+                        {queryGroups.length === 0 && <Option disabled>No results</Option>}
+                      </Combobox>
+                    </div>
                   </RadioGroup>
                   {/* <RadioGroup
                         className="radioBtns"

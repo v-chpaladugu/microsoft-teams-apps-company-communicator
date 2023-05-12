@@ -122,8 +122,44 @@ export const getGroups = async (id: number): Promise<any> => {
 };
 
 export const searchGroups = async (query: string): Promise<any> => {
-  let url = baseAxiosUrl + "/groupdata/search/" + query;
-  return await axios.get(url);
+  // let url = baseAxiosUrl + "/groupdata/search/" + query;
+  // return await axios.get(url);
+
+  var test = [{"id":"19:-NerdIDjIGqfzXbVO7NcJwX6MNj8irw2OhCbsfcYtoQ1@thread.tacv2","name":"1-Test-cc-raj"}, 
+  {"id":"20:-NerdIDjIGqfzXbVO7NcJwX6MNj8irw2OhCbsfcYtoQ1@thread.tacv2","name":"AATcc-raj"}, 
+  {"id":"21:-NerdIDjIGqfzXbVO7NcJwX6MNj8irw2OhCbsfcYtoQ1@thread.tacv2","name":"ABC-raj"},
+  {"id":"22:-NerdIDjIGqfzXbVO7NcJwX6MNj8irw2OhCbsfcYtoQ1@thread.tacv2","name":"ABC-cc-raj"},
+  {"id":"23:-NerdIDjIGqfzXbVO7NcJwX6MNj8irw2OhCbsfcYtoQ1@thread.tacv2","name":"Raj-cc-raj"},
+  {"id":"24:-NerdIDjIGqfzXbVO7NcJwX6MNj8irw2OhCbsfcYtoQ1@thread.tacv2","name":"XYZ-Team"},
+
+  {"id":"25:-NerdIDjIGqfzXbVO7NcJwX6MNj8irw2OhCbsfcYtoQ1@thread.tacv2","name":"BB1-Test-cc-raj"}, 
+  {"id":"26:-NerdIDjIGqfzXbVO7NcJwX6MNj8irw2OhCbsfcYtoQ1@thread.tacv2","name":"BATcc-raj"}, 
+  {"id":"27:-NerdIDjIGqfzXbVO7NcJwX6MNj8irw2OhCbsfcYtoQ1@thread.tacv2","name":"ABC-raj"},
+  {"id":"28:-NerdIDjIGqfzXbVO7NcJwX6MNj8irw2OhCbsfcYtoQ1@thread.tacv2","name":"ABC-cc-raj"},
+  {"id":"29:-NerdIDjIGqfzXbVO7NcJwX6MNj8irw2OhCbsfcYtoQ1@thread.tacv2","name":"Raj-cc-raj"},
+  {"id":"30:-NerdIDjIGqfzXbVO7NcJwX6MNj8irw2OhCbsfcYtoQ1@thread.tacv2","name":"XYZ-Team"},
+
+  {"id":"31:-NerdIDjIGqfzXbVO7NcJwX6MNj8irw2OhCbsfcYtoQ1@thread.tacv2","name":"CA1-Test-cc-raj"}, 
+  {"id":"201:-NerdIDjIGqfzXbVO7NcJwX6MNj8irw2OhCbsfcYtoQ1@thread.tacv2","name":"Tcc-raj"}, 
+  {"id":"212:-NerdIDjIGqfzXbVO7NcJwX6MNj8irw2OhCbsfcYtoQ1@thread.tacv2","name":"ABC-raj"},
+  {"id":"223:-NerdIDjIGqfzXbVO7NcJwX6MNj8irw2OhCbsfcYtoQ1@thread.tacv2","name":"XYZABC-cc-raj"},
+  {"id":"234:-NerdIDjIGqfzXbVO7NcJwX6MNj8irw2OhCbsfcYtoQ1@thread.tacv2","name":"Raj-cc-raj"},
+  {"id":"244:-NerdIDjIGqfzXbVO7NcJwX6MNj8irw2OhCbsfcYtoQ1@thread.tacv2","name":"XYZ-Team"},
+
+  {"id":"519:-NerdIDjIGqfzXbVO7NcJwX6MNj8irw2OhCbsfcYtoQ1@thread.tacv2","name":"ABC1-Test-cc-raj"}, 
+  {"id":"520:-NerdIDjIGqfzXbVO7NcJwX6MNj8irw2OhCbsfcYtoQ1@thread.tacv2","name":"TETcc-raj"}, 
+  {"id":"521:-NerdIDjIGqfzXbVO7NcJwX6MNj8irw2OhCbsfcYtoQ1@thread.tacv2","name":"RRRABC-raj"},
+  {"id":"622:-NerdIDjIGqfzXbVO7NcJwX6MNj8irw2OhCbsfcYtoQ1@thread.tacv2","name":"RABC-cc-raj"},
+  {"id":"723:-NerdIDjIGqfzXbVO7NcJwX6MNj8irw2OhCbsfcYtoQ1@thread.tacv2","name":"ARaj-cc-raj"},
+  {"id":"724:-NerdIDjIGqfzXbVO7NcJwX6MNj8irw2OhCbsfcYtoQ1@thread.tacv2","name":"MRRAXYZ-Team"}];
+
+  var result = test.filter(x => x.name.toLowerCase().includes(query.toLowerCase()));
+
+  return new Promise((resolve, reject) => {
+    resolve({ data: result || []});
+});
+
+
 };
 
 export const exportNotification = async (payload: {}): Promise<any> => {
@@ -177,8 +213,20 @@ export const createDraftNotification = async (payload: {}): Promise<any> => {
 };
 
 export const getTeams = async (): Promise<any> => {
-  let url = baseAxiosUrl + "/teamdata";
-  return await axios.get(url);
+  // let url = baseAxiosUrl + "/teamdata";
+  // return await axios.get(url);
+
+  return new Promise((resolve, reject) => {
+    resolve({ data: [{"id":"19:-NerdIDjIGqfzXbVO7NcJwX6MNj8irw2OhCbsfcYtoQ1@thread.tacv2","name":"1-Test-cc-raj"}, 
+    {"id":"20:-NerdIDjIGqfzXbVO7NcJwX6MNj8irw2OhCbsfcYtoQ1@thread.tacv2","name":"Tcc-raj"}, 
+    {"id":"21:-NerdIDjIGqfzXbVO7NcJwX6MNj8irw2OhCbsfcYtoQ1@thread.tacv2","name":"ABC-raj"},
+    {"id":"22:-NerdIDjIGqfzXbVO7NcJwX6MNj8irw2OhCbsfcYtoQ1@thread.tacv2","name":"ABC-cc-raj"},
+    {"id":"23:-NerdIDjIGqfzXbVO7NcJwX6MNj8irw2OhCbsfcYtoQ1@thread.tacv2","name":"Raj-cc-raj"},
+    {"id":"24:-NerdIDjIGqfzXbVO7NcJwX6MNj8irw2OhCbsfcYtoQ1@thread.tacv2","name":"XYZ-Team"}] });
+});
+
+
+  
 };
 
 export const cancelSentNotification = async (id: number): Promise<any> => {
