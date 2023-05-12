@@ -27,7 +27,6 @@ export const getInitAdaptiveCard = (t: TFunction) => {
         spacing: "Default",
         url: "",
         size: "Stretch",
-        width: "400px",
         altText: "",
       },
       {

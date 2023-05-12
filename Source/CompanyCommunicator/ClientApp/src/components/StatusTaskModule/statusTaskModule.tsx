@@ -16,8 +16,6 @@ import { ImageUtil } from "../../utility/imageutility";
 
 import { Button, MenuItem, MenuList, Image, Spinner } from "@fluentui/react-components";
 
-import parse from "html-react-parser";
-
 import { ArrowDownload24Regular, CheckmarkSquare24Regular } from "@fluentui/react-icons";
 
 import {
@@ -28,7 +26,6 @@ import {
   setCardSummary,
   setCardTitle,
 } from "../AdaptiveCard/adaptiveCard";
-import { List } from "@fluentui/react-northstar";
 
 export interface IListItem {
   header: string;
@@ -73,7 +70,6 @@ export interface IStatusState {
 }
 
 let card: any;
-let renderCard: any;
 
 export const StatusTaskModule = () => {
   const { t } = useTranslation();
@@ -109,16 +105,16 @@ export const StatusTaskModule = () => {
     if (isCardReady && messageState.isMsgDataUpdated) {
       var adaptiveCard = new AdaptiveCards.AdaptiveCard();
       adaptiveCard.parse(card);
-      renderCard = adaptiveCard.render();
-      if (messageState.buttonLink) {
-        let link = messageState.buttonLink;
-        adaptiveCard.onExecuteAction = function (action) {
-          window.open(link, "_blank");
-        };
+      const renderCard = adaptiveCard.render();
+      if (renderCard) {
+        document.getElementsByClassName("card-area")[0].appendChild(renderCard);
       }
+      adaptiveCard.onExecuteAction = function (action: any) {
+        window.open(action.url, "_blank");
+      };
       setLoader(false);
     }
-  }, [isCardReady, messageState.isMsgDataUpdated, messageState.buttonLink]);
+  }, [isCardReady, messageState.isMsgDataUpdated]);
 
   const getMessage = async (id: number) => {
     try {
@@ -247,70 +243,76 @@ export const StatusTaskModule = () => {
           <Spinner />
         </div>
       )}
-      {!loader && statusState.page === "ViewStatus" && (
+      {statusState.page === "ViewStatus" && (
         <>
           <div className="adaptive-task-grid">
             <div className="form-area">
-              <div className="contentField">
-                <h3>{t("TitleText")}</h3>
-                <span>{messageState.title}</span>
-              </div>
-              <div className="contentField">
-                <h3>{t("SendingStarted")}</h3>
-                <span>{messageState.sendingStartedDate}</span>
-              </div>
-              <div className="contentField">
-                <h3>{t("Completed")}</h3>
-                <span>{messageState.sentDate}</span>
-              </div>
-              <div className="contentField">
-                <h3>{t("Created By")}</h3>
-                <span>{messageState.createdBy}</span>
-              </div>
-              <div className="contentField">
-                <h3>{t("Duration")}</h3>
-                <span>{messageState.sendingDuration}</span>
-              </div>
-              <div className="contentField">
-                <h3>{t("Results")}</h3>
-                <label>{t("Success", { SuccessCount: messageState.succeeded })}</label>
-                <br />
-                <label>{t("Failure", { FailureCount: messageState.failed })}</label>
-                {messageState.canceled && (
-                  <>
+              {!loader && (
+                <>
+                  <div className="contentField">
+                    <h3>{t("TitleText")}</h3>
+                    <span>{messageState.title}</span>
+                  </div>
+                  <div className="contentField">
+                    <h3>{t("SendingStarted")}</h3>
+                    <span>{messageState.sendingStartedDate}</span>
+                  </div>
+                  <div className="contentField">
+                    <h3>{t("Completed")}</h3>
+                    <span>{messageState.sentDate}</span>
+                  </div>
+                  <div className="contentField">
+                    <h3>{t("Created By")}</h3>
+                    <span>{messageState.createdBy}</span>
+                  </div>
+                  <div className="contentField">
+                    <h3>{t("Duration")}</h3>
+                    <span>{messageState.sendingDuration}</span>
+                  </div>
+                  <div className="contentField">
+                    <h3>{t("Results")}</h3>
+                    <label>{t("Success", { SuccessCount: messageState.succeeded })}</label>
                     <br />
-                    <label>{t("Canceled", { CanceledCount: messageState.canceled })}</label>
-                  </>
-                )}
-                {messageState.unknown && (
-                  <>
-                    <br />
-                    <label>{t("Unknown", { UnknownCount: messageState.unknown })}</label>
-                  </>
-                )}
-              </div>
-              <div className="contentField">{renderAudienceSelection()}</div>
-              <div className="contentField">{renderErrorMessage()}</div>
-              <div className="contentField">{renderWarningMessage()}</div>
+                    <label>{t("Failure", { FailureCount: messageState.failed })}</label>
+                    {messageState.canceled && (
+                      <>
+                        <br />
+                        <label>{t("Canceled", { CanceledCount: messageState.canceled })}</label>
+                      </>
+                    )}
+                    {messageState.unknown && (
+                      <>
+                        <br />
+                        <label>{t("Unknown", { UnknownCount: messageState.unknown })}</label>
+                      </>
+                    )}
+                  </div>
+                  <div className="contentField">{renderAudienceSelection()}</div>
+                  <div className="contentField">{renderErrorMessage()}</div>
+                  <div className="contentField">{renderWarningMessage()}</div>
+                </>
+              )}
             </div>
-            <div className="card-area">{parse(renderCard.outerHTML)}</div>
+            <div className="card-area"></div>
           </div>
-          <Spinner
-            id="sendingLoader"
-            className="hiddenLoader sendingLoader"
-            size="small"
-            label={t("ExportLabel")}
-            labelPosition="after"
-          />
-          <Button
-            icon={<ArrowDownload24Regular />}
-            disabled={!messageState.canDownload || !messageState.sendingCompleted}
-            id="exportBtn"
-            onClick={onExport}
-            appearance="primary"
-          >
-            {t("ExportButtonText")}
-          </Button>
+          <div className="fixed-footer">
+            <Spinner
+              id="sendingLoader"
+              className="spinner-wheel"
+              size="small"
+              label={t("ExportLabel")}
+              labelPosition="before"
+            />
+            <Button
+              icon={<ArrowDownload24Regular />}
+              disabled={!messageState.canDownload || !messageState.sendingCompleted}
+              id="exportBtn"
+              onClick={onExport}
+              appearance="primary"
+            >
+              {t("ExportButtonText")}
+            </Button>
+          </div>
         </>
       )}
       {!loader && statusState.page === "SuccessPage" && (

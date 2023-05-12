@@ -71,18 +71,15 @@ button#sendBtn {
     margin: 1rem;
 }
 
-// .ac-container {
-//     border: 0.2rem solid #fff;
-//     border-radius: 0.3rem;
-//     width: 42rem;
-//     padding: 1.6rem !important;
-//     background-color: #000 !important;
-//     margin-top: 0.6rem !important;
-// }
+button#exportBtn {
+    float: right;
+    margin: 1rem;
+}
 
-// .ac-textBlock {
-//     color: #fff !important;
-// }
+.spinner-wheel {
+    float: right;
+    margin: 1rem;
+}
 
 .ac-pushButton {
     padding: 1rem;
@@ -90,6 +87,11 @@ button#sendBtn {
     color: var(--colorBrandForegroundLink);
     border: 0.2rem solid var(--colorBrandForegroundLink);
     border-radius: 0.4rem;
+    cursor: pointer;
+
+    &:hover {
+        background: var(--colorBrandBackgroundInvertedSelected);
+    }
 }
 
 // this can be removed in future. setting this as fluent_ui table has offset issues.

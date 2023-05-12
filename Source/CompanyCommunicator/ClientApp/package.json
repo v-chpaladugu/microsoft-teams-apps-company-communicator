@@ -9,7 +9,7 @@
     "@reduxjs/toolkit": "^1.9.5",
     "@types/react-redux": "^7.1.25",
     "@types/react-router-dom": "^5.1.8",
-    "adaptivecards": "^1.2.0",
+    "adaptivecards": "^2.11.2",
     "axios": "^0.21.4",
     "color-hash": "^1.0.3",
     "faker": "^4.1.0",

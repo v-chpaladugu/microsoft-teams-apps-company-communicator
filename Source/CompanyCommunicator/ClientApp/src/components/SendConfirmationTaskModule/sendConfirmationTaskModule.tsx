@@ -1,22 +1,22 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import * as AdaptiveCards from 'adaptivecards';
-import parse from 'html-react-parser';
-import * as React from 'react';
-import { useTranslation } from 'react-i18next';
-import { useParams } from 'react-router-dom';
+import * as AdaptiveCards from "adaptivecards";
+import * as React from "react";
+import { useTranslation } from "react-i18next";
+import { useParams } from "react-router-dom";
+import { Button, Image, Label, MenuItem, MenuList, Spinner, Text } from "@fluentui/react-components";
+import * as microsoftTeams from "@microsoft/teams-js";
+import { getConsentSummaries, getDraftNotification, sendDraftNotification } from "../../apis/messageListApi";
+import { ImageUtil } from "../../utility/imageutility";
 import {
-    Button, Image, Label, MenuItem, MenuList, Spinner, Text
-} from '@fluentui/react-components';
-import * as microsoftTeams from '@microsoft/teams-js';
-import {
-    getConsentSummaries, getDraftNotification, sendDraftNotification
-} from '../../apis/messageListApi';
-import { ImageUtil } from '../../utility/imageutility';
-import {
-    getInitAdaptiveCard, setCardAuthor, setCardBtn, setCardImageLink, setCardSummary, setCardTitle
-} from '../AdaptiveCard/adaptiveCard';
+  getInitAdaptiveCard,
+  setCardAuthor,
+  setCardBtn,
+  setCardImageLink,
+  setCardSummary,
+  setCardTitle,
+} from "../AdaptiveCard/adaptiveCard";
 
 export interface IMessageState {
   id: string;
@@ -48,14 +48,12 @@ export interface IConsentState {
 }
 
 let card: any;
-let renderCard: any;
 
 export const SendConfirmationTaskModule = () => {
   const { t } = useTranslation();
   const { id } = useParams() as any;
   const [loader, setLoader] = React.useState(true);
   const [isCardReady, setIsCardReady] = React.useState(false);
-  
 
   const [messageState, setMessageState] = React.useState<IMessageState>({
     id: "",
@@ -79,24 +77,23 @@ export const SendConfirmationTaskModule = () => {
     }
   }, [id]);
 
- 
   React.useEffect(() => {
     if (isCardReady && consentState.isConsentsUpdated && messageState.isDraftMsgUpdated) {
       var adaptiveCard = new AdaptiveCards.AdaptiveCard();
       adaptiveCard.parse(card);
-      renderCard = adaptiveCard.render();
-      if (messageState.buttonLink) {
-        let link = messageState.buttonLink;
-        adaptiveCard.onExecuteAction = function (action) {
-          window.open(link, "_blank");
-        };
+      const renderCard = adaptiveCard.render();
+      if (renderCard) {
+        document.getElementsByClassName("card-area")[0].appendChild(renderCard);
       }
+      adaptiveCard.onExecuteAction = function (action: any) {
+        window.open(action.url, "_blank");
+      };
       setLoader(false);
     }
-  }, [isCardReady, consentState.isConsentsUpdated, messageState.isDraftMsgUpdated, messageState.buttonLink]);
+  }, [isCardReady, consentState.isConsentsUpdated, messageState.isDraftMsgUpdated]);
 
   const updateCardData = (msg: IMessageState) => {
-    card = getInitAdaptiveCard(t)
+    card = getInitAdaptiveCard(t);
     setCardTitle(card, msg.title);
     setCardImageLink(card, msg.imageLink);
     setCardSummary(card, msg.summary);
@@ -190,26 +187,30 @@ export const SendConfirmationTaskModule = () => {
 
   return (
     <>
-      {loader && (
-        <Spinner />
-      )}
-      {!loader && (
-        <>
-          <div className="adaptive-task-grid">
-            <div className="form-area">
-              <h3>{t("ConfirmToSend")}</h3>
-              <Label>{t("SendToRecipientsLabel")}</Label>
-              <div style={{margin: '16px'}}>{renderAudienceSelection()}</div>
-            </div>
-            <div className="card-area">{parse(renderCard.outerHTML)}</div>
+      {loader && <Spinner />}
+      <>
+        <div className="adaptive-task-grid">
+          <div className="form-area">
+            {!loader && (
+              <>
+                <h3>{t("ConfirmToSend")}</h3>
+                <Label>{t("SendToRecipientsLabel")}</Label>
+                <div style={{ margin: "16px" }}>{renderAudienceSelection()}</div>
+              </>
+            )}
           </div>
-          <div className="fixed-footer">
-            <Button id="sendBtn" onClick={onSendMessage} appearance="primary">
-              {t("Send")}
-            </Button>
-          </div>
-        </>
-      )}
+          <div className="card-area"></div>
+        </div>
+        <div className="fixed-footer">
+          {!loader && (
+            <>
+              <Button id="sendBtn" onClick={onSendMessage} appearance="primary">
+                {t("Send")}
+              </Button>
+            </>
+          )}
+        </div>
+      </>
     </>
   );
 };
