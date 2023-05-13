@@ -45,12 +45,12 @@ export const SelectedMessageAction = (dispatch: typeof store.dispatch, payload: 
 export const GetSentMessagesAction = (dispatch: typeof store.dispatch) => {
   SentMessageFetchStatusAction(dispatch, true);
   getSentNotifications().then((response) => {
-    const notificationList: Notification[] = response.data;
+    const notificationList: Notification[] = response?.data || [];
     notificationList.forEach((notification) => {
       notification.sendingStartedDate = formatDate(notification.sendingStartedDate);
       notification.sentDate = formatDate(notification.sentDate);
     });
-    dispatch(sentMessages({ type: "FETCH_MESSAGES", payload: notificationList }));
+    dispatch(sentMessages({ type: "FETCH_MESSAGES", payload: notificationList || []}));
   }).finally(() => {
     SentMessageFetchStatusAction(dispatch, false);
   });
@@ -59,7 +59,7 @@ export const GetSentMessagesAction = (dispatch: typeof store.dispatch) => {
 export const GetDraftMessagesAction = (dispatch: typeof store.dispatch) => {
   DraftMessageFetchStatusAction(dispatch, true);
   getDraftNotifications().then((response) => {
-    dispatch(draftMessages({ type: "FETCH_DRAFT_MESSAGES", payload: response.data }));
+    dispatch(draftMessages({ type: "FETCH_DRAFT_MESSAGES", payload: response?.data || [] }));
   }).finally(() => {
     DraftMessageFetchStatusAction(dispatch, false);
   });;
@@ -67,19 +67,19 @@ export const GetDraftMessagesAction = (dispatch: typeof store.dispatch) => {
 
 export const GetTeamsDataAction = (dispatch: typeof store.dispatch) => {
   getTeams().then((response) => {
-    dispatch(teamsData({ type: "GET_TEAMS_DATA", payload: response.data }));
+    dispatch(teamsData({ type: "GET_TEAMS_DATA", payload: response?.data || []}));
   });
 };
 
 export const GetGroupsAction = (dispatch: typeof store.dispatch, payload: { id: number }) => {
   getGroups(payload.id).then((response) => {
-    dispatch(groups({ type: "GET_GROUPS", payload: response.data }));
+    dispatch(groups({ type: "GET_GROUPS", payload: response?.data || []}));
   });
 };
 
 export const SearchGroupsAction = (dispatch: typeof store.dispatch, payload: { query: string }) => {
   searchGroups(payload.query).then((response) => {
-    dispatch(queryGroups({ type: "SEARCH_GROUPS", payload: response.data }));
+    dispatch(queryGroups({ type: "SEARCH_GROUPS", payload: response?.data || [] }));
   });
 };
 
