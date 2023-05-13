@@ -5,29 +5,11 @@ import * as AdaptiveCards from "adaptivecards";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
-
+import { Button, Field, Persona, Spinner, Text } from "@fluentui/react-components";
+import { ArrowDownload24Regular, CheckmarkSquare24Regular, ShareScreenStop24Regular } from "@fluentui/react-icons";
 import * as microsoftTeams from "@microsoft/teams-js";
-
 import { exportNotification, getSentNotification } from "../../apis/messageListApi";
 import { formatDate, formatDuration, formatNumber } from "../../i18n";
-import { ImageUtil } from "../../utility/imageutility";
-
-import {
-  Button,
-  MenuItem,
-  MenuList,
-  Image,
-  Spinner,
-  Label,
-  Text,
-  Divider,
-  Field,
-  makeResetStyles,
-  tokens,
-} from "@fluentui/react-components";
-
-import { ArrowDownload24Regular, CheckmarkSquare24Regular } from "@fluentui/react-icons";
-
 import {
   getInitAdaptiveCard,
   setCardAuthor,
@@ -36,11 +18,6 @@ import {
   setCardSummary,
   setCardTitle,
 } from "../AdaptiveCard/adaptiveCard";
-
-export interface IListItem {
-  header: string;
-  media: JSX.Element;
-}
 
 export interface IMessageState {
   id: string;
@@ -69,7 +46,6 @@ export interface IMessageState {
   canDownload?: boolean;
   sendingCompleted?: boolean;
   createdBy?: string;
-
   isMsgDataUpdated: boolean;
 }
 
@@ -86,6 +62,7 @@ export const ViewStatusTask = () => {
   const { id } = useParams() as any;
   const [loader, setLoader] = React.useState(true);
   const [isCardReady, setIsCardReady] = React.useState(false);
+  const [exportDisabled, setExportDisabled] = React.useState(false);
 
   const [messageState, setMessageState] = React.useState<IMessageState>({
     id: "",
@@ -116,7 +93,7 @@ export const ViewStatusTask = () => {
       var adaptiveCard = new AdaptiveCards.AdaptiveCard();
       adaptiveCard.parse(card);
       const renderCard = adaptiveCard.render();
-      if (renderCard) {
+      if (renderCard && statusState.page === "ViewStatus") {
         document.getElementsByClassName("card-area")[0].appendChild(renderCard);
       }
       adaptiveCard.onExecuteAction = function (action: any) {
@@ -161,8 +138,7 @@ export const ViewStatusTask = () => {
   };
 
   const onExport = async () => {
-    let spanner = document.getElementsByClassName("sendingLoader");
-    spanner[0].classList.remove("hiddenLoader");
+    setExportDisabled(true);
     let payload = {
       id: messageState.id,
       teamId: statusState.teamId,
@@ -173,17 +149,19 @@ export const ViewStatusTask = () => {
       })
       .catch(() => {
         setStatusState({ ...statusState, page: "ErrorPage" });
+      })
+      .finally(() => {
+        setExportDisabled(false);
       });
   };
 
-  const getItemList = (items: string[]) => {
+  const getItemList = (items: string[], secondaryText: string) => {
     let resultedTeams: any[] = [];
     if (items) {
       items.map((element) => {
         resultedTeams.push(
-          <li>
-            <Image src={ImageUtil.makeInitialImage(element)} />
-            <span style={{ verticalAlign: "top", paddingLeft: "5px" }}>{element}</span>
+          <li key={element + "key"}>
+            <Persona name={element} secondaryText={secondaryText} avatar={{ shape: "square" }} />
           </li>
         );
       });
@@ -195,20 +173,20 @@ export const ViewStatusTask = () => {
     if (messageState.teamNames && messageState.teamNames.length > 0) {
       return (
         <Field size="large" label={t("SentToGeneralChannel")}>
-          <ul style={{ listStyleType: "none" }}>{getItemList(messageState.teamNames)}</ul>
+          <ul className="ul-no-bullets">{getItemList(messageState.teamNames, "Team")}</ul>
         </Field>
       );
     } else if (messageState.rosterNames && messageState.rosterNames.length > 0) {
       return (
         <Field size="large" label={t("SentToRosters")}>
-          <ul style={{ listStyleType: "none" }}>{getItemList(messageState.rosterNames)}</ul>
+          <ul className="ul-no-bullets">{getItemList(messageState.rosterNames, "Roster")}</ul>
         </Field>
       );
     } else if (messageState.groupNames && messageState.groupNames.length > 0) {
       return (
         <Field size="large" label={t("SentToGroups1")}>
           <span>{t("SentToGroups2")}</span>
-          <ul style={{ listStyleType: "none" }}>{getItemList(messageState.groupNames)}</ul>
+          <ul className="ul-no-bullets">{getItemList(messageState.groupNames, "Group")}</ul>
         </Field>
       );
     } else if (messageState.allUsers) {
@@ -250,11 +228,7 @@ export const ViewStatusTask = () => {
 
   return (
     <>
-      {loader && (
-        <div className="Loader">
-          <Spinner />
-        </div>
-      )}
+      {loader && <Spinner />}
       {statusState.page === "ViewStatus" && (
         <>
           <div className="adaptive-task-grid">
@@ -308,17 +282,11 @@ export const ViewStatusTask = () => {
           <div className="footer-actions-inline">
             <div className="footer-action-right">
               <div className="footer-actions-flex">
-                <Spinner
-                  id="sendingLoader"
-                  size="small"
-                  className="spinner-wheel-1"
-                  label={t("ExportLabel")}
-                  labelPosition="after"
-                />
+                {exportDisabled && <Spinner size="small" label={t("ExportLabel")} labelPosition="after" />}
                 <Button
                   icon={<ArrowDownload24Regular />}
                   style={{ margin: "16px" }}
-                  disabled={!messageState.canDownload || !messageState.sendingCompleted}
+                  disabled={exportDisabled}
                   onClick={onExport}
                   appearance="primary"
                 >
@@ -330,43 +298,45 @@ export const ViewStatusTask = () => {
         </>
       )}
       {!loader && statusState.page === "SuccessPage" && (
-        <div className="taskModule">
-          <div className="displayMessageField">
-            <br />
-            <br />
-            <div>
-              <span>
-                <CheckmarkSquare24Regular />
-              </span>
-              <h1>{t("ExportQueueTitle")}</h1>
+        <>
+          <h2>
+            <CheckmarkSquare24Regular style={{ color: "#22bb33", verticalAlign: "middle", paddingRight: "8px" }} />
+            {t("ExportQueueTitle")}
+          </h2>
+          <Text>{t("ExportQueueSuccessMessage1")}</Text>
+          <br />
+          <br />
+          <Text>{t("ExportQueueSuccessMessage2")}</Text>
+          <br />
+          <br />
+          <Text>{t("ExportQueueSuccessMessage3")}</Text>
+          <br />
+          <br />
+          <div className="footer-actions-inline">
+            <div className="footer-action-right">
+              <Button id="closeBtn" style={{ margin: "16px" }} onClick={onClose} appearance="primary">
+                {t("CloseText")}
+              </Button>
             </div>
-            <span>{t("ExportQueueSuccessMessage1")}</span>
-            <br />
-            <br />
-            <span>{t("ExportQueueSuccessMessage2")}</span>
-            <br />
-            <span>{t("ExportQueueSuccessMessage3")}</span>
           </div>
-          <Button id="closeBtn" onClick={onClose} appearance="primary">
-            {t("CloseText")}
-          </Button>
-        </div>
+        </>
       )}
-      {!loader && statusState.page !== "ViewStatus" && statusState.page !== "SuccessPage" && (
-        <div className="taskModule">
-          <div className="displayMessageField">
-            <br />
-            <br />
-            <div>
-              <span></span>
-              <h1 className="light">{t("ExportErrorTitle")}</h1>
+      {!loader && statusState.page === "ErrorPage" && (
+        <>
+          <h2>
+            <ShareScreenStop24Regular style={{ color: "#bb2124", verticalAlign: "middle", paddingRight: "8px" }} />
+            {t("ExportErrorTitle")}
+          </h2>
+          <Text>{t("ExportErrorMessage")}</Text>
+          <br />
+          <div className="footer-actions-inline">
+            <div className="footer-action-right">
+              <Button id="closeBtn" style={{ margin: "16px" }} onClick={onClose} appearance="primary">
+                {t("CloseText")}
+              </Button>
             </div>
-            <span>{t("ExportErrorMessage")}</span>
           </div>
-          <Button id="closeBtn" onClick={onClose} appearance="primary">
-            {t("CloseText")}
-          </Button>
-        </div>
+        </>
       )}
     </>
   );

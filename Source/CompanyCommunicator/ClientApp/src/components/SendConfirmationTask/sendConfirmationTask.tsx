@@ -5,10 +5,9 @@ import * as AdaptiveCards from "adaptivecards";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
-import { Button, Field, Image, Label, Spinner, Text, Persona } from "@fluentui/react-components";
+import { Button, Field, Label, Persona, Spinner, Text } from "@fluentui/react-components";
 import * as microsoftTeams from "@microsoft/teams-js";
 import { getConsentSummaries, getDraftNotification, sendDraftNotification } from "../../apis/messageListApi";
-import { ImageUtil } from "../../utility/imageutility";
 import {
   getInitAdaptiveCard,
   setCardAuthor,
@@ -34,7 +33,6 @@ export interface IMessageState {
   buttonLink?: string;
   buttonTitle?: string;
   createdBy?: string;
-
   isDraftMsgUpdated: boolean;
 }
 
@@ -54,6 +52,7 @@ export const SendConfirmationTask = () => {
   const { id } = useParams() as any;
   const [loader, setLoader] = React.useState(true);
   const [isCardReady, setIsCardReady] = React.useState(false);
+  const [disableSendButton, setDisableSendButton] = React.useState(false);
 
   const [messageState, setMessageState] = React.useState<IMessageState>({
     id: "",
@@ -134,20 +133,23 @@ export const SendConfirmationTask = () => {
   };
 
   const onSendMessage = () => {
-    sendDraftNotification(messageState).then(() => {
-      microsoftTeams.tasks.submitTask();
-    });
+    setDisableSendButton(true);
+    sendDraftNotification(messageState)
+      .then(() => {
+        microsoftTeams.tasks.submitTask();
+      })
+      .finally(() => {
+        setDisableSendButton(false);
+      });
   };
 
-  const getItemList = (items: string[]) => {
+  const getItemList = (items: string[], secondaryText: string) => {
     let resultedTeams: any[] = [];
     if (items) {
       items.map((element) => {
         resultedTeams.push(
-          <li>
-            {/* <Image src={ImageUtil.makeInitialImage(element)} />
-            <span style={{ verticalAlign: "top", paddingLeft: "5px" }}>{element}</span> */}
-            <Persona name={element} secondaryText={"Team"} avatar={{ shape: "square" }} />
+          <li key={element + "key"}>
+            <Persona name={element} secondaryText={secondaryText} avatar={{ shape: "square" }} />
           </li>
         );
       });
@@ -158,29 +160,29 @@ export const SendConfirmationTask = () => {
   const renderAudienceSelection = () => {
     if (consentState.teamNames && consentState.teamNames.length > 0) {
       return (
-        <div key="teamNames">
+        <div key="teamNames" style={{ paddingBottom: "16px" }}>
           <Label>{t("TeamsLabel")}</Label>
-          <ul style={{ listStyleType: "none" }}>{getItemList(consentState.teamNames)}</ul>
+          <ul className="ul-no-bullets">{getItemList(consentState.teamNames, "Team")}</ul>
         </div>
       );
     } else if (consentState.rosterNames && consentState.rosterNames.length > 0) {
       return (
-        <div key="rosterNames">
+        <div key="rosterNames" style={{ paddingBottom: "16px" }}>
           <Label>{t("TeamsMembersLabel")}</Label>
-          <ul style={{ listStyleType: "none" }}>{getItemList(consentState.rosterNames)}</ul>
+          <ul className="ul-no-bullets">{getItemList(consentState.rosterNames, "Roster")}</ul>
         </div>
       );
     } else if (consentState.groupNames && consentState.groupNames.length > 0) {
       return (
-        <div key="groupNames">
+        <div key="groupNames" style={{ paddingBottom: "16px" }}>
           <Label>{t("GroupsMembersLabel")}</Label>
-          <ul style={{ listStyleType: "none" }}>{getItemList(consentState.groupNames)}</ul>
+          <ul className="ul-no-bullets">{getItemList(consentState.groupNames, "Group")}</ul>
         </div>
       );
     } else if (consentState.allUsers) {
       return (
-        <div key="allUsers">
-          <span className="label">{t("AllUsersLabel")}</span>
+        <div key="allUsers" style={{ paddingBottom: "16px" }}>
+          <Label>{t("AllUsersLabel")}</Label>
           <div className="noteText">
             <Text>{t("SendToAllUsersNote")}</Text>
           </div>
@@ -199,9 +201,11 @@ export const SendConfirmationTask = () => {
           <div className="form-area">
             {!loader && (
               <>
-                <Field size="large" label={t("ConfirmToSend")}>
-                  <Text>{t("SendToRecipientsLabel")}</Text>
-                </Field>
+                <div style={{ paddingBottom: "16px" }}>
+                  <Field size="large" label={t("ConfirmToSend")}>
+                    <Text>{t("SendToRecipientsLabel")}</Text>
+                  </Field>
+                </div>
                 <div>{renderAudienceSelection()}</div>
               </>
             )}
@@ -210,9 +214,17 @@ export const SendConfirmationTask = () => {
         </div>
         <div className="footer-actions-inline">
           <div className="footer-action-right">
-            <Button style={{ margin: "16px" }} onClick={onSendMessage} appearance="primary">
-              {t("Send")}
-            </Button>
+            <div className="footer-actions-flex">
+              {disableSendButton && <Spinner id="sendLoader" size="small" labelPosition="after" />}
+              <Button
+                disabled={disableSendButton}
+                style={{ marginLeft: "16px" }}
+                onClick={onSendMessage}
+                appearance="primary"
+              >
+                {t("Send")}
+              </Button>
+            </div>
           </div>
         </div>
       </>

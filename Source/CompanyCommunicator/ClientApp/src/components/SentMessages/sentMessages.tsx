@@ -14,7 +14,7 @@ export const SentMessages = () => {
   const sentMessages = useAppSelector((state: RootState) => state.messages).sentMessages.payload;
   const loader = useAppSelector((state: RootState) => state.messages).isSentMessagesFetchOn.payload;
   const dispatch = useAppDispatch();
-  const delay = 10000;
+  const delay = 60000;
 
   React.useEffect(() => {
     if (sentMessages && sentMessages.length === 0) {

@@ -16,7 +16,8 @@
     .card-area {
         grid-column: 2;
         padding: 1rem;
-        border: 2px solid var(--colorBrandBackgroundSelected);
+        border: 2px solid var(--colorNeutralBackground5Hover);
+        border-top-color: var(--colorBrandForegroundInvertedPressed);
     }
 
     .big-screen-visible {
@@ -42,7 +43,8 @@
     .card-area {
         grid-row: 2;
         padding: 1rem;
-        border: 2px solid var(--colorBrandBackgroundSelected);
+        border: 2px solid var(--colorNeutralBackground5Hover);
+        border-top-color: var(--colorBrandForegroundInvertedPressed);
     }
 
     .big-screen-visible {
@@ -77,6 +79,11 @@
     &:hover {
         background: var(--colorBrandBackgroundInvertedSelected);
     }
+}
+
+.ul-no-bullets {
+    list-style-type: none;
+    padding: 5px;
 }
 
 // this can be removed in future. setting this as fluent_ui table has offset issues.
