@@ -17,12 +17,13 @@ import {
 } from "@fluentui/react-components";
 import { ChatMultiple24Regular, PersonFeedback24Regular, QuestionCircle24Regular } from "@fluentui/react-icons";
 import * as microsoftTeams from "@microsoft/teams-js";
+
 import { GetDraftMessagesAction } from "../../actions";
 import { getBaseUrl } from "../../configVariables";
 import { ROUTE_PARTS, ROUTE_QUERY_PARAMS } from "../../routes";
 import { useAppDispatch } from "../../store";
 import { DraftMessages } from "../DraftMessages/draftMessages";
-import { Messages } from "../Messages/messages";
+import { SentMessages } from "../SentMessages/sentMessages";
 
 interface IMainContainer {
   theme: Theme;
@@ -98,7 +99,7 @@ export const MainContainer = (props: IMainContainer) => {
         <AccordionItem value="2" key="sentMessagesKey">
           <AccordionHeader>{t("SentMessagesSectionTitle")}</AccordionHeader>
           <AccordionPanel className="cc-accordion-panel">
-            <Messages />
+            <SentMessages />
           </AccordionPanel>
         </AccordionItem>
       </Accordion>

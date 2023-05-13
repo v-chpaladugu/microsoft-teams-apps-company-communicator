@@ -1,9 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import * as AdaptiveCards from "adaptivecards";
-import MarkdownIt from "markdown-it";
-import { TFunction } from "i18next";
+import * as AdaptiveCards from 'adaptivecards';
+import { TFunction } from 'i18next';
+import MarkdownIt from 'markdown-it';
 
 AdaptiveCards.AdaptiveCard.onProcessMarkdown = function (text, result) {
   result.outputHtml = new MarkdownIt().render(text);
@@ -40,7 +40,7 @@ export const getInitAdaptiveCard = (t: TFunction) => {
         size: "Small",
         weight: "Lighter",
         text: "",
-      }
+      },
     ],
     $schema: "http://adaptivecards.io/schemas/adaptive-card.json",
     version: "1.0",

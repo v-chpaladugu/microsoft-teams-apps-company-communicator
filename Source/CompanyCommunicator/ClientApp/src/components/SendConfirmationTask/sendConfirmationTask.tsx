@@ -5,7 +5,7 @@ import * as AdaptiveCards from "adaptivecards";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
-import { Button, Field, Image, Label, Spinner, Text } from "@fluentui/react-components";
+import { Button, Field, Image, Label, Spinner, Text, Persona } from "@fluentui/react-components";
 import * as microsoftTeams from "@microsoft/teams-js";
 import { getConsentSummaries, getDraftNotification, sendDraftNotification } from "../../apis/messageListApi";
 import { ImageUtil } from "../../utility/imageutility";
@@ -49,7 +49,7 @@ export interface IConsentState {
 
 let card: any;
 
-export const SendConfirmationTaskModule = () => {
+export const SendConfirmationTask = () => {
   const { t } = useTranslation();
   const { id } = useParams() as any;
   const [loader, setLoader] = React.useState(true);
@@ -145,8 +145,9 @@ export const SendConfirmationTaskModule = () => {
       items.map((element) => {
         resultedTeams.push(
           <li>
-            <Image src={ImageUtil.makeInitialImage(element)} />
-            <span style={{ verticalAlign: "top", paddingLeft: "5px" }}>{element}</span>
+            {/* <Image src={ImageUtil.makeInitialImage(element)} />
+            <span style={{ verticalAlign: "top", paddingLeft: "5px" }}>{element}</span> */}
+            <Persona name={element} secondaryText={"Team"} avatar={{ shape: "square" }} />
           </li>
         );
       });
@@ -201,17 +202,17 @@ export const SendConfirmationTaskModule = () => {
                 <Field size="large" label={t("ConfirmToSend")}>
                   <Text>{t("SendToRecipientsLabel")}</Text>
                 </Field>
-                <div style={{ margin: "16px" }}>{renderAudienceSelection()}</div>
+                <div>{renderAudienceSelection()}</div>
               </>
             )}
           </div>
           <div className="card-area"></div>
         </div>
         <div className="footer-actions-inline">
-            <div className="footer-action-right">
-              <Button style={{margin:"16px"}} onClick={onSendMessage} appearance="primary">
-                {t("Send")}
-              </Button>
+          <div className="footer-action-right">
+            <Button style={{ margin: "16px" }} onClick={onSendMessage} appearance="primary">
+              {t("Send")}
+            </Button>
           </div>
         </div>
       </>

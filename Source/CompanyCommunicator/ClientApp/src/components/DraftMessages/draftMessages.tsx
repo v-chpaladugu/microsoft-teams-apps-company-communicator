@@ -15,7 +15,9 @@ export const DraftMessages = () => {
   const dispatch = useAppDispatch();
 
   React.useEffect(() => {
-    GetDraftMessagesAction(dispatch);
+    if (draftMessages && draftMessages.length === 0) {
+      GetDraftMessagesAction(dispatch);
+    }
   }, []);
 
   return (

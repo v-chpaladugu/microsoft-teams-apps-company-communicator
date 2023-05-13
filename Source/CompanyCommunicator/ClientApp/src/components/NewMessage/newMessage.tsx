@@ -1,8 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import "./newMessage.scss";
-
 import * as AdaptiveCards from "adaptivecards";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
@@ -24,6 +22,7 @@ import {
   Textarea,
   tokens,
   useId,
+  Persona,
 } from "@fluentui/react-components";
 import { ArrowUpload24Regular, Dismiss12Regular } from "@fluentui/react-icons";
 import * as microsoftTeams from "@microsoft/teams-js";
@@ -138,8 +137,8 @@ export const NewMessage = () => {
   }, [id]);
 
   React.useEffect(() => {
-     updateAdaptiveCard();
-  },[pageSelection]);
+    updateAdaptiveCard();
+  }, [pageSelection]);
 
   const getDraftNotificationItem = async (id: number) => {
     try {
@@ -204,10 +203,10 @@ export const NewMessage = () => {
     if (renderCard && pageSelection === CurrentPageSelection.CardCreation) {
       document.getElementsByClassName("card-area-1")[0].innerHTML = "";
       document.getElementsByClassName("card-area-1")[0].appendChild(renderCard);
-    }  else if (renderCard && pageSelection === CurrentPageSelection.AudienceSelection) {
+    } else if (renderCard && pageSelection === CurrentPageSelection.AudienceSelection) {
       document.getElementsByClassName("card-area-2")[0].innerHTML = "";
       document.getElementsByClassName("card-area-2")[0].appendChild(renderCard);
-    } 
+    }
     adaptiveCard.onExecuteAction = function (action: any) {
       window.open(action.url, "_blank");
     };
@@ -345,7 +344,7 @@ export const NewMessage = () => {
     }
   };
 
-  const onNext = (event: any) => {    
+  const onNext = (event: any) => {
     setPageSelection(CurrentPageSelection.AudienceSelection);
   };
 
@@ -518,30 +517,30 @@ export const NewMessage = () => {
     <>
       {loader && <Spinner labelPosition="below" />}
       {!loader && (
-      <div>
-        {pageSelection === CurrentPageSelection.CardCreation && (
-          <>
-            <div className="adaptive-task-grid">
-              <div className="form-area">
-                <Field size="large" label={t("TitleText")}>
-                  <Input
-                    placeholder={t("PlaceHolderTitle")}
-                    onChange={onTitleChanged}
-                    autoComplete="off"
-                    size="large"
-                    appearance="filled-darker"
-                    value={formState.title}
-                  />
-                </Field>
-                <Field size="large" label={t("ImageURL")}>
-                  <div
-                    style={{
-                      display: "grid",
-                      gridTemplateColumns: "1fr auto",
-                      gridTemplateAreas: "inp-area btn-area",
-                    }}
-                  >
-                    {/* <input
+        <div>
+          {pageSelection === CurrentPageSelection.CardCreation && (
+            <>
+              <div className="adaptive-task-grid">
+                <div className="form-area">
+                  <Field size="large" label={t("TitleText")}>
+                    <Input
+                      placeholder={t("PlaceHolderTitle")}
+                      onChange={onTitleChanged}
+                      autoComplete="off"
+                      size="large"
+                      appearance="filled-darker"
+                      value={formState.title}
+                    />
+                  </Field>
+                  <Field size="large" label={t("ImageURL")}>
+                    <div
+                      style={{
+                        display: "grid",
+                        gridTemplateColumns: "1fr auto",
+                        gridTemplateAreas: "inp-area btn-area",
+                      }}
+                    >
+                      {/* <input
                       className="file-button"
                       aria-labelledby="imageLabelId"
                       type="file"
@@ -549,129 +548,145 @@ export const NewMessage = () => {
                       name="file"
                       aria-label={t("ImageURL")}
                     /> */}
-                    <Input
-                      size="large"
-                      style={{ gridColumn: "1" }}
-                      appearance="filled-darker"
-                      // value={
-                      //   formState.imageLink && formState.imageLink.startsWith("data:")
-                      //     ? formState.localImagePath
-                      //     : formState.imageLink
-                      // }
-                      value={formState.imageLink}
-                      placeholder={t("ImageURL")}
-                      onChange={onImageLinkChanged}
-                    />
-                    <Button
-                      style={{ gridColumn: "2", marginLeft: "5px" }}
-                      onClick={handleUploadClick}
-                      size="large"
-                      appearance="secondary"
-                      icon={<ArrowUpload24Regular />}
-                    >
-                      {t("Upload")}
-                    </Button>
-                    <input
-                      type="file"
-                      accept=".jpg, .jpeg, .png, .gif"
-                      style={{ display: "none" }}
-                      multiple={false}
-                      onChange={handleImageSelection}
-                      ref={fileInput}
-                    />
-                  </div>
-                </Field>
-                {/* <Text
+                      <Input
+                        size="large"
+                        style={{ gridColumn: "1" }}
+                        appearance="filled-darker"
+                        // value={
+                        //   formState.imageLink && formState.imageLink.startsWith("data:")
+                        //     ? formState.localImagePath
+                        //     : formState.imageLink
+                        // }
+                        value={formState.imageLink}
+                        placeholder={t("ImageURL")}
+                        onChange={onImageLinkChanged}
+                      />
+                      <Button
+                        style={{ gridColumn: "2", marginLeft: "5px" }}
+                        onClick={handleUploadClick}
+                        size="large"
+                        appearance="secondary"
+                        icon={<ArrowUpload24Regular />}
+                      >
+                        {t("Upload")}
+                      </Button>
+                      <input
+                        type="file"
+                        accept=".jpg, .jpeg, .png, .gif"
+                        style={{ display: "none" }}
+                        multiple={false}
+                        onChange={handleImageSelection}
+                        ref={fileInput}
+                      />
+                    </div>
+                  </Field>
+                  {/* <Text
                         className={formState.errorImageUrlMessage === "" ? "hide" : "show"}
                         error
                         size="small"
                         content={formState.errorImageUrlMessage}
                       /> */}
-                <Field size="large" label={t("Summary")}>
-                  <Textarea
-                    size="large"
-                    appearance="filled-darker"
-                    placeholder={t("Summary")}
-                    value={formState.summary}
-                    onChange={onSummaryChanged}
-                  />
-                </Field>
-                <Field size="large" label={t("Author")}>
-                  <Input
-                    placeholder={t("Author")}
-                    size="large"
-                    onChange={onAuthorChanged}
-                    autoComplete="off"
-                    appearance="filled-darker"
-                    value={formState.author}
-                  />
-                </Field>
-                <Field size="large" label={t("ButtonTitle")}>
-                  <Input
-                    size="large"
-                    placeholder={t("ButtonTitle")}
-                    onChange={onBtnTitleChanged}
-                    autoComplete="off"
-                    appearance="filled-darker"
-                    value={formState.buttonTitle}
-                  />
-                </Field>
-                <Field size="large" label={t("ButtonURL")}>
-                  <Input
-                    size="large"
-                    placeholder={t("ButtonURL")}
-                    onChange={onBtnLinkChanged}
-                    autoComplete="off"
-                    appearance="filled-darker"
-                    value={formState.buttonLink}
-                  />
-                </Field>
-                {/* <Text
+                  <Field size="large" label={t("Summary")}>
+                    <Textarea
+                      size="large"
+                      appearance="filled-darker"
+                      placeholder={t("Summary")}
+                      value={formState.summary}
+                      onChange={onSummaryChanged}
+                    />
+                  </Field>
+                  <Field size="large" label={t("Author")}>
+                    <Input
+                      placeholder={t("Author")}
+                      size="large"
+                      onChange={onAuthorChanged}
+                      autoComplete="off"
+                      appearance="filled-darker"
+                      value={formState.author}
+                    />
+                  </Field>
+                  <Field size="large" label={t("ButtonTitle")}>
+                    <Input
+                      size="large"
+                      placeholder={t("ButtonTitle")}
+                      onChange={onBtnTitleChanged}
+                      autoComplete="off"
+                      appearance="filled-darker"
+                      value={formState.buttonTitle}
+                    />
+                  </Field>
+                  <Field size="large" label={t("ButtonURL")}>
+                    <Input
+                      size="large"
+                      placeholder={t("ButtonURL")}
+                      onChange={onBtnLinkChanged}
+                      autoComplete="off"
+                      appearance="filled-darker"
+                      value={formState.buttonLink}
+                    />
+                  </Field>
+                  {/* <Text
                         className={formState.errorButtonUrlMessage === "" ? "hide" : "show"}
                         error
                         size="small"
                         content={formState.errorButtonUrlMessage}
                       /> */}
+                </div>
+                <div className="card-area">
+                  <div className="card-area-1"></div>
+                </div>
               </div>
-              <div className="card-area">
-                <div className="card-area-1"></div>
+              <div className="footer-actions-inline">
+                <div className="footer-action-right">
+                  <Button
+                    style={{ margin: "16px" }}
+                    disabled={isNextBtnDisabled()}
+                    id="saveBtn"
+                    onClick={onNext}
+                    appearance="primary"
+                  >
+                    {t("Next")}
+                  </Button>
+                </div>
               </div>
-            </div>
-            <div className="footer-actions-inline">
-              <div className="footer-action-right">
-                <Button
-                  style={{ margin: "16px" }}
-                  disabled={isNextBtnDisabled()}
-                  id="saveBtn"
-                  onClick={onNext}
-                  appearance="primary"
-                >
-                  {t("Next")}
-                </Button>
-              </div>
-            </div>
-          </>
-        )}
-        {pageSelection === CurrentPageSelection.AudienceSelection && (
-          <>
-            <div className="adaptive-task-grid">
-              <div className="form-area">
-                <Label id="labelId">
-                  <h3>{t("SendHeadingText")}</h3>
-                </Label>
-                <RadioGroup aria-labelledby="labelId">
-                  <Radio value={t("SendToGeneralChannel")} label={t("SendToGeneralChannel")} />
-                  <div className={styles.root}>
-                    <Label id={teamsComboId}>Pick Teams</Label>
-                    {teamsSelectedOptions.length ? (
-                      <ul id={teamsSelectedListId} className={styles.tagsList} ref={teamsSelectedListRef}>
-                        {/* The "Remove" span is used for naming the buttons without affecting the Combobox name */}
-                        <span id={`${teamsComboId}-remove`} hidden>
-                          Remove
-                        </span>
-                        {teamsSelectedOptions.map((option, i) => (
-                          <li key={option}>
-                            <Button
+            </>
+          )}
+          {pageSelection === CurrentPageSelection.AudienceSelection && (
+            <>
+              <div className="adaptive-task-grid">
+                <div className="form-area">
+                  <Label id="labelId">
+                    <h3>{t("SendHeadingText")}</h3>
+                  </Label>
+                  <RadioGroup aria-labelledby="labelId">
+                    <Radio value={t("SendToGeneralChannel")} label={t("SendToGeneralChannel")} />
+                    <div className={styles.root}>
+                      <Label id={teamsComboId}>Pick Teams</Label>
+                      {teamsSelectedOptions.length ? (
+                        <ul id={teamsSelectedListId} className={styles.tagsList} ref={teamsSelectedListRef}>
+                          {/* The "Remove" span is used for naming the buttons without affecting the Combobox name */}
+                          <span id={`${teamsComboId}-remove`} hidden>
+                            Remove
+                          </span>
+                          {teamsSelectedOptions.map((option, i) => (
+                            <li key={option}>
+                              <Button
+                                size="small"
+                                shape="rounded"
+                                appearance="subtle"
+                                icon={<Dismiss12Regular />}
+                                iconPosition="after"
+                                onClick={() => onTeamsTagClick(option, i)}
+                                id={`${teamsComboId}-remove-${i}`}
+                                aria-labelledby={`${teamsComboId}-remove ${teamsComboId}-remove-${i}`}
+                              >
+                                <Persona
+                                  name={option}
+                                  secondaryText={"Team"}
+                                  avatar={{ shape: "square", color: "colorful" }}
+                                />
+                              </Button>
+                              {/* <Button
                               size="small"
                               shape="circular"
                               appearance="primary"
@@ -682,111 +697,117 @@ export const NewMessage = () => {
                               aria-labelledby={`${teamsComboId}-remove ${teamsComboId}-remove-${i}`}
                             >
                               {option}
-                            </Button>
-                          </li>
+                            </Button> */}
+                            </li>
+                          ))}
+                        </ul>
+                      ) : null}
+                      <Combobox
+                        multiselect={true}
+                        selectedOptions={teamsSelectedOptions}
+                        appearance="filled-darker"
+                        size="large"
+                        onOptionSelect={onTeamsSelect}
+                        ref={teamsComboboxInputRef}
+                        aria-labelledby={teamsLabelledBy}
+                        placeholder="Pick one or more teams"
+                      >
+                        {teams.map((opt) => (
+                          <Option text={opt.name} value={opt.name} key={opt.id}>
+                            <Persona
+                              name={opt.name}
+                              secondaryText={"Team"}
+                              avatar={{ shape: "square", color: "colorful" }}
+                            />
+                          </Option>
                         ))}
-                      </ul>
-                    ) : null}
-                    <Combobox
-                      multiselect={true}
-                      selectedOptions={teamsSelectedOptions}
-                      appearance="filled-darker"
-                      size="large"
-                      onOptionSelect={onTeamsSelect}
-                      ref={teamsComboboxInputRef}
-                      aria-labelledby={teamsLabelledBy}
-                      placeholder="Pick one or more teams"
-                    >
-                      {teams.map((opt) => (
-                        <Option key={opt?.id}>{opt?.name}</Option>
-                      ))}
-                    </Combobox>
-                  </div>
-                  <Radio value={t("SendToRosters")} label={t("SendToRosters")} />
-                  <div className={styles.root}>
-                    <Label id={rostersComboId}>Pick Teams</Label>
-                    {rostersSelectedOptions.length ? (
-                      <ul id={rostersSelectedListId} className={styles.tagsList} ref={rostersSelectedListRef}>
-                        {/* The "Remove" span is used for naming the buttons without affecting the Combobox name */}
-                        <span id={`${rostersComboId}-remove`} hidden>
-                          Remove
-                        </span>
-                        {rostersSelectedOptions.map((option, i) => (
-                          <li key={option}>
-                            <Button
-                              size="small"
-                              shape="circular"
-                              appearance="primary"
-                              icon={<Dismiss12Regular />}
-                              iconPosition="after"
-                              onClick={() => onRostersTagClick(option, i)}
-                              id={`${rostersComboId}-remove-${i}`}
-                              aria-labelledby={`${rostersComboId}-remove ${rostersComboId}-remove-${i}`}
-                            >
-                              {option}
-                            </Button>
-                          </li>
+                      </Combobox>
+                    </div>
+                    <Radio value={t("SendToRosters")} label={t("SendToRosters")} />
+                    <div className={styles.root}>
+                      <Label id={rostersComboId}>Pick Teams</Label>
+                      {rostersSelectedOptions.length ? (
+                        <ul id={rostersSelectedListId} className={styles.tagsList} ref={rostersSelectedListRef}>
+                          {/* The "Remove" span is used for naming the buttons without affecting the Combobox name */}
+                          <span id={`${rostersComboId}-remove`} hidden>
+                            Remove
+                          </span>
+                          {rostersSelectedOptions.map((option, i) => (
+                            <li key={option}>
+                              <Button
+                                size="small"
+                                shape="circular"
+                                appearance="primary"
+                                icon={<Dismiss12Regular />}
+                                iconPosition="after"
+                                onClick={() => onRostersTagClick(option, i)}
+                                id={`${rostersComboId}-remove-${i}`}
+                                aria-labelledby={`${rostersComboId}-remove ${rostersComboId}-remove-${i}`}
+                              >
+                                {option}
+                              </Button>
+                            </li>
+                          ))}
+                        </ul>
+                      ) : null}
+                      <Combobox
+                        multiselect={true}
+                        selectedOptions={rostersSelectedOptions}
+                        appearance="filled-darker"
+                        size="large"
+                        onOptionSelect={onRostersSelect}
+                        ref={rostersComboboxInputRef}
+                        aria-labelledby={rostersLabelledBy}
+                        placeholder="Pick one or more teams"
+                      >
+                        {teams.map((opt) => (
+                          <Option key={opt?.id}>{opt?.name}</Option>
                         ))}
-                      </ul>
-                    ) : null}
-                    <Combobox
-                      multiselect={true}
-                      selectedOptions={rostersSelectedOptions}
-                      appearance="filled-darker"
-                      size="large"
-                      onOptionSelect={onRostersSelect}
-                      ref={rostersComboboxInputRef}
-                      aria-labelledby={rostersLabelledBy}
-                      placeholder="Pick one or more teams"
-                    >
-                      {teams.map((opt) => (
-                        <Option key={opt?.id}>{opt?.name}</Option>
-                      ))}
-                    </Combobox>
-                  </div>
-                  <Radio value={t("SendToAllUsers")} label={t("SendToAllUsers")} />
-                  <Radio value={t("SendToGroups")} label={t("SendToGroups")} />
-                  <div className={styles.root}>
-                    <Label id={searchComboId}>Search Groups</Label>
-                    {searchSelectedOptions.length ? (
-                      <ul id={searchSelectedListId} className={styles.tagsList} ref={searchSelectedListRef}>
-                        {/* The "Remove" span is used for naming the buttons without affecting the Combobox name */}
-                        <span id={`${searchComboId}-remove`} hidden>
-                          Remove
-                        </span>
-                        {searchSelectedOptions.map((option, i) => (
-                          <li key={option}>
-                            <Button
-                              size="small"
-                              shape="circular"
-                              appearance="primary"
-                              icon={<Dismiss12Regular />}
-                              iconPosition="after"
-                              onClick={() => onSearchTagClick(option, i)}
-                              id={`${searchComboId}-remove-${i}`}
-                              aria-labelledby={`${searchComboId}-remove ${searchComboId}-remove-${i}`}
-                            >
-                              {option}
-                            </Button>
-                          </li>
+                      </Combobox>
+                    </div>
+                    <Radio value={t("SendToAllUsers")} label={t("SendToAllUsers")} />
+                    <Radio value={t("SendToGroups")} label={t("SendToGroups")} />
+                    <div className={styles.root}>
+                      <Label id={searchComboId}>Search Groups</Label>
+                      {searchSelectedOptions.length ? (
+                        <ul id={searchSelectedListId} className={styles.tagsList} ref={searchSelectedListRef}>
+                          {/* The "Remove" span is used for naming the buttons without affecting the Combobox name */}
+                          <span id={`${searchComboId}-remove`} hidden>
+                            Remove
+                          </span>
+                          {searchSelectedOptions.map((option, i) => (
+                            <li key={option}>
+                              <Button
+                                size="small"
+                                shape="circular"
+                                appearance="primary"
+                                icon={<Dismiss12Regular />}
+                                iconPosition="after"
+                                onClick={() => onSearchTagClick(option, i)}
+                                id={`${searchComboId}-remove-${i}`}
+                                aria-labelledby={`${searchComboId}-remove ${searchComboId}-remove-${i}`}
+                              >
+                                {option}
+                              </Button>
+                            </li>
+                          ))}
+                        </ul>
+                      ) : null}
+                      <Combobox
+                        appearance="filled-darker"
+                        size="large"
+                        onOptionSelect={onSearchSelect}
+                        onChange={onSearchChange}
+                        placeholder="Search for groups"
+                      >
+                        {queryGroups.map((opt) => (
+                          <Option key={opt?.id}>{opt?.name}</Option>
                         ))}
-                      </ul>
-                    ) : null}
-                    <Combobox
-                      appearance="filled-darker"
-                      size="large"
-                      onOptionSelect={onSearchSelect}
-                      onChange={onSearchChange}
-                      placeholder="Search for groups"
-                    >
-                      {queryGroups.map((opt) => (
-                        <Option key={opt?.id}>{opt?.name}</Option>
-                      ))}
-                      {queryGroups.length === 0 && <Option disabled>No results</Option>}
-                    </Combobox>
-                  </div>
-                </RadioGroup>
-                {/* <RadioGroup
+                        {queryGroups.length === 0 && <Option disabled>No results</Option>}
+                      </Combobox>
+                    </div>
+                  </RadioGroup>
+                  {/* <RadioGroup
                         className="radioBtns"
                         checkedValue={formState.selectedRadioBtn}
                         onCheckedValueChange={onGroupSelected}
@@ -901,37 +922,42 @@ export const NewMessage = () => {
                           },
                         ]}
                       ></RadioGroup> */}
-              </div>
-              <div className="card-area">
-                <div className="card-area-2"></div>
-              </div>
-            </div>
-            <div>
-              <div className="footer-actions-inline">
-                <div className="footer-action-left">
-                  <Button id="backBtn" onClick={onBack} appearance="secondary">
-                    {t("Back")}
-                  </Button>
                 </div>
-                <div className="footer-action-right">
-                  <div className="footer-actions-flex">
-                    <Spinner id="draftingLoader" size="small" label={t("DraftingMessageLabel")} labelPosition="after" />
-                    <Button
-                      style={{ margin: "16px" }}
-                      disabled={isSaveBtnDisabled()}
-                      id="saveBtn"
-                      onClick={onSave}
-                      appearance="primary"
-                    >
-                      {t("SaveAsDraft")}
+                <div className="card-area">
+                  <div className="card-area-2"></div>
+                </div>
+              </div>
+              <div>
+                <div className="footer-actions-inline">
+                  <div className="footer-action-left">
+                    <Button id="backBtn" onClick={onBack} appearance="secondary">
+                      {t("Back")}
                     </Button>
+                  </div>
+                  <div className="footer-action-right">
+                    <div className="footer-actions-flex">
+                      <Spinner
+                        id="draftingLoader"
+                        size="small"
+                        label={t("DraftingMessageLabel")}
+                        labelPosition="after"
+                      />
+                      <Button
+                        style={{ marginLeft: "16px" }}
+                        disabled={isSaveBtnDisabled()}
+                        id="saveBtn"
+                        onClick={onSave}
+                        appearance="primary"
+                      >
+                        {t("SaveAsDraft")}
+                      </Button>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-          </>
-        )}
-      </div>
+            </>
+          )}
+        </div>
       )}
     </>
   );

@@ -1,9 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import axios, { AxiosResponse, AxiosRequestConfig } from "axios";
-import * as microsoftTeams from "@microsoft/teams-js";
-import i18n from "../i18n";
+import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
+import * as microsoftTeams from '@microsoft/teams-js';
+import i18n from '../i18n';
 
 export class AxiosJWTDecorator {
   public async get<T = any, R = AxiosResponse<T>>(

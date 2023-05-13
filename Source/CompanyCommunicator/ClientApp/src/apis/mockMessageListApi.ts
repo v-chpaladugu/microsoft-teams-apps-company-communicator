@@ -1,10 +1,15 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import axios from "./axiosJWTDecorator";
-import { getBaseUrl } from "../configVariables";
+import { getBaseUrl } from '../configVariables';
+import axios from './axiosJWTDecorator';
 
 let baseAxiosUrl = getBaseUrl() + "/api";
+
+const randomIntFromInterval = (min: number, max: number) => {
+  // min and max included
+  return Math.floor(Math.random() * (max - min + 1) + min);
+};
 
 export const getSentNotifications = async (): Promise<any> => {
   // let url = baseAxiosUrl + "/sentnotifications";
@@ -18,8 +23,8 @@ export const getSentNotifications = async (): Promise<any> => {
           title: "Test3",
           createdDateTime: "2023-04-27T20:30:56.0123579Z",
           sentDate: null,
-          succeeded: 0,
-          failed: 0,
+          succeeded: randomIntFromInterval(7, 15),
+          failed: randomIntFromInterval(2, 5),
           unknown: null,
           canceled: null,
           totalMessageCount: 0,
@@ -107,7 +112,12 @@ export const getDraftNotifications = async (): Promise<any> => {
   // return await axios.get(url);
 
   return new Promise((resolve, reject) => {
-    resolve({ data: [{"id":"0638187395972683184","title":"Test 123"},{"id":"0638192293612328690","title":"Test 123 (copy)"}] });
+    resolve({
+      data: [
+        { id: "0638187395972683184", title: "Test 123" },
+        { id: "0638192293612328690", title: "Test 123 (copy)" },
+      ],
+    });
   });
 };
 
@@ -125,41 +135,41 @@ export const searchGroups = async (query: string): Promise<any> => {
   // let url = baseAxiosUrl + "/groupdata/search/" + query;
   // return await axios.get(url);
 
-  var test = [{"id":"19:-NerdIDjIGqfzXbVO7NcJwX6MNj8irw2OhCbsfcYtoQ1@thread.tacv2","name":"1-Test-cc-raj"}, 
-  {"id":"20:-NerdIDjIGqfzXbVO7NcJwX6MNj8irw2OhCbsfcYtoQ1@thread.tacv2","name":"AATcc-raj"}, 
-  {"id":"21:-NerdIDjIGqfzXbVO7NcJwX6MNj8irw2OhCbsfcYtoQ1@thread.tacv2","name":"ABC-raj"},
-  {"id":"22:-NerdIDjIGqfzXbVO7NcJwX6MNj8irw2OhCbsfcYtoQ1@thread.tacv2","name":"ABC-cc-raj"},
-  {"id":"23:-NerdIDjIGqfzXbVO7NcJwX6MNj8irw2OhCbsfcYtoQ1@thread.tacv2","name":"Raj-cc-raj"},
-  {"id":"24:-NerdIDjIGqfzXbVO7NcJwX6MNj8irw2OhCbsfcYtoQ1@thread.tacv2","name":"XYZ-Team"},
+  var test = [
+    { id: "19:-NerdIDjIGqfzXbVO7NcJwX6MNj8irw2OhCbsfcYtoQ1@thread.tacv2", name: "1-Test-cc-raj" },
+    { id: "20:-NerdIDjIGqfzXbVO7NcJwX6MNj8irw2OhCbsfcYtoQ1@thread.tacv2", name: "AATcc-raj" },
+    { id: "21:-NerdIDjIGqfzXbVO7NcJwX6MNj8irw2OhCbsfcYtoQ1@thread.tacv2", name: "ABC-raj" },
+    { id: "22:-NerdIDjIGqfzXbVO7NcJwX6MNj8irw2OhCbsfcYtoQ1@thread.tacv2", name: "ABC-cc-raj" },
+    { id: "23:-NerdIDjIGqfzXbVO7NcJwX6MNj8irw2OhCbsfcYtoQ1@thread.tacv2", name: "Raj-cc-raj" },
+    { id: "24:-NerdIDjIGqfzXbVO7NcJwX6MNj8irw2OhCbsfcYtoQ1@thread.tacv2", name: "XYZ-Team" },
 
-  {"id":"25:-NerdIDjIGqfzXbVO7NcJwX6MNj8irw2OhCbsfcYtoQ1@thread.tacv2","name":"BB1-Test-cc-raj"}, 
-  {"id":"26:-NerdIDjIGqfzXbVO7NcJwX6MNj8irw2OhCbsfcYtoQ1@thread.tacv2","name":"BATcc-raj"}, 
-  {"id":"27:-NerdIDjIGqfzXbVO7NcJwX6MNj8irw2OhCbsfcYtoQ1@thread.tacv2","name":"ABC-raj"},
-  {"id":"28:-NerdIDjIGqfzXbVO7NcJwX6MNj8irw2OhCbsfcYtoQ1@thread.tacv2","name":"ABC-cc-raj"},
-  {"id":"29:-NerdIDjIGqfzXbVO7NcJwX6MNj8irw2OhCbsfcYtoQ1@thread.tacv2","name":"Raj-cc-raj"},
-  {"id":"30:-NerdIDjIGqfzXbVO7NcJwX6MNj8irw2OhCbsfcYtoQ1@thread.tacv2","name":"XYZ-Team"},
+    { id: "25:-NerdIDjIGqfzXbVO7NcJwX6MNj8irw2OhCbsfcYtoQ1@thread.tacv2", name: "BB1-Test-cc-raj" },
+    { id: "26:-NerdIDjIGqfzXbVO7NcJwX6MNj8irw2OhCbsfcYtoQ1@thread.tacv2", name: "BATcc-raj" },
+    { id: "27:-NerdIDjIGqfzXbVO7NcJwX6MNj8irw2OhCbsfcYtoQ1@thread.tacv2", name: "ABC-raj" },
+    { id: "28:-NerdIDjIGqfzXbVO7NcJwX6MNj8irw2OhCbsfcYtoQ1@thread.tacv2", name: "ABC-cc-raj" },
+    { id: "29:-NerdIDjIGqfzXbVO7NcJwX6MNj8irw2OhCbsfcYtoQ1@thread.tacv2", name: "Raj-cc-raj" },
+    { id: "30:-NerdIDjIGqfzXbVO7NcJwX6MNj8irw2OhCbsfcYtoQ1@thread.tacv2", name: "XYZ-Team" },
 
-  {"id":"31:-NerdIDjIGqfzXbVO7NcJwX6MNj8irw2OhCbsfcYtoQ1@thread.tacv2","name":"CA1-Test-cc-raj"}, 
-  {"id":"201:-NerdIDjIGqfzXbVO7NcJwX6MNj8irw2OhCbsfcYtoQ1@thread.tacv2","name":"Tcc-raj"}, 
-  {"id":"212:-NerdIDjIGqfzXbVO7NcJwX6MNj8irw2OhCbsfcYtoQ1@thread.tacv2","name":"ABC-raj"},
-  {"id":"223:-NerdIDjIGqfzXbVO7NcJwX6MNj8irw2OhCbsfcYtoQ1@thread.tacv2","name":"XYZABC-cc-raj"},
-  {"id":"234:-NerdIDjIGqfzXbVO7NcJwX6MNj8irw2OhCbsfcYtoQ1@thread.tacv2","name":"Raj-cc-raj"},
-  {"id":"244:-NerdIDjIGqfzXbVO7NcJwX6MNj8irw2OhCbsfcYtoQ1@thread.tacv2","name":"XYZ-Team"},
+    { id: "31:-NerdIDjIGqfzXbVO7NcJwX6MNj8irw2OhCbsfcYtoQ1@thread.tacv2", name: "CA1-Test-cc-raj" },
+    { id: "201:-NerdIDjIGqfzXbVO7NcJwX6MNj8irw2OhCbsfcYtoQ1@thread.tacv2", name: "Tcc-raj" },
+    { id: "212:-NerdIDjIGqfzXbVO7NcJwX6MNj8irw2OhCbsfcYtoQ1@thread.tacv2", name: "ABC-raj" },
+    { id: "223:-NerdIDjIGqfzXbVO7NcJwX6MNj8irw2OhCbsfcYtoQ1@thread.tacv2", name: "XYZABC-cc-raj" },
+    { id: "234:-NerdIDjIGqfzXbVO7NcJwX6MNj8irw2OhCbsfcYtoQ1@thread.tacv2", name: "Raj-cc-raj" },
+    { id: "244:-NerdIDjIGqfzXbVO7NcJwX6MNj8irw2OhCbsfcYtoQ1@thread.tacv2", name: "XYZ-Team" },
 
-  {"id":"519:-NerdIDjIGqfzXbVO7NcJwX6MNj8irw2OhCbsfcYtoQ1@thread.tacv2","name":"ABC1-Test-cc-raj"}, 
-  {"id":"520:-NerdIDjIGqfzXbVO7NcJwX6MNj8irw2OhCbsfcYtoQ1@thread.tacv2","name":"TETcc-raj"}, 
-  {"id":"521:-NerdIDjIGqfzXbVO7NcJwX6MNj8irw2OhCbsfcYtoQ1@thread.tacv2","name":"RRRABC-raj"},
-  {"id":"622:-NerdIDjIGqfzXbVO7NcJwX6MNj8irw2OhCbsfcYtoQ1@thread.tacv2","name":"RABC-cc-raj"},
-  {"id":"723:-NerdIDjIGqfzXbVO7NcJwX6MNj8irw2OhCbsfcYtoQ1@thread.tacv2","name":"ARaj-cc-raj"},
-  {"id":"724:-NerdIDjIGqfzXbVO7NcJwX6MNj8irw2OhCbsfcYtoQ1@thread.tacv2","name":"MRRAXYZ-Team"}];
+    { id: "519:-NerdIDjIGqfzXbVO7NcJwX6MNj8irw2OhCbsfcYtoQ1@thread.tacv2", name: "ABC1-Test-cc-raj" },
+    { id: "520:-NerdIDjIGqfzXbVO7NcJwX6MNj8irw2OhCbsfcYtoQ1@thread.tacv2", name: "TETcc-raj" },
+    { id: "521:-NerdIDjIGqfzXbVO7NcJwX6MNj8irw2OhCbsfcYtoQ1@thread.tacv2", name: "RRRABC-raj" },
+    { id: "622:-NerdIDjIGqfzXbVO7NcJwX6MNj8irw2OhCbsfcYtoQ1@thread.tacv2", name: "RABC-cc-raj" },
+    { id: "723:-NerdIDjIGqfzXbVO7NcJwX6MNj8irw2OhCbsfcYtoQ1@thread.tacv2", name: "ARaj-cc-raj" },
+    { id: "724:-NerdIDjIGqfzXbVO7NcJwX6MNj8irw2OhCbsfcYtoQ1@thread.tacv2", name: "MRRAXYZ-Team" },
+  ];
 
-  var result = test.filter(x => x.name.toLowerCase().includes(query.toLowerCase()));
+  var result = test.filter((x) => x.name.toLowerCase().includes(query.toLowerCase()));
 
   return new Promise((resolve, reject) => {
-    resolve({ data: result || []});
-});
-
-
+    resolve({ data: result || [] });
+  });
 };
 
 export const exportNotification = async (payload: {}): Promise<any> => {
@@ -172,32 +182,62 @@ export const getSentNotification = async (id: number): Promise<any> => {
   // return await axios.get(url);
 
   return new Promise((resolve, reject) => {
-
- resolve({ data: {"sendingStartedDate":"2023-04-26T10:09:23.1439055Z","sentDate":"2023-04-26T10:09:46.2170471Z","succeeded":2,"failed":0,"unknown":null,"canceled":null,"teamNames":[],"rosterNames":[],"groupNames":[],"allUsers":true,"errorMessage":null,"warningMessage":null,"canDownload":true,"sendingCompleted":true,"createdBy":"admin@M365x75769129.onmicrosoft.com","id":"0638192293612328690","title":"Check for Test Message Option 3","imageLink":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAOEAAADhCAMAAAAJbSJIAAAAclBMVEXz8/PzUyWBvAYFpvD/ugj19Pbz+fr39fr69vPy9fr29PPzRAB5uAAAofD/tgDz29bh6tTzTBbzmoiw0oGBxfH70IHU5vP16tTz5OHo7eDzPADzlIGs0Hnf6/N5wvH7znn07eAAnvDzvrTL3rCv1/L43rD2QPCNAAABfklEQVR4nO3cOXLCQBRFUXkQg0DMoxAIPOx/i06gCdxVjj4EPncDr0510tEvCkmS9JzK8HKr1TS6XQLuZ9HlhNNmFFtz6F2n+u04ulnmFaejl9jmiyRcvgZHSEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhI+FhhM49tdBe242cId4dFcB83YfnZLmNr97k7u73w0lTZjy57SFiSpD+rBtFVaascRpcDHk+r2E5fN2L53a1j684Z4eZSB3caXLeG3SS67e9PTbWp32KrV0m4nrzHRkhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISPhYYfT90suT75cWxSa6Yzqze95GV2WARRXefauMLgeUJOn/9gOEMUYmQwAZiQAAAABJRU5ErkJggg==", "imageBase64BlobName":"0638192293612328690","summary":"Test Summary for Test Message checking messaging options","author":"Jayant","buttonTitle":"","buttonLink":"","createdDateTime":"2023-04-26T10:09:13.1765093Z"} });
-
-});
+    resolve({
+      data: {
+        sendingStartedDate: "2023-04-26T10:09:23.1439055Z",
+        sentDate: "2023-04-26T10:09:46.2170471Z",
+        succeeded: 2,
+        failed: 0,
+        unknown: null,
+        canceled: null,
+        teamNames: [],
+        rosterNames: [],
+        groupNames: [],
+        allUsers: true,
+        errorMessage: null,
+        warningMessage: null,
+        canDownload: true,
+        sendingCompleted: true,
+        createdBy: "admin@M365x75769129.onmicrosoft.com",
+        id: "0638192293612328690",
+        title: "Check for Test Message Option 3",
+        imageLink:
+          "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAOEAAADhCAMAAAAJbSJIAAAAclBMVEXz8/PzUyWBvAYFpvD/ugj19Pbz+fr39fr69vPy9fr29PPzRAB5uAAAofD/tgDz29bh6tTzTBbzmoiw0oGBxfH70IHU5vP16tTz5OHo7eDzPADzlIGs0Hnf6/N5wvH7znn07eAAnvDzvrTL3rCv1/L43rD2QPCNAAABfklEQVR4nO3cOXLCQBRFUXkQg0DMoxAIPOx/i06gCdxVjj4EPncDr0510tEvCkmS9JzK8HKr1TS6XQLuZ9HlhNNmFFtz6F2n+u04ulnmFaejl9jmiyRcvgZHSEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhI+FhhM49tdBe242cId4dFcB83YfnZLmNr97k7u73w0lTZjy57SFiSpD+rBtFVaascRpcDHk+r2E5fN2L53a1j684Z4eZSB3caXLeG3SS67e9PTbWp32KrV0m4nrzHRkhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISPhYYfT90suT75cWxSa6Yzqze95GV2WARRXefauMLgeUJOn/9gOEMUYmQwAZiQAAAABJRU5ErkJggg==",
+        imageBase64BlobName: "0638192293612328690",
+        summary: "Test Summary for Test Message checking messaging options",
+        author: "Jayant",
+        buttonTitle: "",
+        buttonLink: "",
+        createdDateTime: "2023-04-26T10:09:13.1765093Z",
+      },
+    });
+  });
 };
 
 export const getDraftNotification = async (id: number): Promise<any> => {
-//   let url = baseAxiosUrl + "/draftnotifications/" + id;
-//   return await axios.get(url);
-  
-return new Promise((resolve, reject) => {
-    resolve({ data: {
-      "teams":["19:-NerdIDjIGqfzXbVO7NcJwX6MNj8irw2OhCbsfcYtoQ1@thread.tacv2"],
-      "rosters":[],
-      "groups":[],
-      "allUsers":false,
-      "id":"0638192293612328690",
-      "title":"Test 123 (copy)",
-      "imageLink":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAOEAAADhCAMAAAAJbSJIAAAAclBMVEXz8/PzUyWBvAYFpvD/ugj19Pbz+fr39fr69vPy9fr29PPzRAB5uAAAofD/tgDz29bh6tTzTBbzmoiw0oGBxfH70IHU5vP16tTz5OHo7eDzPADzlIGs0Hnf6/N5wvH7znn07eAAnvDzvrTL3rCv1/L43rD2QPCNAAABfklEQVR4nO3cOXLCQBRFUXkQg0DMoxAIPOx/i06gCdxVjj4EPncDr0510tEvCkmS9JzK8HKr1TS6XQLuZ9HlhNNmFFtz6F2n+u04ulnmFaejl9jmiyRcvgZHSEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhI+FhhM49tdBe242cId4dFcB83YfnZLmNr97k7u73w0lTZjy57SFiSpD+rBtFVaascRpcDHk+r2E5fN2L53a1j684Z4eZSB3caXLeG3SS67e9PTbWp32KrV0m4nrzHRkhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISPhYYfT90suT75cWxSa6Yzqze95GV2WARRXefauMLgeUJOn/9gOEMUYmQwAZiQAAAABJRU5ErkJggg==",
-      "imageBase64BlobName":"0638192293612328690",
-      "summary":"Test",
-      "author":"Test",
-      "buttonTitle":"Test",
-      "buttonLink":"https://google.com",
-      "createdDateTime":"2023-05-09T11:42:41.232874Z"} });
-});
+  //   let url = baseAxiosUrl + "/draftnotifications/" + id;
+  //   return await axios.get(url);
+
+  return new Promise((resolve, reject) => {
+    resolve({
+      data: {
+        teams: ["19:-NerdIDjIGqfzXbVO7NcJwX6MNj8irw2OhCbsfcYtoQ1@thread.tacv2"],
+        rosters: [],
+        groups: [],
+        allUsers: false,
+        id: "0638192293612328690",
+        title: "Test 123 (copy)",
+        imageLink:
+          "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAOEAAADhCAMAAAAJbSJIAAAAclBMVEXz8/PzUyWBvAYFpvD/ugj19Pbz+fr39fr69vPy9fr29PPzRAB5uAAAofD/tgDz29bh6tTzTBbzmoiw0oGBxfH70IHU5vP16tTz5OHo7eDzPADzlIGs0Hnf6/N5wvH7znn07eAAnvDzvrTL3rCv1/L43rD2QPCNAAABfklEQVR4nO3cOXLCQBRFUXkQg0DMoxAIPOx/i06gCdxVjj4EPncDr0510tEvCkmS9JzK8HKr1TS6XQLuZ9HlhNNmFFtz6F2n+u04ulnmFaejl9jmiyRcvgZHSEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhI+FhhM49tdBe242cId4dFcB83YfnZLmNr97k7u73w0lTZjy57SFiSpD+rBtFVaascRpcDHk+r2E5fN2L53a1j684Z4eZSB3caXLeG3SS67e9PTbWp32KrV0m4nrzHRkhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISPhYYfT90suT75cWxSa6Yzqze95GV2WARRXefauMLgeUJOn/9gOEMUYmQwAZiQAAAABJRU5ErkJggg==",
+        imageBase64BlobName: "0638192293612328690",
+        summary: "Test",
+        author: "Test",
+        buttonTitle: "Test",
+        buttonLink: "https://google.com",
+        createdDateTime: "2023-05-09T11:42:41.232874Z",
+      },
+    });
+  });
 };
 
 export const deleteDraftNotification = async (id: number): Promise<any> => {
@@ -230,16 +270,17 @@ export const getTeams = async (): Promise<any> => {
   // return await axios.get(url);
 
   return new Promise((resolve, reject) => {
-    resolve({ data: [{"id":"19:-NerdIDjIGqfzXbVO7NcJwX6MNj8irw2OhCbsfcYtoQ1@thread.tacv2","name":"1-Test-cc-raj"}, 
-    {"id":"20:-NerdIDjIGqfzXbVO7NcJwX6MNj8irw2OhCbsfcYtoQ1@thread.tacv2","name":"Tcc-raj"}, 
-    {"id":"21:-NerdIDjIGqfzXbVO7NcJwX6MNj8irw2OhCbsfcYtoQ1@thread.tacv2","name":"ABC-raj"},
-    {"id":"22:-NerdIDjIGqfzXbVO7NcJwX6MNj8irw2OhCbsfcYtoQ1@thread.tacv2","name":"ABC-cc-raj"},
-    {"id":"23:-NerdIDjIGqfzXbVO7NcJwX6MNj8irw2OhCbsfcYtoQ1@thread.tacv2","name":"Raj-cc-raj"},
-    {"id":"24:-NerdIDjIGqfzXbVO7NcJwX6MNj8irw2OhCbsfcYtoQ1@thread.tacv2","name":"XYZ-Team"}] });
-});
-
-
-  
+    resolve({
+      data: [
+        { id: "19:-NerdIDjIGqfzXbVO7NcJwX6MNj8irw2OhCbsfcYtoQ1@thread.tacv2", name: "1-Test-cc-raj" },
+        { id: "20:-NerdIDjIGqfzXbVO7NcJwX6MNj8irw2OhCbsfcYtoQ1@thread.tacv2", name: "Tcc-raj" },
+        { id: "21:-NerdIDjIGqfzXbVO7NcJwX6MNj8irw2OhCbsfcYtoQ1@thread.tacv2", name: "ABC-raj" },
+        { id: "22:-NerdIDjIGqfzXbVO7NcJwX6MNj8irw2OhCbsfcYtoQ1@thread.tacv2", name: "ABC-cc-raj" },
+        { id: "23:-NerdIDjIGqfzXbVO7NcJwX6MNj8irw2OhCbsfcYtoQ1@thread.tacv2", name: "Raj-cc-raj" },
+        { id: "24:-NerdIDjIGqfzXbVO7NcJwX6MNj8irw2OhCbsfcYtoQ1@thread.tacv2", name: "XYZ-Team" },
+      ],
+    });
+  });
 };
 
 export const cancelSentNotification = async (id: number): Promise<any> => {
@@ -248,13 +289,20 @@ export const cancelSentNotification = async (id: number): Promise<any> => {
 };
 
 export const getConsentSummaries = async (id: number): Promise<any> => {
-//   let url = baseAxiosUrl + "/draftnotifications/consentSummaries/" + id;
-//   return await axios.get(url);
+  //   let url = baseAxiosUrl + "/draftnotifications/consentSummaries/" + id;
+  //   return await axios.get(url);
 
-return new Promise((resolve, reject) => {
-    resolve({ data: {"notificationId":"0638192293612328690","teamNames":["Test-cc-raj"],"rosterNames":[],"groupNames":[],"allUsers":false}});
-});
-
+  return new Promise((resolve, reject) => {
+    resolve({
+      data: {
+        notificationId: "0638192293612328690",
+        teamNames: ["Test-cc-raj"],
+        rosterNames: [],
+        groupNames: [],
+        allUsers: false,
+      },
+    });
+  });
 };
 
 export const sendPreview = async (payload: {}): Promise<any> => {

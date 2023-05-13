@@ -1,8 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-// import "./statusTaskModule.scss";
-
 import * as AdaptiveCards from "adaptivecards";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
@@ -83,7 +81,7 @@ export interface IStatusState {
 
 let card: any;
 
-export const StatusTaskModule = () => {
+export const ViewStatusTask = () => {
   const { t } = useTranslation();
   const { id } = useParams() as any;
   const [loader, setLoader] = React.useState(true);

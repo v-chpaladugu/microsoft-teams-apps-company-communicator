@@ -1,24 +1,39 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import * as React from 'react';
-import { useTranslation } from 'react-i18next';
+import * as React from "react";
+import { useTranslation } from "react-i18next";
 import {
-    Button, Menu, MenuItem, MenuList, MenuPopover, MenuTrigger, Table, TableBody, TableCell,
-    TableCellLayout, TableHeader, TableHeaderCell, TableRow, useArrowNavigationGroup
-} from '@fluentui/react-components';
+  Button,
+  Menu,
+  MenuItem,
+  MenuList,
+  MenuPopover,
+  MenuTrigger,
+  Table,
+  TableBody,
+  TableCell,
+  TableCellLayout,
+  TableHeader,
+  TableHeaderCell,
+  TableRow,
+  useArrowNavigationGroup,
+} from "@fluentui/react-components";
 import {
-    DeleteRegular, DocumentCopyRegular, DocumentRegular, EditRegular, MoreHorizontal24Filled,
-    OpenRegular, SendRegular
-} from '@fluentui/react-icons';
-import * as microsoftTeams from '@microsoft/teams-js';
-import { GetDraftMessagesAction, GetSentMessagesAction } from '../../actions';
-import {
-    deleteDraftNotification, duplicateDraftNotification, sendPreview
-} from '../../apis/messageListApi';
-import { getBaseUrl } from '../../configVariables';
-import { ROUTE_PARTS, ROUTE_QUERY_PARAMS } from '../../routes';
-import { useAppDispatch } from '../../store';
+  DeleteRegular,
+  DocumentCopyRegular,
+  DocumentRegular,
+  EditRegular,
+  MoreHorizontal24Filled,
+  OpenRegular,
+  SendRegular,
+} from "@fluentui/react-icons";
+import * as microsoftTeams from "@microsoft/teams-js";
+import { GetDraftMessagesAction, GetSentMessagesAction } from "../../actions";
+import { deleteDraftNotification, duplicateDraftNotification, sendPreview } from "../../apis/messageListApi";
+import { getBaseUrl } from "../../configVariables";
+import { ROUTE_PARTS, ROUTE_QUERY_PARAMS } from "../../routes";
+import { useAppDispatch } from "../../store";
 
 export const DraftMessageDetail = (draftMessages: any) => {
   const { t } = useTranslation();
@@ -26,17 +41,17 @@ export const DraftMessageDetail = (draftMessages: any) => {
   const [teamsTeamId, setTeamsTeamId] = React.useState("");
   const [teamsChannelId, setTeamsChannelId] = React.useState("");
   const dispatch = useAppDispatch();
-  const sendUrl = (id: string) => getBaseUrl() + `/${ROUTE_PARTS.SEND_CONFIRMATION}/${id}?${ROUTE_QUERY_PARAMS.LOCALE}={locale}`;
-  const editUrl = (id: string) => getBaseUrl() + `/${ROUTE_PARTS.NEW_MESSAGE}/${id}?${ROUTE_QUERY_PARAMS.LOCALE}={locale}`;
+  const sendUrl = (id: string) =>
+    getBaseUrl() + `/${ROUTE_PARTS.SEND_CONFIRMATION}/${id}?${ROUTE_QUERY_PARAMS.LOCALE}={locale}`;
+  const editUrl = (id: string) =>
+    getBaseUrl() + `/${ROUTE_PARTS.NEW_MESSAGE}/${id}?${ROUTE_QUERY_PARAMS.LOCALE}={locale}`;
 
-  React.useEffect(
-    () => {
+  React.useEffect(() => {
     microsoftTeams.getContext((context: microsoftTeams.Context) => {
       setTeamsTeamId(context.teamId || "");
       setTeamsChannelId(context.channelId || "");
     });
-  },
-  []);
+  }, []);
 
   const submitHandler = (err: any, result: any) => {
     GetDraftMessagesAction(dispatch);
@@ -93,7 +108,7 @@ export const DraftMessageDetail = (draftMessages: any) => {
       <TableHeader>
         <TableRow>
           <TableHeaderCell key="title">
-              <b>{t("TitleText")}</b>
+            <b>{t("TitleText")}</b>
           </TableHeaderCell>
           <TableHeaderCell key="actions" style={{ float: "right" }}>
             <b>Actions</b>
@@ -102,10 +117,11 @@ export const DraftMessageDetail = (draftMessages: any) => {
       </TableHeader>
       <TableBody>
         {draftMessages!.draftMessages!.map((item: any) => (
-          <TableRow key={item.id + 'key'}>
+          <TableRow key={item.id + "key"}>
             <TableCell tabIndex={0} role="gridcell">
               <TableCellLayout
                 media={<DocumentRegular />}
+                style={{ cursor: "pointer" }}
                 onClick={() => onOpenTaskModule(null, editUrl(item.id), t("EditMessage"))}
               >
                 {item.title}
@@ -121,25 +137,33 @@ export const DraftMessageDetail = (draftMessages: any) => {
                     <MenuList>
                       <MenuItem
                         icon={<SendRegular />}
-                        key={"sendConfirmationKey"} 
+                        key={"sendConfirmationKey"}
                         onClick={() => onOpenTaskModule(null, sendUrl(item.id), t("SendConfirmation"))}
                       >
                         {t("Send")}
                       </MenuItem>
-                      <MenuItem key={"previewInThisChannelKey"} icon={<OpenRegular />} onClick={() => checkPreviewMessage(item.id)}>
+                      <MenuItem
+                        key={"previewInThisChannelKey"}
+                        icon={<OpenRegular />}
+                        onClick={() => checkPreviewMessage(item.id)}
+                      >
                         {t("PreviewInThisChannel")}
                       </MenuItem>
                       <MenuItem
                         icon={<EditRegular />}
-                        key={"editMessageKey"} 
+                        key={"editMessageKey"}
                         onClick={() => onOpenTaskModule(null, editUrl(item.id), t("EditMessage"))}
                       >
                         {t("Edit")}
                       </MenuItem>
-                      <MenuItem key={"duplicateKey"}  icon={<DocumentCopyRegular />} onClick={() => duplicateDraftMessage(item.id)}>
+                      <MenuItem
+                        key={"duplicateKey"}
+                        icon={<DocumentCopyRegular />}
+                        onClick={() => duplicateDraftMessage(item.id)}
+                      >
                         {t("Duplicate")}
                       </MenuItem>
-                      <MenuItem key={"deleteKey"}  icon={<DeleteRegular />} onClick={() => deleteDraftMessage(item.id)}>
+                      <MenuItem key={"deleteKey"} icon={<DeleteRegular />} onClick={() => deleteDraftMessage(item.id)}>
                         {t("Delete")}
                       </MenuItem>
                     </MenuList>

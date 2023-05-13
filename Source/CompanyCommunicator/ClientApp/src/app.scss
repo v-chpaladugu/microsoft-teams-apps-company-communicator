@@ -1,7 +1,7 @@
 @media screen and (min-width: 768px) {
     .adaptive-task-grid {
         display: grid;
-        min-height: 400px;
+        min-height: 500px;
         padding: 2rem 2rem 8rem 2rem;
         grid-template-columns: 1fr 1fr;
         grid-template-areas:
@@ -16,17 +16,8 @@
     .card-area {
         grid-column: 2;
         padding: 1rem;
-        
-        // border-radius: 2px;
-        // box-shadow: 0 0 2px var(--colorNeutralForeground3Selected);
-        // transition: 0.3s;
         border: 2px solid var(--colorBrandBackgroundSelected);
     }
-
-    // .card-area:hover {
-    //     box-shadow: 0 0 4px var(--colorNeutralForeground3Selected);
-    // }
-
 
     .big-screen-visible {
         display: block;
@@ -36,7 +27,7 @@
 @media screen and (max-width: 767px) {
     .adaptive-task-grid {
         display: grid;
-        min-height: 400px;
+        min-height: 500px;
         padding: 2rem 2rem 8rem 2rem;
         grid-template-rows: auto 1fr;
         grid-template-areas:
@@ -51,35 +42,16 @@
     .card-area {
         grid-row: 2;
         padding: 1rem;
-
-        // border-radius: 2px;
-        // box-shadow: 0px 0px 2px var(--colorNeutralForeground3Selected);
-        // transition: 0.3s;
-
         border: 2px solid var(--colorBrandBackgroundSelected);
     }
-
-    // .card-area:hover {
-    //     box-shadow: 0 0px 4px var(--colorNeutralForeground3Selected);
-    // }
 
     .big-screen-visible {
         display: none;
     }
 }
 
-// .fixed-footer {
-//     position: fixed;
-//     left: 0;
-//     bottom: 0;
-//     width: 100%;
-//     min-height: 72px;
-//     background: #fefefe;
-//     display: inline;
-// }
-
 .footer-actions-inline {
-   display: inline;
+    display: inline;
 }
 
 .footer-action-right {
@@ -94,30 +66,11 @@
     display: inline-flex;
 }
 
-// .footer-button {
-//     padding: 1rem;
-// }
-
-// button#sendBtn {
-//     float: right;
-//     margin: 1rem;
-// }
-
-// button#exportBtn {
-//     float: right;
-//     margin: 1rem;
-// }
-
-// .spinner-wheel {
-//     float: right;
-//     margin: 1rem;
-// }
-
 .ac-pushButton {
     padding: 1rem;
     height: 4rem;
-    color: var(--colorBrandForegroundLink);
-    border: 0.2rem solid var(--colorBrandForegroundLink);
+    color: var(--colorNeutralForeground2BrandHover);
+    border: 0.2rem solid var(--colorNeutralForeground2BrandHover);
     border-radius: 0.4rem;
     cursor: pointer;
 

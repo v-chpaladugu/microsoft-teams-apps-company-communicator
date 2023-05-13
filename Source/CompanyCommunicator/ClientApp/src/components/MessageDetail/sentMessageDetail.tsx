@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { TooltipHost } from "office-ui-fabric-react";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
 import {
@@ -11,6 +10,7 @@ import {
   MenuList,
   MenuPopover,
   MenuTrigger,
+  Persona,
   Table,
   TableBody,
   TableCell,
@@ -18,6 +18,7 @@ import {
   TableHeader,
   TableHeaderCell,
   TableRow,
+  Tooltip,
   useArrowNavigationGroup,
 } from "@fluentui/react-components";
 import {
@@ -143,9 +144,15 @@ export const SentMessageDetail = (sentMessages: any) => {
       </TableHeader>
       <TableBody>
         {sentMessages!.sentMessages!.map((item: any) => (
-          <TableRow key={item.id + 'key'}>
+          <TableRow key={item.id + "key"}>
             <TableCell tabIndex={0} role="gridcell">
-              <TableCellLayout media={<DocumentRegular />}>{item.title}</TableCellLayout>
+              <TableCellLayout
+                media={<DocumentRegular />}
+                style={{ cursor: "pointer" }}
+                onClick={() => onOpenTaskModule(null, statusUrl(item.id), t("ViewStatus"))}
+              >
+                {item.title}
+              </TableCellLayout>
             </TableCell>
             <TableCell tabIndex={0} role="gridcell">
               <TableCellLayout>
@@ -154,49 +161,54 @@ export const SentMessageDetail = (sentMessages: any) => {
             </TableCell>
             <TableCell tabIndex={0} role="gridcell">
               <TableCellLayout>
-                <div>
-                  {/* <TooltipHost content={t("TooltipSuccess")} calloutProps={{ gapSpace: 0 }}> */}
-                  <CheckmarkSquare24Regular style={{ color: "green", verticalAlign: "middle" }} />
-                  <span
-                    style={{ verticalAlign: "middle", paddingLeft: "2px", paddingRight: "8px" }}
-                    className="semiBold"
-                  >
-                    {formatNumber(item.succeeded)}
-                  </span>
-                  {/* </TooltipHost>
-                      <TooltipHost content={t("TooltipFailure")} calloutProps={{ gapSpace: 0 }}> */}
-                  {/* <CloseIcon xSpacing="both" className="failed" outline /> */}
-                  <ShareScreenStop24Regular style={{ color: "red", verticalAlign: "middle" }} />
-                  <span
-                    style={{ verticalAlign: "middle", paddingLeft: "2px", paddingRight: "8px" }}
-                    className="semiBold"
-                  >
-                    {formatNumber(item.failed)}
-                  </span>
-                  {/* </TooltipHost> */}
-                  {item.canceled && (
-                    <TooltipHost content="Canceled" calloutProps={{ gapSpace: 0 }}>
-                      <BookExclamationMark24Regular style={{ color: "yellow", verticalAlign: "middle" }} />
-                      <span
-                        style={{ verticalAlign: "middle", paddingLeft: "2px", paddingRight: "8px" }}
-                        className="semiBold"
-                      >
-                        {formatNumber(item.canceled)}
-                      </span>
-                    </TooltipHost>
-                  )}
-                  {item.unknown && (
-                    <TooltipHost content="Unknown" calloutProps={{ gapSpace: 0 }}>
-                      <Warning24Regular style={{ color: "orange", verticalAlign: "middle" }} />
-                      <span
-                        style={{ verticalAlign: "middle", paddingLeft: "2px", paddingRight: "8px" }}
-                        className="semiBold"
-                      >
-                        {formatNumber(item.unknown)}
-                      </span>
-                    </TooltipHost>
-                  )}
-                </div>
+                <Tooltip content={t("TooltipSuccess")} relationship="label">
+                  <Button
+                    appearance="subtle"
+                    icon={<CheckmarkSquare24Regular style={{ color: "#22bb33", verticalAlign: "middle" }} />}
+                    size="small"
+                  ></Button>
+                </Tooltip>
+                <span style={{ verticalAlign: "middle", paddingLeft: "2px", paddingRight: "8px" }}>
+                  {formatNumber(item.succeeded)}
+                </span>
+                <Tooltip content={t("TooltipFailure")} relationship="label">
+                  <Button
+                    appearance="subtle"
+                    icon={<ShareScreenStop24Regular style={{ color: "#bb2124", verticalAlign: "middle" }} />}
+                    size="small"
+                  ></Button>
+                </Tooltip>
+                <span style={{ verticalAlign: "middle", paddingLeft: "2px", paddingRight: "8px" }}>
+                  {formatNumber(item.failed)}
+                </span>
+                {item.canceled && (
+                  <>
+                    <Tooltip content="Canceled" relationship="label">
+                      <Button
+                        appearance="subtle"
+                        icon={<BookExclamationMark24Regular style={{ color: "#f0ad4e", verticalAlign: "middle" }} />}
+                        size="small"
+                      ></Button>
+                    </Tooltip>
+                    <span style={{ verticalAlign: "middle", paddingLeft: "2px", paddingRight: "8px" }}>
+                      {formatNumber(item.canceled)}
+                    </span>
+                  </>
+                )}
+                {item.unknown && (
+                  <>
+                    <Tooltip content="Unknown" relationship="label">
+                      <Button
+                        appearance="subtle"
+                        icon={<Warning24Regular style={{ color: "#e9835e", verticalAlign: "middle" }} />}
+                        size="small"
+                      ></Button>
+                    </Tooltip>
+                    <span style={{ verticalAlign: "middle", paddingLeft: "2px", paddingRight: "8px" }}>
+                      {formatNumber(item.unknown)}
+                    </span>
+                  </>
+                )}
               </TableCellLayout>
             </TableCell>
             <TableCell tabIndex={0} role="gridcell">
@@ -204,7 +216,9 @@ export const SentMessageDetail = (sentMessages: any) => {
             </TableCell>
             <TableCell tabIndex={0} role="gridcell">
               <TableCellLayout>
-                <span className="big-screen-visible">{item.createdBy}</span>
+                <span className="big-screen-visible">
+                  <Persona name={item.createdBy} secondaryText={"User"} avatar={{ color: "colorful" }} />
+                </span>
               </TableCellLayout>
             </TableCell>
             <TableCell role="gridcell">
@@ -222,11 +236,19 @@ export const SentMessageDetail = (sentMessages: any) => {
                       >
                         {t("ViewStatus")}
                       </MenuItem>
-                      <MenuItem key={"duplicateKey"} icon={<DocumentCopyRegular />} onClick={() => duplicateDraftMessage(item.id)}>
+                      <MenuItem
+                        key={"duplicateKey"}
+                        icon={<DocumentCopyRegular />}
+                        onClick={() => duplicateDraftMessage(item.id)}
+                      >
                         {t("Duplicate")}
                       </MenuItem>
                       {!shouldNotShowCancel(item) && (
-                        <MenuItem key={"cancelKey"} icon={<CalendarCancel24Regular />} onClick={() => cancelSentMessage(item.id)}>
+                        <MenuItem
+                          key={"cancelKey"}
+                          icon={<CalendarCancel24Regular />}
+                          onClick={() => cancelSentMessage(item.id)}
+                        >
                           {t("Cancel")}
                         </MenuItem>
                       )}

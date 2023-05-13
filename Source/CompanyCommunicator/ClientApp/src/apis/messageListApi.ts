@@ -1,8 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import axios from "./axiosJWTDecorator";
-import { getBaseUrl } from "../configVariables";
+import { getBaseUrl } from '../configVariables';
+import axios from './axiosJWTDecorator';
 
 let baseAxiosUrl = getBaseUrl() + "/api";
 

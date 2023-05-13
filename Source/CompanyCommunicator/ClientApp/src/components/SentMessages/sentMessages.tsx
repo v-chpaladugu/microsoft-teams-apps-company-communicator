@@ -4,19 +4,27 @@
 import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { Spinner } from "@fluentui/react-components";
-import { GetSentMessagesAction } from "../../actions";
+import { GetSentMessagesAction, GetSentMessagesSilentAction } from "../../actions";
 import { RootState, useAppDispatch, useAppSelector } from "../../store";
 import { SentMessageDetail } from "../MessageDetail/sentMessageDetail";
+import * as CustomHooks from "../../useInterval";
 
-export const Messages = () => {
+export const SentMessages = () => {
   const { t } = useTranslation();
   const sentMessages = useAppSelector((state: RootState) => state.messages).sentMessages.payload;
   const loader = useAppSelector((state: RootState) => state.messages).isSentMessagesFetchOn.payload;
   const dispatch = useAppDispatch();
+  const delay = 10000;
 
   React.useEffect(() => {
-    GetSentMessagesAction(dispatch);
+    if (sentMessages && sentMessages.length === 0) {
+      GetSentMessagesAction(dispatch);
+    }
   }, []);
+
+  CustomHooks.useInterval(() => {
+    GetSentMessagesSilentAction(dispatch);
+  }, delay);
 
   return (
     <>
