@@ -37,10 +37,13 @@ import { cancelSentNotification, duplicateDraftNotification } from "../../apis/m
 import { getBaseUrl } from "../../configVariables";
 import { formatNumber } from "../../i18n";
 import { ROUTE_PARTS, ROUTE_QUERY_PARAMS } from "../../routes";
+import { GetDraftMessagesSilentAction, GetSentMessagesSilentAction } from "../../actions";
+import { useAppDispatch } from "../../store";
 
 export const SentMessageDetail = (sentMessages: any) => {
   const { t } = useTranslation();
   const keyboardNavAttr = useArrowNavigationGroup({ axis: "grid" });
+  const dispatch = useAppDispatch();
   const statusUrl = (id: string) =>
     getBaseUrl() + `/${ROUTE_PARTS.VIEW_STATUS}/${id}?${ROUTE_QUERY_PARAMS.LOCALE}={locale}`;
 
@@ -107,6 +110,7 @@ export const SentMessageDetail = (sentMessages: any) => {
   const duplicateDraftMessage = async (id: number) => {
     try {
       await duplicateDraftNotification(id);
+      GetDraftMessagesSilentAction(dispatch);
     } catch (error) {
       return error;
     }
@@ -115,6 +119,7 @@ export const SentMessageDetail = (sentMessages: any) => {
   const cancelSentMessage = async (id: number) => {
     try {
       await cancelSentNotification(id);
+      GetSentMessagesSilentAction(dispatch);
     } catch (error) {
       return error;
     }

@@ -80,6 +80,12 @@ export const GetDraftMessagesAction = (dispatch: typeof store.dispatch) => {
     });
 };
 
+export const GetDraftMessagesSilentAction = (dispatch: typeof store.dispatch) => {
+  getDraftNotifications().then((response) => {
+    dispatch(draftMessages({ type: "FETCH_DRAFT_MESSAGES", payload: response?.data || [] }));
+  });
+};
+
 export const GetTeamsDataAction = (dispatch: typeof store.dispatch) => {
   getTeams().then((response) => {
     dispatch(teamsData({ type: "GET_TEAMS_DATA", payload: response?.data || [] }));

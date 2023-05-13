@@ -279,13 +279,13 @@ export const ViewStatusTask = () => {
             </div>
             <div className="card-area"></div>
           </div>
-          <div className="footer-actions-inline">
+          <div className="fixed-footer">
             <div className="footer-action-right">
               <div className="footer-actions-flex">
                 {exportDisabled && <Spinner size="small" label={t("ExportLabel")} labelPosition="after" />}
                 <Button
                   icon={<ArrowDownload24Regular />}
-                  style={{ margin: "16px" }}
+                  style={{ marginLeft: "16px" }}
                   disabled={exportDisabled}
                   onClick={onExport}
                   appearance="primary"
@@ -298,7 +298,7 @@ export const ViewStatusTask = () => {
         </>
       )}
       {!loader && statusState.page === "SuccessPage" && (
-        <>
+        <div className="wizard-page">
           <h2>
             <CheckmarkSquare24Regular style={{ color: "#22bb33", verticalAlign: "middle", paddingRight: "8px" }} />
             {t("ExportQueueTitle")}
@@ -312,31 +312,31 @@ export const ViewStatusTask = () => {
           <Text>{t("ExportQueueSuccessMessage3")}</Text>
           <br />
           <br />
-          <div className="footer-actions-inline">
+          <div className="fixed-footer">
             <div className="footer-action-right">
-              <Button id="closeBtn" style={{ margin: "16px" }} onClick={onClose} appearance="primary">
+              <Button id="closeBtn" onClick={onClose} appearance="primary">
                 {t("CloseText")}
               </Button>
             </div>
           </div>
-        </>
+        </div>
       )}
       {!loader && statusState.page === "ErrorPage" && (
-        <>
+        <div className="wizard-page">
           <h2>
             <ShareScreenStop24Regular style={{ color: "#bb2124", verticalAlign: "middle", paddingRight: "8px" }} />
             {t("ExportErrorTitle")}
           </h2>
           <Text>{t("ExportErrorMessage")}</Text>
           <br />
-          <div className="footer-actions-inline">
+          <div className="fixed-footer">
             <div className="footer-action-right">
-              <Button id="closeBtn" style={{ margin: "16px" }} onClick={onClose} appearance="primary">
+              <Button id="closeBtn" onClick={onClose} appearance="primary">
                 {t("CloseText")}
               </Button>
             </div>
           </div>
-        </>
+        </div>
       )}
     </>
   );

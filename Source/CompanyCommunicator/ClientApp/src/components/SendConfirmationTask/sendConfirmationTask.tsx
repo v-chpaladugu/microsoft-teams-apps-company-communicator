@@ -212,10 +212,12 @@ export const SendConfirmationTask = () => {
           </div>
           <div className="card-area"></div>
         </div>
-        <div className="footer-actions-inline">
+        <div className="fixed-footer">
           <div className="footer-action-right">
             <div className="footer-actions-flex">
-              {disableSendButton && <Spinner id="sendLoader" size="small" labelPosition="after" />}
+              {disableSendButton && (
+                <Spinner id="sendLoader" label={t("PreparingMessageLabel")} size="small" labelPosition="after" />
+              )}
               <Button
                 disabled={disableSendButton}
                 style={{ marginLeft: "16px" }}

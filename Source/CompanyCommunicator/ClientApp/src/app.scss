@@ -52,20 +52,30 @@
     }
 }
 
-.footer-actions-inline {
+.wizard-page {
+    padding: 2rem 2rem 8rem 2rem;
+}
+
+.fixed-footer {
     display: inline;
-}
-
-.footer-action-right {
-    float: right;
-}
-
-.footer-action-left {
-    float: left;
+    position: fixed;
+    left: 0;
+    bottom: 0;
+    width: 100%;
 }
 
 .footer-actions-flex {
     display: inline-flex;
+}
+
+.footer-action-right {
+    float: right;
+    margin: 1rem;
+}
+
+.footer-action-left {
+    float: left;
+    margin: 1rem;
 }
 
 .ac-pushButton {
