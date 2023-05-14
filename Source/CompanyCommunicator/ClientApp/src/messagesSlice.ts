@@ -50,7 +50,7 @@ export const messagesSlice = createSlice({
       state.queryGroups = action.payload;
     },
     verifyGroup: (state, action) => {
-      state.groups = action.payload;
+      state.verifyGroup = action.payload;
     },
     isDraftMessagesFetchOn: (state, action) => {
       state.isDraftMessagesFetchOn = action.payload;

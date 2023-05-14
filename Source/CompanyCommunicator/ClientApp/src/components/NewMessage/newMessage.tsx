@@ -51,7 +51,7 @@ import {
 
 const validImageTypes = ["image/gif", "image/jpeg", "image/png", "image/jpg"];
 
-export interface IMessageState {
+interface IMessageState {
   id?: string;
   title: string;
   imageLink?: string;
@@ -63,6 +63,11 @@ export interface IMessageState {
   rosters: any[];
   groups: any[];
   allUsers: boolean;
+}
+
+interface ITeamTemplate {
+  id: string;
+  name: string;
 }
 
 const useComboboxStyles = makeStyles({
@@ -132,6 +137,12 @@ export const NewMessage = () => {
     allUsers: false,
   });
 
+  // Handle selectedOptions both when an option is selected or deselected in the Combobox,
+  // and when an option is removed by clicking on a tag
+  const [teamsSelectedOptions, setTeamsSelectedOptions] = React.useState<ITeamTemplate[]>([]);
+  const [rostersSelectedOptions, setRostersSelectedOptions] = React.useState<ITeamTemplate[]>([]);
+  const [searchSelectedOptions, setSearchSelectedOptions] = React.useState<ITeamTemplate[]>([]);
+
   React.useEffect(() => {
     GetTeamsDataAction(dispatch);
     VerifyGroupAccessAction(dispatch);
@@ -158,12 +169,12 @@ export const NewMessage = () => {
     setAllUsersState(false);
 
     if (teams && teams.length > 0) {
-      const teamsSelected = teams.filter((c) => messageState.teams.some((s) => s === c.id)).map((a) => a.name);
+      const teamsSelected = teams.filter((c) => messageState.teams.some((s) => s === c.id));
       setTeamsSelectedOptions(teamsSelected || []);
-      const roastersSelected = teams.filter((c) => messageState.rosters.some((s) => s === c.id)).map((a) => a.name);
+      const roastersSelected = teams.filter((c) => messageState.rosters.some((s) => s === c.id));
       setRostersSelectedOptions(roastersSelected || []);
     } else if (groups && groups.length > 0) {
-      const groupsSelected = groups.filter((c) => messageState.groups.some((s) => s === c.id)).map((a) => a.name);
+      const groupsSelected = groups.filter((c) => messageState.groups.some((s) => s === c.id));
       setRostersSelectedOptions(groupsSelected || []);
     } else if (messageState.allUsers) {
       setAllUsersState(true);
@@ -339,17 +350,17 @@ export const NewMessage = () => {
 
     if (selectedRadioButton === AudienceSelection.Teams) {
       finalSelectedTeams = [
-        ...teams.filter((t1) => teamsSelectedOptions.some((sp) => sp === t1.name)).map((t2) => t2.id),
+        ...teams.filter((t1) => teamsSelectedOptions.some((sp) => sp.id === t1.id)).map((t2) => t2.id),
       ];
     }
     if (selectedRadioButton === AudienceSelection.Rosters) {
       finalSelectedRosters = [
-        ...teams.filter((t1) => rostersSelectedOptions.some((sp) => sp === t1.name)).map((t2) => t2.id),
+        ...teams.filter((t1) => rostersSelectedOptions.some((sp) => sp.id === t1.id)).map((t2) => t2.id),
       ];
     }
     if (selectedRadioButton === AudienceSelection.Groups) {
       finalSelectedGroups = [
-        ...groups.filter((t1) => searchSelectedOptions.some((sp) => sp === t1.name)).map((t2) => t2.id),
+        ...groups.filter((t1) => searchSelectedOptions.some((sp) => sp.id === t1.id)).map((t2) => t2.id),
       ];
     }
     if (selectedRadioButton === AudienceSelection.AllUsers) {
@@ -494,27 +505,21 @@ export const NewMessage = () => {
   const searchSelectedListRef = React.useRef<HTMLUListElement>(null);
   const searchComboboxInputRef = React.useRef<HTMLInputElement>(null);
 
-  // Handle selectedOptions both when an option is selected or deselected in the Combobox,
-  // and when an option is removed by clicking on a tag
-  const [teamsSelectedOptions, setTeamsSelectedOptions] = React.useState<string[]>([]);
-  const [rostersSelectedOptions, setRostersSelectedOptions] = React.useState<string[]>([]);
-  const [searchSelectedOptions, setSearchSelectedOptions] = React.useState<string[]>([]);
-
   const onTeamsSelect: ComboboxProps["onOptionSelect"] = (event, data) => {
     if (data.selectedOptions.length <= MAX_SELECTED_TEAMS_NUM) {
-      setTeamsSelectedOptions(data.selectedOptions);
+      setTeamsSelectedOptions(teams.filter((t1) => data.selectedOptions.some((t2) => t2 === t1.id)));
     }
   };
 
   const onRostersSelect: ComboboxProps["onOptionSelect"] = (event, data) => {
     if (data.selectedOptions.length <= MAX_SELECTED_TEAMS_NUM) {
-      setRostersSelectedOptions(data.selectedOptions);
+      setRostersSelectedOptions(teams.filter((t1) => data.selectedOptions.some((t2) => t2 === t1.id)));
     }
   };
 
-  const onSearchSelect: ComboboxProps["onOptionSelect"] = (event, data) => {
-    if (data.optionText && !searchSelectedOptions.find((x) => x === data.optionText)) {
-      setSearchSelectedOptions([...searchSelectedOptions, data.optionText]);
+  const onSearchSelect: ComboboxProps["onOptionSelect"] = (event, data: any) => {
+    if (data.optionText && !searchSelectedOptions.find((x) => x.id === data.optionValue)) {
+      setSearchSelectedOptions([...searchSelectedOptions, { id: data.optionValue, name: data.optionText }]);
     }
   };
 
@@ -525,9 +530,9 @@ export const NewMessage = () => {
     }
   };
 
-  const onTeamsTagClick = (option: string, index: number) => {
+  const onTeamsTagClick = (option: ITeamTemplate, index: number) => {
     // remove selected option
-    setTeamsSelectedOptions(teamsSelectedOptions.filter((o) => o !== option));
+    setTeamsSelectedOptions(teamsSelectedOptions.filter((o) => o.id !== option.id));
 
     // focus previous or next option, defaulting to focusing back to the combo input
     const indexToFocus = index === 0 ? 1 : index - 1;
@@ -539,9 +544,9 @@ export const NewMessage = () => {
     }
   };
 
-  const onRostersTagClick = (option: string, index: number) => {
+  const onRostersTagClick = (option: ITeamTemplate, index: number) => {
     // remove selected option
-    setRostersSelectedOptions(rostersSelectedOptions.filter((o) => o !== option));
+    setRostersSelectedOptions(rostersSelectedOptions.filter((o) => o.id !== option.id));
 
     // focus previous or next option, defaulting to focusing back to the combo input
     const indexToFocus = index === 0 ? 1 : index - 1;
@@ -553,9 +558,9 @@ export const NewMessage = () => {
     }
   };
 
-  const onSearchTagClick = (option: string, index: number) => {
+  const onSearchTagClick = (option: ITeamTemplate, index: number) => {
     // remove selected option
-    setSearchSelectedOptions(searchSelectedOptions.filter((o) => o !== option));
+    setSearchSelectedOptions(searchSelectedOptions.filter((o) => o.id !== option.id));
 
     // focus previous or next option, defaulting to focusing back to the combo input
     const indexToFocus = index === 0 ? 1 : index - 1;
@@ -580,6 +585,10 @@ export const NewMessage = () => {
   const audienceSelectionChange = (ev: any, data: RadioGroupOnChangeData) => {
     let input = data.value as keyof typeof AudienceSelection;
     setSelectedRadioButton(AudienceSelection[input]);
+  };
+
+  const searchQueryOptions = (queryGroups: any[]) => {
+    return groups.filter((g1) => queryGroups.some((g2) => g2.id === g1.id));
   };
 
   return (
@@ -727,7 +736,7 @@ export const NewMessage = () => {
                           Remove
                         </span>
                         {teamsSelectedOptions.map((option, i) => (
-                          <li key={option}>
+                          <li key={option.id}>
                             <Button
                               size="small"
                               shape="rounded"
@@ -739,7 +748,7 @@ export const NewMessage = () => {
                               aria-labelledby={`${teamsComboId}-remove ${teamsComboId}-remove-${i}`}
                             >
                               <Persona
-                                name={option}
+                                name={option.name}
                                 secondaryText={"Team"}
                                 avatar={{ shape: "square", color: "colorful" }}
                               />
@@ -750,16 +759,16 @@ export const NewMessage = () => {
                     ) : null}
                     <Combobox
                       multiselect={true}
-                      selectedOptions={teamsSelectedOptions}
+                      selectedOptions={teamsSelectedOptions.map((op) => op.id)}
                       appearance="filled-darker"
                       size="large"
                       onOptionSelect={onTeamsSelect}
                       ref={teamsComboboxInputRef}
                       aria-labelledby={teamsLabelledBy}
-                      placeholder="Pick one or more teams"
+                      placeholder={teams.length !== 0 ? "Pick one or more teams" : t("NoMatchMessage")}
                     >
                       {teams.map((opt) => (
-                        <Option text={opt.name} value={opt.name} key={opt.id}>
+                        <Option text={opt.name} value={opt.id} key={opt.id}>
                           <Persona
                             name={opt.name}
                             secondaryText={"Team"}
@@ -767,9 +776,6 @@ export const NewMessage = () => {
                           />
                         </Option>
                       ))}
-                      {teams.length === 0 && (
-                        <Option disabled={true} text={t("NoMatchMessage") || ""} value={t("NoMatchMessage")} />
-                      )}
                     </Combobox>
                   </div>
                 )}
@@ -784,7 +790,7 @@ export const NewMessage = () => {
                           Remove
                         </span>
                         {rostersSelectedOptions.map((option, i) => (
-                          <li key={option}>
+                          <li key={option.id}>
                             <Button
                               size="small"
                               shape="rounded"
@@ -796,7 +802,7 @@ export const NewMessage = () => {
                               aria-labelledby={`${rostersComboId}-remove ${rostersComboId}-remove-${i}`}
                             >
                               <Persona
-                                name={option}
+                                name={option.name}
                                 secondaryText={"Team"}
                                 avatar={{ shape: "square", color: "colorful" }}
                               />
@@ -807,16 +813,16 @@ export const NewMessage = () => {
                     ) : null}
                     <Combobox
                       multiselect={true}
-                      selectedOptions={rostersSelectedOptions}
+                      selectedOptions={rostersSelectedOptions.map((op) => op.id)}
                       appearance="filled-darker"
                       size="large"
                       onOptionSelect={onRostersSelect}
                       ref={rostersComboboxInputRef}
                       aria-labelledby={rostersLabelledBy}
-                      placeholder="Pick one or more teams"
+                      placeholder={teams.length !== 0 ? "Pick one or more teams" : t("NoMatchMessage")}
                     >
                       {teams.map((opt) => (
-                        <Option text={opt.name} value={opt.name} key={opt.id}>
+                        <Option text={opt.name} value={opt.id} key={opt.id}>
                           <Persona
                             name={opt.name}
                             secondaryText={"Team"}
@@ -824,9 +830,6 @@ export const NewMessage = () => {
                           />
                         </Option>
                       ))}
-                      {teams.length === 0 && (
-                        <Option disabled={true} text={t("NoMatchMessage") || ""} value={t("NoMatchMessage")} />
-                      )}
                     </Combobox>
                   </div>
                 )}
@@ -850,7 +853,7 @@ export const NewMessage = () => {
                               Remove
                             </span>
                             {searchSelectedOptions.map((option, i) => (
-                              <li key={option}>
+                              <li key={option.id}>
                                 <Button
                                   size="small"
                                   shape="rounded"
@@ -862,7 +865,7 @@ export const NewMessage = () => {
                                   aria-labelledby={`${searchComboId}-remove ${searchComboId}-remove-${i}`}
                                 >
                                   <Persona
-                                    name={option}
+                                    name={option.name}
                                     secondaryText={"Group"}
                                     avatar={{ shape: "square", color: "colorful" }}
                                   />
@@ -876,10 +879,13 @@ export const NewMessage = () => {
                           size="large"
                           onOptionSelect={onSearchSelect}
                           onChange={onSearchChange}
-                          placeholder="Search for groups"
+                          aria-labelledby={searchLabelledBy}
+                          placeholder={
+                            searchQueryOptions(queryGroups).length !== 0 ? "Search for groups" : t("NoMatchMessage")
+                          }
                         >
-                          {queryGroups.map((opt) => (
-                            <Option text={opt.name} value={opt.name} key={opt.id}>
+                          {searchQueryOptions(queryGroups).map((opt) => (
+                            <Option text={opt.name} value={opt.id} key={opt.id}>
                               <Persona
                                 name={opt.name}
                                 secondaryText={"Group"}
@@ -887,9 +893,6 @@ export const NewMessage = () => {
                               />
                             </Option>
                           ))}
-                          {queryGroups.length === 0 && (
-                            <Option disabled={true} text={t("NoMatchMessage") || ""} value={t("NoMatchMessage")} />
-                          )}
                         </Combobox>
                         <Text className="info-text">{t("SendToGroupsNote")}</Text>
                       </>

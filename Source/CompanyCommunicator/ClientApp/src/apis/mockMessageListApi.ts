@@ -128,7 +128,18 @@ export const verifyGroupAccess = async (): Promise<any> => {
 
 export const getGroups = async (id: number): Promise<any> => {
   let url = baseAxiosUrl + "/groupdata/" + id;
-  return await axios.get(url);
+
+  var test = [
+    { id: "19:-NerdIDjIGqfzXbVO7NcJwX6MNj8irw2OhCbsfcYtoQ1@thread.tacv2", name: "1-Test-cc-raj" },
+    { id: "20:-NerdIDjIGqfzXbVO7NcJwX6MNj8irw2OhCbsfcYtoQ1@thread.tacv2", name: "AATcc-raj" },
+    { id: "21:-NerdIDjIGqfzXbVO7NcJwX6MNj8irw2OhCbsfcYtoQ1@thread.tacv2", name: "ABC-raj" },
+    { id: "22:-NerdIDjIGqfzXbVO7NcJwX6MNj8irw2OhCbsfcYtoQ1@thread.tacv2", name: "ABC-cc-raj" },
+    { id: "23:-NerdIDjIGqfzXbVO7NcJwX6MNj8irw2OhCbsfcYtoQ1@thread.tacv2", name: "Raj-cc-raj" },
+    { id: "24:-NerdIDjIGqfzXbVO7NcJwX6MNj8irw2OhCbsfcYtoQ1@thread.tacv2", name: "XYZ-Team" }];
+  
+  return new Promise((resolve, reject) => {
+    resolve({ data: test || [] });
+  });
 };
 
 export const searchGroups = async (query: string): Promise<any> => {
