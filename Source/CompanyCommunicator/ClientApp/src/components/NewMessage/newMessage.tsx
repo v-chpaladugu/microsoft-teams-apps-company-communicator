@@ -22,6 +22,7 @@ import {
   shorthands,
   Spinner,
   Textarea,
+  Text,
   tokens,
   useId,
 } from "@fluentui/react-components";
@@ -718,7 +719,7 @@ export const NewMessage = () => {
                               />
                             </Option>
                           ))}
-                          {teams.length === 0 && <Option disabled>No results</Option>}
+                          {teams.length === 0 && <Option disabled>{t("NoMatchMessage")}</Option>}
                         </Combobox>
                       </div>
                     )}
@@ -746,7 +747,7 @@ export const NewMessage = () => {
                                 >
                                   <Persona
                                     name={option}
-                                    secondaryText={"Roster"}
+                                    secondaryText={"Team"}
                                     avatar={{ shape: "square", color: "colorful" }}
                                   />
                                 </Button>
@@ -768,184 +769,80 @@ export const NewMessage = () => {
                             <Option text={opt.name} value={opt.name} key={opt.id}>
                               <Persona
                                 name={opt.name}
-                                secondaryText={"Roster"}
+                                secondaryText={"Team"}
                                 avatar={{ shape: "square", color: "colorful" }}
                               />
                             </Option>
                           ))}
-                          {teams.length === 0 && <Option disabled>No results</Option>}
+                          {teams.length === 0 && <Option disabled>{t("NoMatchMessage")}</Option>}
                         </Combobox>
                       </div>
                     )}
                     <Radio value={AudienceSelection.AllUsers} label={t("SendToAllUsers")} />
+                    <div className={styles.root}>
+                      {selectedRadioButton === AudienceSelection.AllUsers && (
+                        <Text className="info-text">{t("SendToAllUsersNote")}</Text>
+                      )}
+                    </div>
                     <Radio value={AudienceSelection.Groups} label={t("SendToGroups")} />
                     {selectedRadioButton === AudienceSelection.Groups && (
                       <div className={styles.root}>
-                        <Label id={searchComboId}>Search Groups</Label>
-                        {searchSelectedOptions.length ? (
-                          <ul id={searchSelectedListId} className={styles.tagsList} ref={searchSelectedListRef}>
-                            {/* The "Remove" span is used for naming the buttons without affecting the Combobox name */}
-                            <span id={`${searchComboId}-remove`} hidden>
-                              Remove
-                            </span>
-                            {searchSelectedOptions.map((option, i) => (
-                              <li key={option}>
-                                <Button
-                                  size="small"
-                                  shape="rounded"
-                                  appearance="subtle"
-                                  icon={<Dismiss12Regular />}
-                                  iconPosition="after"
-                                  onClick={() => onSearchTagClick(option, i)}
-                                  id={`${searchComboId}-remove-${i}`}
-                                  aria-labelledby={`${searchComboId}-remove ${searchComboId}-remove-${i}`}
-                                >
+                        {!verifyGroupAccess && <Text className="info-text">{t("SendToGroupsPermissionNote")}</Text>}
+                        {verifyGroupAccess && (
+                          <>
+                            <Label id={searchComboId}>Search Groups</Label>
+                            {searchSelectedOptions.length ? (
+                              <ul id={searchSelectedListId} className={styles.tagsList} ref={searchSelectedListRef}>
+                                {/* The "Remove" span is used for naming the buttons without affecting the Combobox name */}
+                                <span id={`${searchComboId}-remove`} hidden>
+                                  Remove
+                                </span>
+                                {searchSelectedOptions.map((option, i) => (
+                                  <li key={option}>
+                                    <Button
+                                      size="small"
+                                      shape="rounded"
+                                      appearance="subtle"
+                                      icon={<Dismiss12Regular />}
+                                      iconPosition="after"
+                                      onClick={() => onSearchTagClick(option, i)}
+                                      id={`${searchComboId}-remove-${i}`}
+                                      aria-labelledby={`${searchComboId}-remove ${searchComboId}-remove-${i}`}
+                                    >
+                                      <Persona
+                                        name={option}
+                                        secondaryText={"Group"}
+                                        avatar={{ shape: "square", color: "colorful" }}
+                                      />
+                                    </Button>
+                                  </li>
+                                ))}
+                              </ul>
+                            ) : null}
+                            <Combobox
+                              appearance="filled-darker"
+                              size="large"
+                              onOptionSelect={onSearchSelect}
+                              onChange={onSearchChange}
+                              placeholder="Search for groups"
+                            >
+                              {queryGroups.map((opt) => (
+                                <Option text={opt.name} value={opt.name} key={opt.id}>
                                   <Persona
-                                    name={option}
+                                    name={opt.name}
                                     secondaryText={"Group"}
                                     avatar={{ shape: "square", color: "colorful" }}
                                   />
-                                </Button>
-                              </li>
-                            ))}
-                          </ul>
-                        ) : null}
-                        <Combobox
-                          appearance="filled-darker"
-                          size="large"
-                          onOptionSelect={onSearchSelect}
-                          onChange={onSearchChange}
-                          placeholder="Search for groups"
-                        >
-                          {queryGroups.map((opt) => (
-                            <Option text={opt.name} value={opt.name} key={opt.id}>
-                              <Persona
-                                name={opt.name}
-                                secondaryText={"Group"}
-                                avatar={{ shape: "square", color: "colorful" }}
-                              />
-                            </Option>
-                          ))}
-                          {queryGroups.length === 0 && <Option disabled>No results</Option>}
-                        </Combobox>
+                                </Option>
+                              ))}
+                              {queryGroups.length === 0 && <Option disabled>{t("NoMatchMessage")}</Option>}
+                            </Combobox>
+                            <Text className="info-text">{t("SendToGroupsNote")}</Text>
+                          </>
+                        )}
                       </div>
                     )}
                   </RadioGroup>
-                  {/* <RadioGroup
-                        className="radioBtns"
-                        checkedValue={formState.selectedRadioBtn}
-                        onCheckedValueChange={onGroupSelected}
-                        vertical={true}
-                        items={[
-                          {
-                            name: "teams",
-                            key: "teams",
-                            value: "teams",
-                            label: t("SendToGeneralChannel"),
-                            children: (Component, { name, ...props }) => {
-                              return (
-                                <Flex key={name} column>
-                                  <Component {...props} />
-                                  <Dropdown
-                                    hidden={!formState.teamsOptionSelected}
-                                    placeholder={t("SendToGeneralChannelPlaceHolder")}
-                                    search
-                                    multiple
-                                    items={getItems()}
-                                    value={formState.selectedTeams}
-                                    onChange={onTeamsChange}
-                                    noResultsMessage={t("NoMatchMessage")}
-                                  />
-                                </Flex>
-                              );
-                            },
-                          },
-                          {
-                            name: "rosters",
-                            key: "rosters",
-                            value: "rosters",
-                            label: t("SendToRosters"),
-                            children: (Component, { name, ...props }) => {
-                              return (
-                                <Flex key={name} column>
-                                  <Component {...props} />
-                                  <Dropdown
-                                    hidden={!formState.rostersOptionSelected}
-                                    placeholder={t("SendToRostersPlaceHolder")}
-                                    search
-                                    multiple
-                                    items={getItems()}
-                                    value={formState.selectedRosters}
-                                    onChange={onRostersChange}
-                                    unstable_pinned={formState.unstablePinned}
-                                    noResultsMessage={t("NoMatchMessage")}
-                                  />
-                                </Flex>
-                              );
-                            },
-                          },
-                          {
-                            name: "allUsers",
-                            key: "allUsers",
-                            value: "allUsers",
-                            label: t("SendToAllUsers"),
-                            children: (Component, { name, ...props }) => {
-                              return (
-                                <Flex key={name} column>
-                                  <Component {...props} />
-                                  <div className={formState.selectedRadioBtn === "allUsers" ? "" : "hide"}>
-                                    <div className="noteText">
-                                      <Text error content={t("SendToAllUsersNote")} />
-                                    </div>
-                                  </div>
-                                </Flex>
-                              );
-                            },
-                          },
-                          {
-                            name: "groups",
-                            key: "groups",
-                            value: "groups",
-                            label: t("SendToGroups"),
-                            children: (Component, { name, ...props }) => {
-                              return (
-                                <Flex key={name} column>
-                                  <Component {...props} />
-                                  <div
-                                    className={formState.groupsOptionSelected && !formState.groupAccess ? "" : "hide"}
-                                  >
-                                    <div className="noteText">
-                                      <Text error content={t("SendToGroupsPermissionNote")} />
-                                    </div>
-                                  </div>
-                                  <Dropdown
-                                    className="hideToggle"
-                                    hidden={!formState.groupsOptionSelected || !formState.groupAccess}
-                                    placeholder={t("SendToGroupsPlaceHolder")}
-                                    search={onGroupSearch}
-                                    multiple
-                                    loading={formState.loading}
-                                    loadingMessage={t("LoadingText")}
-                                    items={getGroupItems()}
-                                    value={formState.selectedGroups}
-                                    onSearchQueryChange={onGroupSearchQueryChange}
-                                    onChange={onGroupsChange}
-                                    noResultsMessage={formState.noResultMessage}
-                                    unstable_pinned={formState.unstablePinned}
-                                  />
-                                  <div
-                                    className={formState.groupsOptionSelected && formState.groupAccess ? "" : "hide"}
-                                  >
-                                    <div className="noteText">
-                                      <Text error content={t("SendToGroupsNote")} />
-                                    </div>
-                                  </div>
-                                </Flex>
-                              );
-                            },
-                          },
-                        ]}
-                      ></RadioGroup> */}
                 </div>
                 <div className="card-area">
                   <div className="card-area-2"></div>

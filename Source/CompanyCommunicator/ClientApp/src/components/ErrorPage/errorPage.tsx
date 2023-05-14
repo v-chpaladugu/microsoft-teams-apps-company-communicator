@@ -19,6 +19,8 @@ const ErrorPage: React.FunctionComponent<RouteComponentProps> = (props) => {
         return t("UnauthorizedErrorMessage");
       } else if (id === "403") {
         return t("ForbiddenErrorMessage");
+      } else if (id === "409") {
+        return "It's a conflict. There might be a request pending.";
       }
     }
     return t("GeneralErrorMessage");

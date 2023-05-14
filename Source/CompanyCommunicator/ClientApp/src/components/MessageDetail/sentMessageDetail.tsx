@@ -222,7 +222,7 @@ export const SentMessageDetail = (sentMessages: any) => {
             <TableCell tabIndex={0} role="gridcell">
               <TableCellLayout>
                 <span className="big-screen-visible">
-                  <Persona name={item.createdBy} secondaryText={"User"} avatar={{ color: "colorful" }} />
+                  <Persona name={item.createdBy} secondaryText={"Member"} avatar={{ color: "colorful" }} />
                 </span>
               </TableCellLayout>
             </TableCell>

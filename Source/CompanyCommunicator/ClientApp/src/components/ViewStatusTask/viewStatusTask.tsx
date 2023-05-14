@@ -179,7 +179,7 @@ export const ViewStatusTask = () => {
     } else if (messageState.rosterNames && messageState.rosterNames.length > 0) {
       return (
         <Field size="large" label={t("SentToRosters")}>
-          <ul className="ul-no-bullets">{getItemList(messageState.rosterNames, "Roster")}</ul>
+          <ul className="ul-no-bullets">{getItemList(messageState.rosterNames, "Team")}</ul>
         </Field>
       );
     } else if (messageState.groupNames && messageState.groupNames.length > 0) {
@@ -192,7 +192,9 @@ export const ViewStatusTask = () => {
     } else if (messageState.allUsers) {
       return (
         <>
-          <Text size={500}>{t("SendToAllUsers")}</Text>
+          <Text size={500} className="info-text">
+            {t("SendToAllUsers")}
+          </Text>
         </>
       );
     } else {

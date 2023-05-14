@@ -29,7 +29,7 @@ import {
   SendRegular,
 } from "@fluentui/react-icons";
 import * as microsoftTeams from "@microsoft/teams-js";
-import { GetDraftMessagesAction, GetSentMessagesAction } from "../../actions";
+import { GetDraftMessagesAction, GetDraftMessagesSilentAction, GetSentMessagesSilentAction } from "../../actions";
 import { deleteDraftNotification, duplicateDraftNotification, sendPreview } from "../../apis/messageListApi";
 import { getBaseUrl } from "../../configVariables";
 import { ROUTE_PARTS, ROUTE_QUERY_PARAMS } from "../../routes";
@@ -54,8 +54,8 @@ export const DraftMessageDetail = (draftMessages: any) => {
   }, []);
 
   const submitHandler = (err: any, result: any) => {
-    GetDraftMessagesAction(dispatch);
-    GetSentMessagesAction(dispatch);
+    GetDraftMessagesSilentAction(dispatch);
+    GetSentMessagesSilentAction(dispatch);
   };
 
   const onOpenTaskModule = (event: any, url: string, title: string) => {

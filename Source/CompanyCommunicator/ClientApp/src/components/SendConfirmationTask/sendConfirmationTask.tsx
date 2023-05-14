@@ -169,7 +169,7 @@ export const SendConfirmationTask = () => {
       return (
         <div key="rosterNames" style={{ paddingBottom: "16px" }}>
           <Label>{t("TeamsMembersLabel")}</Label>
-          <ul className="ul-no-bullets">{getItemList(consentState.rosterNames, "Roster")}</ul>
+          <ul className="ul-no-bullets">{getItemList(consentState.rosterNames, "Team")}</ul>
         </div>
       );
     } else if (consentState.groupNames && consentState.groupNames.length > 0) {
@@ -183,8 +183,8 @@ export const SendConfirmationTask = () => {
       return (
         <div key="allUsers" style={{ paddingBottom: "16px" }}>
           <Label>{t("AllUsersLabel")}</Label>
-          <div className="noteText">
-            <Text>{t("SendToAllUsersNote")}</Text>
+          <div>
+            <Text className="info-text">{t("SendToAllUsersNote")}</Text>
           </div>
         </div>
       );
