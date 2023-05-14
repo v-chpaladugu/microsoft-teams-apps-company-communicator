@@ -18,7 +18,7 @@ import {
 import { ChatMultiple24Regular, PersonFeedback24Regular, QuestionCircle24Regular } from "@fluentui/react-icons";
 import * as microsoftTeams from "@microsoft/teams-js";
 
-import { GetDraftMessagesAction } from "../../actions";
+import { GetDraftMessagesSilentAction } from "../../actions";
 import { getBaseUrl } from "../../configVariables";
 import { ROUTE_PARTS, ROUTE_QUERY_PARAMS } from "../../routes";
 import { useAppDispatch } from "../../store";
@@ -44,7 +44,7 @@ export const MainContainer = (props: IMainContainer) => {
     };
 
     let submitHandler = (err: any, result: any) => {
-      GetDraftMessagesAction(dispatch);
+      GetDraftMessagesSilentAction(dispatch);
     };
 
     microsoftTeams.tasks.startTask(taskInfo, submitHandler);

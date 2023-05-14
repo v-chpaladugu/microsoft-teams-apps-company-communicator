@@ -8,7 +8,7 @@ export interface MessagesState {
   sentMessages: { action: string; payload: [] };
   selectedMessage: { action: string; payload: {} };
   teamsData: { action: string; payload: any[] };
-  groups: { action: string; payload: [] };
+  groups: { action: string; payload: any[] };
   queryGroups: { action: string; payload: any[] };
   verifyGroup: { action: string; payload: boolean };
   isDraftMessagesFetchOn: { action: string; payload: boolean };

@@ -29,7 +29,7 @@ import {
   SendRegular,
 } from "@fluentui/react-icons";
 import * as microsoftTeams from "@microsoft/teams-js";
-import { GetDraftMessagesAction, GetDraftMessagesSilentAction, GetSentMessagesSilentAction } from "../../actions";
+import { GetDraftMessagesSilentAction, GetSentMessagesSilentAction } from "../../actions";
 import { deleteDraftNotification, duplicateDraftNotification, sendPreview } from "../../apis/messageListApi";
 import { getBaseUrl } from "../../configVariables";
 import { ROUTE_PARTS, ROUTE_QUERY_PARAMS } from "../../routes";
@@ -73,7 +73,7 @@ export const DraftMessageDetail = (draftMessages: any) => {
   const duplicateDraftMessage = async (id: number) => {
     try {
       await duplicateDraftNotification(id);
-      GetDraftMessagesAction(dispatch);
+      GetDraftMessagesSilentAction(dispatch);
     } catch (error) {
       return error;
     }
@@ -82,7 +82,7 @@ export const DraftMessageDetail = (draftMessages: any) => {
   const deleteDraftMessage = async (id: number) => {
     try {
       await deleteDraftNotification(id);
-      GetDraftMessagesAction(dispatch);
+      GetDraftMessagesSilentAction(dispatch);
     } catch (error) {
       return error;
     }

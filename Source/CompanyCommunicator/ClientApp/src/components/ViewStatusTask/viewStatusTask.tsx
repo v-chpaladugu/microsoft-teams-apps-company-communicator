@@ -192,9 +192,7 @@ export const ViewStatusTask = () => {
     } else if (messageState.allUsers) {
       return (
         <>
-          <Text size={500} className="info-text">
-            {t("SendToAllUsers")}
-          </Text>
+          <Text size={500}>{t("SendToAllUsers")}</Text>
         </>
       );
     } else {
@@ -206,8 +204,9 @@ export const ViewStatusTask = () => {
     if (messageState.errorMessage) {
       return (
         <div>
-          <h3>{t("Errors")}</h3>
-          <span>{messageState.errorMessage}</span>
+          <Field size="large" label={t("Errors")}>
+            <Text className="info-text">{messageState.errorMessage}</Text>
+          </Field>
         </div>
       );
     } else {
@@ -219,8 +218,9 @@ export const ViewStatusTask = () => {
     if (messageState.warningMessage) {
       return (
         <div>
-          <h3>{t("Warnings")}</h3>
-          <span>{messageState.warningMessage}</span>
+          <Field size="large" label={t("Warnings")}>
+            <Text className="info-text">{messageState.warningMessage}</Text>
+          </Field>
         </div>
       );
     } else {
@@ -288,7 +288,7 @@ export const ViewStatusTask = () => {
                 <Button
                   icon={<ArrowDownload24Regular />}
                   style={{ marginLeft: "16px" }}
-                  disabled={exportDisabled}
+                  disabled={exportDisabled || messageState.canDownload === false}
                   onClick={onExport}
                   appearance="primary"
                 >

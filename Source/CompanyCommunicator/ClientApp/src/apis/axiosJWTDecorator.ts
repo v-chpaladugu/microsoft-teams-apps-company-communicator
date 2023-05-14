@@ -86,9 +86,7 @@ export class AxiosJWTDecorator {
   private handleError(error: any): void {
     if (error.hasOwnProperty("response")) {
       const errorStatus = error.response.status;
-      if (errorStatus === 409) {
-        window.location.href = `/errorpage/409?locale=${i18n.language}`;
-      } else if (errorStatus === 403) {
+    if (errorStatus === 403) {
         window.location.href = `/errorpage/403?locale=${i18n.language}`;
       } else if (errorStatus === 401) {
         window.location.href = `/errorpage/401?locale=${i18n.language}`;

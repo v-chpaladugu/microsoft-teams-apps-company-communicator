@@ -22,7 +22,7 @@ export const DraftMessages = () => {
 
   return (
     <>
-      {loader && <Spinner labelPosition="below" label="Fetching draft messages..." />}
+      {loader && <Spinner labelPosition="below" label="Fetching..." />}
       {draftMessages && draftMessages.length === 0 && !loader && (
         <div>{t("EmptyDraftMessages")}</div>
       )}

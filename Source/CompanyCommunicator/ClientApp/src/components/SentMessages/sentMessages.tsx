@@ -28,7 +28,7 @@ export const SentMessages = () => {
 
   return (
     <>
-      {loader && <Spinner labelPosition="below" label="Fetching sent messages..." />}
+      {loader && <Spinner labelPosition="below" label="Fetching..." />}
       {sentMessages && sentMessages.length === 0 && !loader && <div>{t("EmptySentMessages")}</div>}
       {sentMessages && sentMessages.length > 0 && !loader && <SentMessageDetail sentMessages={sentMessages} />}
     </>
