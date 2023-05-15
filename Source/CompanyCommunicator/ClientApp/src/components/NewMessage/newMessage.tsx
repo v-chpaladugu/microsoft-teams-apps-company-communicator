@@ -168,16 +168,17 @@ export const NewMessage = () => {
     setRostersSelectedOptions([]);
     setSearchSelectedOptions([]);
     setAllUsersState(false);
-
     if (teams && teams.length > 0) {
       const teamsSelected = teams.filter((c) => messageState.teams.some((s) => s === c.id));
       setTeamsSelectedOptions(teamsSelected || []);
       const roastersSelected = teams.filter((c) => messageState.rosters.some((s) => s === c.id));
       setRostersSelectedOptions(roastersSelected || []);
-    } else if (groups && groups.length > 0) {
+    }
+    if (groups && groups.length > 0) {
       const groupsSelected = groups.filter((c) => messageState.groups.some((s) => s === c.id));
-      setRostersSelectedOptions(groupsSelected || []);
-    } else if (messageState.allUsers) {
+      setSearchSelectedOptions(groupsSelected || []);
+    }
+    if (messageState.allUsers) {
       setAllUsersState(true);
     }
   }, [teams, groups, messageState.teams, messageState.rosters, messageState.allUsers, messageState.groups]);
