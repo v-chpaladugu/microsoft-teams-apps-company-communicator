@@ -127,6 +127,7 @@ export const NewMessage = () => {
   const [allUsersState, setAllUsersState] = React.useState(false);
   const [imageFileName, setImageFileName] = React.useState("");
   const [imageUploadErrorMessage, setImageUploadErrorMessage] = React.useState("");
+  const [titleErrorMessage, setTitleErrorMessage] = React.useState("");
   const [btnLinkErrorMessage, setBtnLinkErrorMessage] = React.useState("");
   const [showMsgDraftingSpinner, setShowMsgDraftingSpinner] = React.useState(false);
   const [messageState, setMessageState] = React.useState<IMessageState>({
@@ -359,9 +360,7 @@ export const NewMessage = () => {
       ];
     }
     if (selectedRadioButton === AudienceSelection.Groups) {
-      finalSelectedGroups = [
-        ...groups.filter((t1) => searchSelectedOptions.some((sp) => sp.id === t1.id)).map((t2) => t2.id),
-      ];
+      finalSelectedGroups = [...searchSelectedOptions.map((g) => g.id)];
     }
     if (selectedRadioButton === AudienceSelection.AllUsers) {
       finalAllUsers = allUsersState;
@@ -423,6 +422,11 @@ export const NewMessage = () => {
   };
 
   const onTitleChanged = (event: any) => {
+    if (event.target.value === "") {
+      setTitleErrorMessage("Title is required.");
+    } else {
+      setTitleErrorMessage("");
+    }
     setCardTitle(card, event.target.value);
     setMessageState({ ...messageState, title: event.target.value });
     updateAdaptiveCard();
@@ -587,17 +591,19 @@ export const NewMessage = () => {
     setSelectedRadioButton(AudienceSelection[input]);
   };
 
-  const searchQueryOptions = (queryGroups: any[]) => {
-    return groups.filter((g1) => queryGroups.some((g2) => g2.id === g1.id));
-  };
-
   return (
     <>
       {pageSelection === CurrentPageSelection.CardCreation && (
         <>
           <div className="adaptive-task-grid">
             <div className="form-area">
-              <Field size="large" className={field_styles.styles} label={t("TitleText")} required={true}>
+              <Field
+                size="large"
+                className={field_styles.styles}
+                label={t("TitleText")}
+                required={true}
+                validationMessage={titleErrorMessage}
+              >
                 <Input
                   placeholder={t("PlaceHolderTitle")}
                   onChange={onTitleChanged}
@@ -864,11 +870,7 @@ export const NewMessage = () => {
                                   id={`${searchComboId}-remove-${i}`}
                                   aria-labelledby={`${searchComboId}-remove ${searchComboId}-remove-${i}`}
                                 >
-                                  <Persona
-                                    name={option.name}
-                                    secondaryText={"Group"}
-                                    avatar={{ shape: "square", color: "colorful" }}
-                                  />
+                                  <Persona name={option.name} secondaryText={"Group"} avatar={{ color: "colorful" }} />
                                 </Button>
                               </li>
                             ))}
@@ -880,17 +882,11 @@ export const NewMessage = () => {
                           onOptionSelect={onSearchSelect}
                           onChange={onSearchChange}
                           aria-labelledby={searchLabelledBy}
-                          placeholder={
-                            searchQueryOptions(queryGroups).length !== 0 ? "Search for groups" : t("NoMatchMessage")
-                          }
+                          placeholder={"Search for groups"}
                         >
-                          {searchQueryOptions(queryGroups).map((opt) => (
+                          {queryGroups.map((opt) => (
                             <Option text={opt.name} value={opt.id} key={opt.id}>
-                              <Persona
-                                name={opt.name}
-                                secondaryText={"Group"}
-                                avatar={{ shape: "square", color: "colorful" }}
-                              />
+                              <Persona name={opt.name} secondaryText={"Group"} avatar={{ color: "colorful" }} />
                             </Option>
                           ))}
                         </Combobox>

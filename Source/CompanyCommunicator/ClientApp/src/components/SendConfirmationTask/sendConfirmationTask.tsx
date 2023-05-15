@@ -143,13 +143,13 @@ export const SendConfirmationTask = () => {
       });
   };
 
-  const getItemList = (items: string[], secondaryText: string) => {
+  const getItemList = (items: string[], secondaryText: string, sh: string) => {
     let resultedTeams: any[] = [];
     if (items) {
       items.map((element) => {
         resultedTeams.push(
           <li key={element + "key"}>
-            <Persona name={element} secondaryText={secondaryText} avatar={{ shape: "square" }} />
+            <Persona name={element} secondaryText={secondaryText} avatar={{ shape: sh, color: "colorful" }} />
           </li>
         );
       });
@@ -162,21 +162,21 @@ export const SendConfirmationTask = () => {
       return (
         <div key="teamNames" style={{ paddingBottom: "16px" }}>
           <Label>{t("TeamsLabel")}</Label>
-          <ul className="ul-no-bullets">{getItemList(consentState.teamNames, "Team")}</ul>
+          <ul className="ul-no-bullets">{getItemList(consentState.teamNames, "Team", "square")}</ul>
         </div>
       );
     } else if (consentState.rosterNames && consentState.rosterNames.length > 0) {
       return (
         <div key="rosterNames" style={{ paddingBottom: "16px" }}>
           <Label>{t("TeamsMembersLabel")}</Label>
-          <ul className="ul-no-bullets">{getItemList(consentState.rosterNames, "Team")}</ul>
+          <ul className="ul-no-bullets">{getItemList(consentState.rosterNames, "Team", "square")}</ul>
         </div>
       );
     } else if (consentState.groupNames && consentState.groupNames.length > 0) {
       return (
         <div key="groupNames" style={{ paddingBottom: "16px" }}>
           <Label>{t("GroupsMembersLabel")}</Label>
-          <ul className="ul-no-bullets">{getItemList(consentState.groupNames, "Group")}</ul>
+          <ul className="ul-no-bullets">{getItemList(consentState.groupNames, "Group", "circular")}</ul>
         </div>
       );
     } else if (consentState.allUsers) {

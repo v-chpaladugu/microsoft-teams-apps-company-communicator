@@ -155,13 +155,13 @@ export const ViewStatusTask = () => {
       });
   };
 
-  const getItemList = (items: string[], secondaryText: string) => {
+  const getItemList = (items: string[], secondaryText: string, sq: string) => {
     let resultedTeams: any[] = [];
     if (items) {
       items.map((element) => {
         resultedTeams.push(
           <li key={element + "key"}>
-            <Persona name={element} secondaryText={secondaryText} avatar={{ shape: "square" }} />
+            <Persona name={element} secondaryText={secondaryText} avatar={{ shape: sq, color: "colorful" }} />
           </li>
         );
       });
@@ -173,20 +173,20 @@ export const ViewStatusTask = () => {
     if (messageState.teamNames && messageState.teamNames.length > 0) {
       return (
         <Field size="large" label={t("SentToGeneralChannel")}>
-          <ul className="ul-no-bullets">{getItemList(messageState.teamNames, "Team")}</ul>
+          <ul className="ul-no-bullets">{getItemList(messageState.teamNames, "Team", "square")}</ul>
         </Field>
       );
     } else if (messageState.rosterNames && messageState.rosterNames.length > 0) {
       return (
         <Field size="large" label={t("SentToRosters")}>
-          <ul className="ul-no-bullets">{getItemList(messageState.rosterNames, "Team")}</ul>
+          <ul className="ul-no-bullets">{getItemList(messageState.rosterNames, "Team", "square")}</ul>
         </Field>
       );
     } else if (messageState.groupNames && messageState.groupNames.length > 0) {
       return (
         <Field size="large" label={t("SentToGroups1")}>
           <span>{t("SentToGroups2")}</span>
-          <ul className="ul-no-bullets">{getItemList(messageState.groupNames, "Group")}</ul>
+          <ul className="ul-no-bullets">{getItemList(messageState.groupNames, "Group", "circular")}</ul>
         </Field>
       );
     } else if (messageState.allUsers) {
@@ -254,7 +254,7 @@ export const ViewStatusTask = () => {
                   </div>
                   <div style={{ paddingBottom: "16px" }}>
                     <Field size="large" label={t("CreatedBy")}>
-                      <Text>{messageState.createdBy}</Text>
+                      <Persona name={messageState.createdBy} secondaryText={"Member"} avatar={{ color: "colorful" }} />
                     </Field>
                   </div>
                   <div style={{ paddingBottom: "16px" }}>
