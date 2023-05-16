@@ -3,7 +3,6 @@
 
 import * as AdaptiveCards from "adaptivecards";
 import * as React from "react";
-import { Helmet } from "react-helmet-async";
 import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
 import { AvatarShape } from "@fluentui/react-avatar";
@@ -233,18 +232,10 @@ export const ViewStatusTask = () => {
 
   return (
     <>
-      <Helmet>
-        <title>
-          {statusState.page === "ViewStatus"
-            ? t("ViewStatusTitle")
-            : statusState.page === "SuccessPage"
-            ? t("ExportSuccessViewTitle")
-            : t("ExportFailureViewTitle")}
-        </title>
-      </Helmet>
       {loader && <Spinner />}
       {statusState.page === "ViewStatus" && (
         <>
+          <span role="alert" aria-label={t("ViewMessageStatus")} />
           <div className="adaptive-task-grid">
             <div className="form-area">
               {!loader && (
@@ -317,45 +308,51 @@ export const ViewStatusTask = () => {
         </>
       )}
       {!loader && statusState.page === "SuccessPage" && (
-        <div className="wizard-page">
-          <h2>
-            <CheckmarkSquare24Regular style={{ color: "#22bb33", verticalAlign: "middle", paddingRight: "8px" }} />
-            {t("ExportQueueTitle")}
-          </h2>
-          <Text>{t("ExportQueueSuccessMessage1")}</Text>
-          <br />
-          <br />
-          <Text>{t("ExportQueueSuccessMessage2")}</Text>
-          <br />
-          <br />
-          <Text>{t("ExportQueueSuccessMessage3")}</Text>
-          <br />
-          <br />
-          <div className="fixed-footer">
-            <div className="footer-action-right">
-              <Button id="closeBtn" onClick={onClose} appearance="primary">
-                {t("CloseText")}
-              </Button>
+        <>
+          <span role="alert" aria-label={t("ExportSuccessView")} />
+          <div className="wizard-page">
+            <h2>
+              <CheckmarkSquare24Regular style={{ color: "#22bb33", verticalAlign: "middle", paddingRight: "8px" }} />
+              {t("ExportQueueTitle")}
+            </h2>
+            <Text>{t("ExportQueueSuccessMessage1")}</Text>
+            <br />
+            <br />
+            <Text>{t("ExportQueueSuccessMessage2")}</Text>
+            <br />
+            <br />
+            <Text>{t("ExportQueueSuccessMessage3")}</Text>
+            <br />
+            <br />
+            <div className="fixed-footer">
+              <div className="footer-action-right">
+                <Button id="closeBtn" onClick={onClose} appearance="primary">
+                  {t("CloseText")}
+                </Button>
+              </div>
             </div>
           </div>
-        </div>
+        </>
       )}
       {!loader && statusState.page === "ErrorPage" && (
-        <div className="wizard-page">
-          <h2>
-            <ShareScreenStop24Regular style={{ color: "#bb2124", verticalAlign: "middle", paddingRight: "8px" }} />
-            {t("ExportErrorTitle")}
-          </h2>
-          <Text>{t("ExportErrorMessage")}</Text>
-          <br />
-          <div className="fixed-footer">
-            <div className="footer-action-right">
-              <Button id="closeBtn" onClick={onClose} appearance="primary">
-                {t("CloseText")}
-              </Button>
+        <>
+          <span role="alert" aria-label={t("ExportFailureView")} />
+          <div className="wizard-page">
+            <h2>
+              <ShareScreenStop24Regular style={{ color: "#bb2124", verticalAlign: "middle", paddingRight: "8px" }} />
+              {t("ExportErrorTitle")}
+            </h2>
+            <Text>{t("ExportErrorMessage")}</Text>
+            <br />
+            <div className="fixed-footer">
+              <div className="footer-action-right">
+                <Button id="closeBtn" onClick={onClose} appearance="primary">
+                  {t("CloseText")}
+                </Button>
+              </div>
             </div>
           </div>
-        </div>
+        </>
       )}
     </>
   );
