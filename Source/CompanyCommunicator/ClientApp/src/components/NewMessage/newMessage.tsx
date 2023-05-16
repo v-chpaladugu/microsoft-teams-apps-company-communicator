@@ -1,53 +1,32 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import * as AdaptiveCards from "adaptivecards";
-import * as React from "react";
-import { useTranslation } from "react-i18next";
-import { useParams } from "react-router-dom";
-import validator from "validator";
+import * as AdaptiveCards from 'adaptivecards';
+import * as React from 'react';
+import { Helmet } from 'react-helmet-async';
+import { useTranslation } from 'react-i18next';
+import { useParams } from 'react-router-dom';
+import validator from 'validator';
 import {
-  Button,
-  Combobox,
-  ComboboxProps,
-  Field,
-  Input,
-  Label,
-  LabelProps,
-  makeStyles,
-  Option,
-  Persona,
-  Radio,
-  RadioGroup,
-  RadioGroupOnChangeData,
-  shorthands,
-  Spinner,
-  Text,
-  Textarea,
-  tokens,
-  useId,
-} from "@fluentui/react-components";
-import { InfoLabel } from "@fluentui/react-components/unstable";
-import { ArrowUpload24Regular, Dismiss12Regular } from "@fluentui/react-icons";
-import * as microsoftTeams from "@microsoft/teams-js";
+    Button, Combobox, ComboboxProps, Field, Input, Label, LabelProps, makeStyles, Option, Persona,
+    Radio, RadioGroup, RadioGroupOnChangeData, shorthands, Spinner, Text, Textarea, tokens, useId
+} from '@fluentui/react-components';
+import { InfoLabel } from '@fluentui/react-components/unstable';
+import { ArrowUpload24Regular, Dismiss12Regular } from '@fluentui/react-icons';
+import * as microsoftTeams from '@microsoft/teams-js';
+
 import {
-  GetDraftMessagesSilentAction,
-  GetGroupsAction,
-  GetTeamsDataAction,
-  SearchGroupsAction,
-  VerifyGroupAccessAction,
-} from "../../actions";
-import { createDraftNotification, getDraftNotification, updateDraftNotification } from "../../apis/messageListApi";
-import { getBaseUrl } from "../../configVariables";
-import { RootState, useAppDispatch, useAppSelector } from "../../store";
+    GetDraftMessagesSilentAction, GetGroupsAction, GetTeamsDataAction, SearchGroupsAction,
+    VerifyGroupAccessAction
+} from '../../actions';
 import {
-  getInitAdaptiveCard,
-  setCardAuthor,
-  setCardBtn,
-  setCardImageLink,
-  setCardSummary,
-  setCardTitle,
-} from "../AdaptiveCard/adaptiveCard";
+    createDraftNotification, getDraftNotification, updateDraftNotification
+} from '../../apis/messageListApi';
+import { getBaseUrl } from '../../configVariables';
+import { RootState, useAppDispatch, useAppSelector } from '../../store';
+import {
+    getInitAdaptiveCard, setCardAuthor, setCardBtn, setCardImageLink, setCardSummary, setCardTitle
+} from '../AdaptiveCard/adaptiveCard';
 
 const validImageTypes = ["image/gif", "image/jpeg", "image/png", "image/jpg"];
 
@@ -130,6 +109,8 @@ export const NewMessage = () => {
   const [titleErrorMessage, setTitleErrorMessage] = React.useState("");
   const [btnLinkErrorMessage, setBtnLinkErrorMessage] = React.useState("");
   const [showMsgDraftingSpinner, setShowMsgDraftingSpinner] = React.useState(false);
+  const [allUsersAria, setAllUserAria] = React.useState("none");
+  const [groupsAria, setGroupsAria] = React.useState("none");
   const [messageState, setMessageState] = React.useState<IMessageState>({
     title: "",
     teams: [],
@@ -420,6 +401,8 @@ export const NewMessage = () => {
 
   const onBack = (event: any) => {
     setPageSelection(CurrentPageSelection.CardCreation);
+    setAllUserAria("none");
+    setGroupsAria("none");
   };
 
   const onTitleChanged = (event: any) => {
@@ -590,12 +573,18 @@ export const NewMessage = () => {
   const audienceSelectionChange = (ev: any, data: RadioGroupOnChangeData) => {
     let input = data.value as keyof typeof AudienceSelection;
     setSelectedRadioButton(AudienceSelection[input]);
+
+    AudienceSelection[input] === AudienceSelection.AllUsers ? setAllUserAria("alert") : setAllUserAria("none");
+    AudienceSelection[input] === AudienceSelection.Groups ? setGroupsAria("alert") : setGroupsAria("none");
   };
 
   return (
     <>
       {pageSelection === CurrentPageSelection.CardCreation && (
-        <>
+        <div aria-current={pageSelection === CurrentPageSelection.CardCreation}>
+          <Helmet>
+            <title>{t("NewMessageTitle1")}</title>
+          </Helmet>
           <div className="adaptive-task-grid">
             <div className="form-area">
               <Field
@@ -620,7 +609,7 @@ export const NewMessage = () => {
                 className={field_styles.styles}
                 label={{
                   children: (_: unknown, imageInfoProps: LabelProps) => (
-                    <InfoLabel {...imageInfoProps} info={t("ImageSizeInfoContent")}>
+                    <InfoLabel {...imageInfoProps} info={t("ImageSizeInfoContent") || ""}>
                       {t("ImageURL")}
                     </InfoLabel>
                   ),
@@ -647,6 +636,7 @@ export const NewMessage = () => {
                     onClick={handleUploadClick}
                     size="large"
                     appearance="secondary"
+                    aria-label={imageFileName ? t("UploadImageSuccessful") : t("UploadImageInfo")}
                     icon={<ArrowUpload24Regular />}
                   >
                     {t("Upload")}
@@ -718,21 +708,24 @@ export const NewMessage = () => {
               </Button>
             </div>
           </div>
-        </>
+        </div>
       )}
       {pageSelection === CurrentPageSelection.AudienceSelection && (
-        <>
+        <div aria-current={pageSelection === CurrentPageSelection.AudienceSelection}>
+          <Helmet>
+            <title>{t("NewMessageTitle2")}</title>
+          </Helmet>
           <div className="adaptive-task-grid">
             <div className="form-area">
-              <Label id="labelId">
-                <h3>{t("SendHeadingText")}</h3>
+              <Label size="large" id="audienceSelectionGroupLabelId">
+                {t("SendHeadingText")}
               </Label>
               <RadioGroup
                 defaultValue={selectedRadioButton}
-                aria-labelledby="labelId"
+                aria-labelledby="audienceSelectionGroupLabelId"
                 onChange={audienceSelectionChange}
               >
-                <Radio value={AudienceSelection.Teams} label={t("SendToGeneralChannel")} />
+                <Radio id="radio1" value={AudienceSelection.Teams} label={t("SendToGeneralChannel")} />
                 {selectedRadioButton === AudienceSelection.Teams && (
                   <div className={cmb_styles.root}>
                     <Label id={teamsComboId}>Pick team(s)</Label>
@@ -763,7 +756,9 @@ export const NewMessage = () => {
                           </li>
                         ))}
                       </ul>
-                    ) : null}
+                    ) : (
+                      <></>
+                    )}
                     <Combobox
                       multiselect={true}
                       selectedOptions={teamsSelectedOptions.map((op) => op.id)}
@@ -786,7 +781,7 @@ export const NewMessage = () => {
                     </Combobox>
                   </div>
                 )}
-                <Radio value={AudienceSelection.Rosters} label={t("SendToRosters")} />
+                <Radio id="radio2" value={AudienceSelection.Rosters} label={t("SendToRosters")} />
                 {selectedRadioButton === AudienceSelection.Rosters && (
                   <div className={cmb_styles.root}>
                     <Label id={rostersComboId}>Pick team(s)</Label>
@@ -817,7 +812,9 @@ export const NewMessage = () => {
                           </li>
                         ))}
                       </ul>
-                    ) : null}
+                    ) : (
+                      <></>
+                    )}
                     <Combobox
                       multiselect={true}
                       selectedOptions={rostersSelectedOptions.map((op) => op.id)}
@@ -840,16 +837,22 @@ export const NewMessage = () => {
                     </Combobox>
                   </div>
                 )}
-                <Radio value={AudienceSelection.AllUsers} label={t("SendToAllUsers")} />
+                <Radio id="radio3" value={AudienceSelection.AllUsers} label={t("SendToAllUsers")} />
                 <div className={cmb_styles.root}>
                   {selectedRadioButton === AudienceSelection.AllUsers && (
-                    <Text className="info-text">{t("SendToAllUsersNote")}</Text>
+                    <Text id="radio3Note" role={allUsersAria} className="info-text">
+                      {t("SendToAllUsersNote")}
+                    </Text>
                   )}
                 </div>
-                <Radio value={AudienceSelection.Groups} label={t("SendToGroups")} />
+                <Radio id="radio4" value={AudienceSelection.Groups} label={t("SendToGroups")} />
                 {selectedRadioButton === AudienceSelection.Groups && (
                   <div className={cmb_styles.root}>
-                    {!canAccessGroups && <Text className="info-text">{t("SendToGroupsPermissionNote")}</Text>}
+                    {!canAccessGroups && (
+                      <Text role={groupsAria} className="info-text">
+                        {t("SendToGroupsPermissionNote")}
+                      </Text>
+                    )}
                     {canAccessGroups && (
                       <>
                         <Label id={searchComboId}>Pick group(s)</Label>
@@ -876,7 +879,9 @@ export const NewMessage = () => {
                               </li>
                             ))}
                           </ul>
-                        ) : null}
+                        ) : (
+                          <></>
+                        )}
                         <Combobox
                           appearance="filled-darker"
                           size="large"
@@ -891,7 +896,9 @@ export const NewMessage = () => {
                             </Option>
                           ))}
                         </Combobox>
-                        <Text className="info-text">{t("SendToGroupsNote")}</Text>
+                        <Text role={groupsAria} className="info-text">
+                          {t("SendToGroupsNote")}
+                        </Text>
                       </>
                     )}
                   </div>
@@ -912,7 +919,13 @@ export const NewMessage = () => {
               <div className="footer-action-right">
                 <div className="footer-actions-flex">
                   {showMsgDraftingSpinner && (
-                    <Spinner id="draftingLoader" size="small" label={t("DraftingMessageLabel")} labelPosition="after" />
+                    <Spinner
+                      role="alert"
+                      id="draftingLoader"
+                      size="small"
+                      label={t("DraftingMessageLabel")}
+                      labelPosition="after"
+                    />
                   )}
                   <Button
                     style={{ marginLeft: "16px" }}
@@ -927,7 +940,7 @@ export const NewMessage = () => {
               </div>
             </div>
           </div>
-        </>
+        </div>
       )}
     </>
   );

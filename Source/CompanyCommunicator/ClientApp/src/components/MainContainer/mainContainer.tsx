@@ -1,29 +1,24 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import "./mainContainer.scss";
-import * as React from "react";
-import { useTranslation } from "react-i18next";
+import './mainContainer.scss';
+import * as React from 'react';
+import { useTranslation } from 'react-i18next';
 import {
-  Accordion,
-  AccordionHeader,
-  AccordionItem,
-  AccordionPanel,
-  Button,
-  Divider,
-  Link,
-  teamsLightTheme,
-  Theme,
-} from "@fluentui/react-components";
-import { ChatMultiple24Regular, PersonFeedback24Regular, QuestionCircle24Regular } from "@fluentui/react-icons";
-import * as microsoftTeams from "@microsoft/teams-js";
-
-import { GetDraftMessagesSilentAction } from "../../actions";
-import { getBaseUrl } from "../../configVariables";
-import { ROUTE_PARTS, ROUTE_QUERY_PARAMS } from "../../routes";
-import { useAppDispatch } from "../../store";
-import { DraftMessages } from "../DraftMessages/draftMessages";
-import { SentMessages } from "../SentMessages/sentMessages";
+    Accordion, AccordionHeader, AccordionItem, AccordionPanel, Button, Divider, Link,
+    teamsLightTheme, Theme
+} from '@fluentui/react-components';
+import {
+    ChatMultiple24Regular, PersonFeedback24Regular, QuestionCircle24Regular
+} from '@fluentui/react-icons';
+import * as microsoftTeams from '@microsoft/teams-js';
+import { GetDraftMessagesSilentAction } from '../../actions';
+import mslogo from '../../assets/Images/mslogo.png';
+import { getBaseUrl } from '../../configVariables';
+import { ROUTE_PARTS, ROUTE_QUERY_PARAMS } from '../../routes';
+import { useAppDispatch } from '../../store';
+import { DraftMessages } from '../DraftMessages/draftMessages';
+import { SentMessages } from '../SentMessages/sentMessages';
 
 interface IMainContainer {
   theme: Theme;
@@ -51,17 +46,16 @@ export const MainContainer = (props: IMainContainer) => {
   };
 
   const customHeaderImagePath = process.env.REACT_APP_HEADERIMAGE;
-  const customHeaderText =
-    process.env.REACT_APP_HEADERTEXT == null ? t("CompanyCommunicator") : t(process.env.REACT_APP_HEADERTEXT);
+  const customHeaderText = process.env.REACT_APP_HEADERTEXT
+    ? t(process.env.REACT_APP_HEADERTEXT)
+    : t("CompanyCommunicator");
 
   return (
     <>
       <div className={props.theme === teamsLightTheme ? "cc-header-light" : "cc-header"}>
         <div className="cc-main-left">
           <img
-            src={
-              customHeaderImagePath == null ? require("../../assets/Images/mslogo.png").default : customHeaderImagePath
-            }
+            src={customHeaderImagePath ? customHeaderImagePath : mslogo}
             alt="Microsoft logo"
             className="cc-logo"
             title={customHeaderText}
@@ -85,7 +79,7 @@ export const MainContainer = (props: IMainContainer) => {
       </div>
       <Divider />
       <div className="cc-new-message">
-        <Button icon={<ChatMultiple24Regular />} appearance="primary" onClick={onNewMessage}>
+        <Button id="newMessageButtonId" icon={<ChatMultiple24Regular />} appearance="primary" onClick={onNewMessage}>
           {t("NewMessage")}
         </Button>
       </div>

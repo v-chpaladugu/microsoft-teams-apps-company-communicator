@@ -1,9 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
-import * as microsoftTeams from '@microsoft/teams-js';
-import i18n from '../i18n';
+import axios, { AxiosRequestConfig, AxiosResponse } from "axios";
+import * as microsoftTeams from "@microsoft/teams-js";
+import i18n from "../i18n";
 
 export class AxiosJWTDecorator {
   public async get<T = any, R = AxiosResponse<T>>(
@@ -86,7 +86,7 @@ export class AxiosJWTDecorator {
   private handleError(error: any): void {
     if (error.hasOwnProperty("response")) {
       const errorStatus = error.response.status;
-    if (errorStatus === 403) {
+      if (errorStatus === 403) {
         window.location.href = `/errorpage/403?locale=${i18n.language}`;
       } else if (errorStatus === 401) {
         window.location.href = `/errorpage/401?locale=${i18n.language}`;

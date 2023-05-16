@@ -1,23 +1,23 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import * as AdaptiveCards from "adaptivecards";
-import * as React from "react";
-import { useTranslation } from "react-i18next";
-import { useParams } from "react-router-dom";
-import { Button, Field, Persona, Spinner, Text } from "@fluentui/react-components";
-import { ArrowDownload24Regular, CheckmarkSquare24Regular, ShareScreenStop24Regular } from "@fluentui/react-icons";
-import * as microsoftTeams from "@microsoft/teams-js";
-import { exportNotification, getSentNotification } from "../../apis/messageListApi";
-import { formatDate, formatDuration, formatNumber } from "../../i18n";
+import * as AdaptiveCards from 'adaptivecards';
+import * as React from 'react';
+import { Helmet } from 'react-helmet-async';
+import { useTranslation } from 'react-i18next';
+import { useParams } from 'react-router-dom';
+import { AvatarShape } from '@fluentui/react-avatar';
+import { Button, Field, Persona, Spinner, Text } from '@fluentui/react-components';
 import {
-  getInitAdaptiveCard,
-  setCardAuthor,
-  setCardBtn,
-  setCardImageLink,
-  setCardSummary,
-  setCardTitle,
-} from "../AdaptiveCard/adaptiveCard";
+    ArrowDownload24Regular, CheckmarkSquare24Regular, ShareScreenStop24Regular
+} from '@fluentui/react-icons';
+import * as microsoftTeams from '@microsoft/teams-js';
+
+import { exportNotification, getSentNotification } from '../../apis/messageListApi';
+import { formatDate, formatDuration, formatNumber } from '../../i18n';
+import {
+    getInitAdaptiveCard, setCardAuthor, setCardBtn, setCardImageLink, setCardSummary, setCardTitle
+} from '../AdaptiveCard/adaptiveCard';
 
 export interface IMessageState {
   id: string;
@@ -155,13 +155,13 @@ export const ViewStatusTask = () => {
       });
   };
 
-  const getItemList = (items: string[], secondaryText: string, sq: string) => {
+  const getItemList = (items: string[], secondaryText: string, shape: AvatarShape) => {
     let resultedTeams: any[] = [];
     if (items) {
       items.map((element) => {
         resultedTeams.push(
           <li key={element + "key"}>
-            <Persona name={element} secondaryText={secondaryText} avatar={{ shape: sq, color: "colorful" }} />
+            <Persona name={element} secondaryText={secondaryText} avatar={{ shape, color: "colorful" }} />
           </li>
         );
       });
@@ -232,7 +232,10 @@ export const ViewStatusTask = () => {
     <>
       {loader && <Spinner />}
       {statusState.page === "ViewStatus" && (
-        <>
+        <div aria-current={statusState.page === "ViewStatus"}>
+          <Helmet>
+            <title>{t("ViewStatusTitle")}</title>
+          </Helmet>
           <div className="adaptive-task-grid">
             <div className="form-area">
               {!loader && (
@@ -284,10 +287,15 @@ export const ViewStatusTask = () => {
           <div className="fixed-footer">
             <div className="footer-action-right">
               <div className="footer-actions-flex">
-                {exportDisabled && <Spinner size="small" label={t("ExportLabel")} labelPosition="after" />}
+                {exportDisabled && <Spinner role="alert" size="small" label={t("ExportLabel")} labelPosition="after" />}
                 <Button
                   icon={<ArrowDownload24Regular />}
                   style={{ marginLeft: "16px" }}
+                  title={
+                    exportDisabled || messageState.canDownload === false
+                      ? t("ExportButtonProgressText")
+                      : t("ExportButtonText")
+                  }
                   disabled={exportDisabled || messageState.canDownload === false}
                   onClick={onExport}
                   appearance="primary"
@@ -297,10 +305,13 @@ export const ViewStatusTask = () => {
               </div>
             </div>
           </div>
-        </>
+        </div>
       )}
       {!loader && statusState.page === "SuccessPage" && (
-        <div className="wizard-page">
+        <div className="wizard-page" aria-current={statusState.page === "SuccessPage"}>
+          <Helmet>
+            <title>{t("ExportSuccessViewTitle")}</title>
+          </Helmet>
           <h2>
             <CheckmarkSquare24Regular style={{ color: "#22bb33", verticalAlign: "middle", paddingRight: "8px" }} />
             {t("ExportQueueTitle")}
@@ -324,7 +335,10 @@ export const ViewStatusTask = () => {
         </div>
       )}
       {!loader && statusState.page === "ErrorPage" && (
-        <div className="wizard-page">
+        <div className="wizard-page" aria-current={statusState.page === "ErrorPage"}>
+          <Helmet>
+            <title>{t("ExportFailureViewTitle")}</title>
+          </Helmet>
           <h2>
             <ShareScreenStop24Regular style={{ color: "#bb2124", verticalAlign: "middle", paddingRight: "8px" }} />
             {t("ExportErrorTitle")}

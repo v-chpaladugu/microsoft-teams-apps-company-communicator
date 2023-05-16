@@ -1,20 +1,25 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import React from 'react';
-import ReactDOM from 'react-dom';
-import { Provider } from 'react-redux';
-import * as microsoftTeams from '@microsoft/teams-js';
-import { App } from './App';
-import * as serviceWorker from './serviceWorker';
-import { store } from './store';
+import React from "react";
+import ReactDOM from "react-dom";
+import { HelmetProvider } from "react-helmet-async";
+import { Provider } from "react-redux";
+import * as microsoftTeams from "@microsoft/teams-js";
+import { App } from "./App";
+import * as serviceWorker from "./serviceWorker";
+import { store } from "./store";
 
 microsoftTeams.initialize();
 
+const helmetContext = {};
+
 ReactDOM.render(
-  <Provider store={store}>
-    <App />
-  </Provider>,
+  <HelmetProvider context={helmetContext}>
+    <Provider store={store}>
+      <App />
+    </Provider>
+  </HelmetProvider>,
   document.getElementById("root")
 );
 

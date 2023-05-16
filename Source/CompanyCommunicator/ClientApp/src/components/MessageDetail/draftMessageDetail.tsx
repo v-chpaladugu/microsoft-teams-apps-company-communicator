@@ -22,7 +22,7 @@ import {
 import {
   DeleteRegular,
   DocumentCopyRegular,
-  DocumentRegular,
+  Chat20Regular,
   EditRegular,
   MoreHorizontal24Filled,
   OpenRegular,
@@ -120,18 +120,18 @@ export const DraftMessageDetail = (draftMessages: any) => {
           <TableRow key={item.id + "key"}>
             <TableCell tabIndex={0} role="gridcell">
               <TableCellLayout
-                media={<DocumentRegular />}
+                media={<Chat20Regular />}
                 style={{ cursor: "pointer" }}
                 onClick={() => onOpenTaskModule(null, editUrl(item.id), t("EditMessage"))}
               >
                 {item.title}
               </TableCellLayout>
             </TableCell>
-            <TableCell role="gridcell">
+            <TableCell>
               <TableCellLayout style={{ float: "right" }}>
                 <Menu>
                   <MenuTrigger disableButtonEnhancement>
-                    <Button icon={<MoreHorizontal24Filled />} />
+                    <Button aria-label="Actions menu" icon={<MoreHorizontal24Filled />} />
                   </MenuTrigger>
                   <MenuPopover>
                     <MenuList>

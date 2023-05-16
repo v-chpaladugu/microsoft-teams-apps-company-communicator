@@ -29,7 +29,9 @@ const SignInPage: React.FunctionComponent<RouteComponentProps> = (props) => {
 
   return (
     <div className="sign-in-content-container">
-      <Text className="info-text" size={500}>{errorMessage}</Text>
+      <Text className="info-text" size={500}>
+        {errorMessage}
+      </Text>
       <div className="space"></div>
       <Button appearance="primary" className="sign-in-button" onClick={onSignIn}>
         {t("SignIn")}

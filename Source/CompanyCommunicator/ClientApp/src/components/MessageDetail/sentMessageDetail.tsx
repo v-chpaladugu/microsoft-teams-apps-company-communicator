@@ -26,9 +26,9 @@ import {
   CalendarCancel24Regular,
   CheckmarkSquare24Regular,
   DocumentCopyRegular,
-  DocumentRegular,
+  Chat20Regular,
   MoreHorizontal24Filled,
-  OpenRegular,
+  Status24Regular,
   ShareScreenStop24Regular,
   Warning24Regular,
 } from "@fluentui/react-icons";
@@ -132,7 +132,7 @@ export const SentMessageDetail = (sentMessages: any) => {
           <TableHeaderCell key="title">
             <b>{t("TitleText")}</b>
           </TableHeaderCell>
-          <TableHeaderCell key="status" />
+          <TableHeaderCell key="status" aria-hidden="true" />
           <TableHeaderCell key="recipients">
             <b>{t("Recipients")}</b>
           </TableHeaderCell>
@@ -152,7 +152,7 @@ export const SentMessageDetail = (sentMessages: any) => {
           <TableRow key={item.id + "key"}>
             <TableCell tabIndex={0} role="gridcell">
               <TableCellLayout
-                media={<DocumentRegular />}
+                media={<Chat20Regular />}
                 style={{ cursor: "pointer" }}
                 onClick={() => onOpenTaskModule(null, statusUrl(item.id), t("ViewStatus"))}
               >
@@ -166,7 +166,7 @@ export const SentMessageDetail = (sentMessages: any) => {
             </TableCell>
             <TableCell tabIndex={0} role="gridcell">
               <TableCellLayout>
-                <Tooltip content={t("TooltipSuccess")} relationship="label">
+                <Tooltip content={t("TooltipSuccess") || ""} relationship="label">
                   <Button
                     appearance="subtle"
                     icon={<CheckmarkSquare24Regular style={{ color: "#22bb33", verticalAlign: "middle" }} />}
@@ -176,7 +176,7 @@ export const SentMessageDetail = (sentMessages: any) => {
                 <span style={{ verticalAlign: "middle", paddingLeft: "2px", paddingRight: "8px" }}>
                   {formatNumber(item.succeeded)}
                 </span>
-                <Tooltip content={t("TooltipFailure")} relationship="label">
+                <Tooltip content={t("TooltipFailure") || ""} relationship="label">
                   <Button
                     appearance="subtle"
                     icon={<ShareScreenStop24Regular style={{ color: "#bb2124", verticalAlign: "middle" }} />}
@@ -230,12 +230,12 @@ export const SentMessageDetail = (sentMessages: any) => {
               <TableCellLayout style={{ float: "right" }}>
                 <Menu>
                   <MenuTrigger disableButtonEnhancement>
-                    <Button icon={<MoreHorizontal24Filled />} />
+                    <Button aria-label="Actions menu" icon={<MoreHorizontal24Filled />} />
                   </MenuTrigger>
                   <MenuPopover>
                     <MenuList>
                       <MenuItem
-                        icon={<OpenRegular />}
+                        icon={<Status24Regular />}
                         key={"viewStatusKey"}
                         onClick={() => onOpenTaskModule(null, statusUrl(item.id), t("ViewStatus"))}
                       >

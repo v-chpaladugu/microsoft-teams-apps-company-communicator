@@ -1,21 +1,20 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import * as AdaptiveCards from "adaptivecards";
-import * as React from "react";
-import { useTranslation } from "react-i18next";
-import { useParams } from "react-router-dom";
-import { Button, Field, Label, Persona, Spinner, Text } from "@fluentui/react-components";
-import * as microsoftTeams from "@microsoft/teams-js";
-import { getConsentSummaries, getDraftNotification, sendDraftNotification } from "../../apis/messageListApi";
+import * as AdaptiveCards from 'adaptivecards';
+import * as React from 'react';
+import { Helmet } from 'react-helmet-async';
+import { useTranslation } from 'react-i18next';
+import { useParams } from 'react-router-dom';
+import { Button, Field, Label, Persona, Spinner, Text } from '@fluentui/react-components';
+import * as microsoftTeams from '@microsoft/teams-js';
 import {
-  getInitAdaptiveCard,
-  setCardAuthor,
-  setCardBtn,
-  setCardImageLink,
-  setCardSummary,
-  setCardTitle,
-} from "../AdaptiveCard/adaptiveCard";
+    getConsentSummaries, getDraftNotification, sendDraftNotification
+} from '../../apis/messageListApi';
+import {
+    getInitAdaptiveCard, setCardAuthor, setCardBtn, setCardImageLink, setCardSummary, setCardTitle
+} from '../AdaptiveCard/adaptiveCard';
+import { AvatarShape } from '@fluentui/react-avatar';
 
 export interface IMessageState {
   id: string;
@@ -143,13 +142,13 @@ export const SendConfirmationTask = () => {
       });
   };
 
-  const getItemList = (items: string[], secondaryText: string, sh: string) => {
+  const getItemList = (items: string[], secondaryText: string, shape: AvatarShape) => {
     let resultedTeams: any[] = [];
     if (items) {
       items.map((element) => {
         resultedTeams.push(
           <li key={element + "key"}>
-            <Persona name={element} secondaryText={secondaryText} avatar={{ shape: sh, color: "colorful" }} />
+            <Persona name={element} secondaryText={secondaryText} avatar={{ shape, color: "colorful" }} />
           </li>
         );
       });
@@ -195,6 +194,9 @@ export const SendConfirmationTask = () => {
 
   return (
     <>
+      <Helmet>
+        <title>{t("SendConfirmationTitle")}</title>
+      </Helmet>
       {loader && <Spinner />}
       <>
         <div className="adaptive-task-grid">
@@ -216,7 +218,13 @@ export const SendConfirmationTask = () => {
           <div className="footer-action-right">
             <div className="footer-actions-flex">
               {disableSendButton && (
-                <Spinner id="sendLoader" label={t("PreparingMessageLabel")} size="small" labelPosition="after" />
+                <Spinner
+                  role="alert"
+                  id="sendLoader"
+                  label={t("PreparingMessageLabel")}
+                  size="small"
+                  labelPosition="after"
+                />
               )}
               <Button
                 disabled={disableSendButton}

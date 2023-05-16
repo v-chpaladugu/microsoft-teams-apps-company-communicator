@@ -1,9 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import * as AdaptiveCards from 'adaptivecards';
-import { TFunction } from 'i18next';
-import MarkdownIt from 'markdown-it';
+import * as AdaptiveCards from "adaptivecards";
+import { TFunction } from "i18next";
+import MarkdownIt from "markdown-it";
 
 AdaptiveCards.AdaptiveCard.onProcessMarkdown = function (text, result) {
   result.outputHtml = new MarkdownIt().render(text);
@@ -53,6 +53,7 @@ export const getCardTitle = (card: any) => {
 
 export const setCardTitle = (card: any, title: string) => {
   card.body[0].text = title;
+  card.body[1].altText = `Image for ${title}`;
 };
 
 export const getCardImageLink = (card: any) => {
