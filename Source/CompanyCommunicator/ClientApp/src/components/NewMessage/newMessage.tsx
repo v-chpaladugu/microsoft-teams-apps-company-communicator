@@ -1,32 +1,55 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import * as AdaptiveCards from 'adaptivecards';
-import * as React from 'react';
-import { Helmet } from 'react-helmet-async';
-import { useTranslation } from 'react-i18next';
-import { useParams } from 'react-router-dom';
-import validator from 'validator';
+import * as AdaptiveCards from "adaptivecards";
+import * as React from "react";
+import { Helmet } from "react-helmet-async";
+import { useTranslation } from "react-i18next";
+import { useParams } from "react-router-dom";
+import validator from "validator";
 import {
-    Button, Combobox, ComboboxProps, Field, Input, Label, LabelProps, makeStyles, Option, Persona,
-    Radio, RadioGroup, RadioGroupOnChangeData, shorthands, Spinner, Text, Textarea, tokens, useId
-} from '@fluentui/react-components';
-import { InfoLabel } from '@fluentui/react-components/unstable';
-import { ArrowUpload24Regular, Dismiss12Regular } from '@fluentui/react-icons';
-import * as microsoftTeams from '@microsoft/teams-js';
+  Button,
+  Combobox,
+  ComboboxProps,
+  Field,
+  Input,
+  Label,
+  LabelProps,
+  makeStyles,
+  Option,
+  Persona,
+  Radio,
+  RadioGroup,
+  RadioGroupOnChangeData,
+  shorthands,
+  Spinner,
+  Text,
+  Textarea,
+  tokens,
+  useId,
+} from "@fluentui/react-components";
+import { InfoLabel } from "@fluentui/react-components/unstable";
+import { ArrowUpload24Regular, Dismiss12Regular } from "@fluentui/react-icons";
+import * as microsoftTeams from "@microsoft/teams-js";
 
 import {
-    GetDraftMessagesSilentAction, GetGroupsAction, GetTeamsDataAction, SearchGroupsAction,
-    VerifyGroupAccessAction
-} from '../../actions';
+  GetDraftMessagesSilentAction,
+  GetGroupsAction,
+  GetTeamsDataAction,
+  SearchGroupsAction,
+  VerifyGroupAccessAction,
+} from "../../actions";
+import { createDraftNotification, getDraftNotification, updateDraftNotification } from "../../apis/messageListApi";
+import { getBaseUrl } from "../../configVariables";
+import { RootState, useAppDispatch, useAppSelector } from "../../store";
 import {
-    createDraftNotification, getDraftNotification, updateDraftNotification
-} from '../../apis/messageListApi';
-import { getBaseUrl } from '../../configVariables';
-import { RootState, useAppDispatch, useAppSelector } from '../../store';
-import {
-    getInitAdaptiveCard, setCardAuthor, setCardBtn, setCardImageLink, setCardSummary, setCardTitle
-} from '../AdaptiveCard/adaptiveCard';
+  getInitAdaptiveCard,
+  setCardAuthor,
+  setCardBtn,
+  setCardImageLink,
+  setCardSummary,
+  setCardTitle,
+} from "../AdaptiveCard/adaptiveCard";
 
 const validImageTypes = ["image/gif", "image/jpeg", "image/png", "image/jpg"];
 
@@ -580,11 +603,13 @@ export const NewMessage = () => {
 
   return (
     <>
+      <Helmet>
+        <title>
+          {pageSelection === CurrentPageSelection.CardCreation ? t("NewMessageTitle1") : t("NewMessageTitle2")}
+        </title>
+      </Helmet>
       {pageSelection === CurrentPageSelection.CardCreation && (
-        <div aria-current={pageSelection === CurrentPageSelection.CardCreation}>
-          <Helmet>
-            <title>{t("NewMessageTitle1")}</title>
-          </Helmet>
+        <>
           <div className="adaptive-task-grid">
             <div className="form-area">
               <Field
@@ -708,13 +733,10 @@ export const NewMessage = () => {
               </Button>
             </div>
           </div>
-        </div>
+        </>
       )}
       {pageSelection === CurrentPageSelection.AudienceSelection && (
-        <div aria-current={pageSelection === CurrentPageSelection.AudienceSelection}>
-          <Helmet>
-            <title>{t("NewMessageTitle2")}</title>
-          </Helmet>
+        <>
           <div className="adaptive-task-grid">
             <div className="form-area">
               <Label size="large" id="audienceSelectionGroupLabelId">
@@ -940,7 +962,7 @@ export const NewMessage = () => {
               </div>
             </div>
           </div>
-        </div>
+        </>
       )}
     </>
   );

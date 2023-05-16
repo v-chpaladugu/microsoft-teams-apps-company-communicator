@@ -1,23 +1,26 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import * as AdaptiveCards from 'adaptivecards';
-import * as React from 'react';
-import { Helmet } from 'react-helmet-async';
-import { useTranslation } from 'react-i18next';
-import { useParams } from 'react-router-dom';
-import { AvatarShape } from '@fluentui/react-avatar';
-import { Button, Field, Persona, Spinner, Text } from '@fluentui/react-components';
-import {
-    ArrowDownload24Regular, CheckmarkSquare24Regular, ShareScreenStop24Regular
-} from '@fluentui/react-icons';
-import * as microsoftTeams from '@microsoft/teams-js';
+import * as AdaptiveCards from "adaptivecards";
+import * as React from "react";
+import { Helmet } from "react-helmet-async";
+import { useTranslation } from "react-i18next";
+import { useParams } from "react-router-dom";
+import { AvatarShape } from "@fluentui/react-avatar";
+import { Button, Field, Persona, Spinner, Text } from "@fluentui/react-components";
+import { ArrowDownload24Regular, CheckmarkSquare24Regular, ShareScreenStop24Regular } from "@fluentui/react-icons";
+import * as microsoftTeams from "@microsoft/teams-js";
 
-import { exportNotification, getSentNotification } from '../../apis/messageListApi';
-import { formatDate, formatDuration, formatNumber } from '../../i18n';
+import { exportNotification, getSentNotification } from "../../apis/messageListApi";
+import { formatDate, formatDuration, formatNumber } from "../../i18n";
 import {
-    getInitAdaptiveCard, setCardAuthor, setCardBtn, setCardImageLink, setCardSummary, setCardTitle
-} from '../AdaptiveCard/adaptiveCard';
+  getInitAdaptiveCard,
+  setCardAuthor,
+  setCardBtn,
+  setCardImageLink,
+  setCardSummary,
+  setCardTitle,
+} from "../AdaptiveCard/adaptiveCard";
 
 export interface IMessageState {
   id: string;
@@ -230,12 +233,18 @@ export const ViewStatusTask = () => {
 
   return (
     <>
+      <Helmet>
+        <title>
+          {statusState.page === "ViewStatus"
+            ? t("ViewStatusTitle")
+            : statusState.page === "SuccessPage"
+            ? t("ExportSuccessViewTitle")
+            : t("ExportFailureViewTitle")}
+        </title>
+      </Helmet>
       {loader && <Spinner />}
       {statusState.page === "ViewStatus" && (
-        <div aria-current={statusState.page === "ViewStatus"}>
-          <Helmet>
-            <title>{t("ViewStatusTitle")}</title>
-          </Helmet>
+        <>
           <div className="adaptive-task-grid">
             <div className="form-area">
               {!loader && (
@@ -305,13 +314,10 @@ export const ViewStatusTask = () => {
               </div>
             </div>
           </div>
-        </div>
+        </>
       )}
       {!loader && statusState.page === "SuccessPage" && (
-        <div className="wizard-page" aria-current={statusState.page === "SuccessPage"}>
-          <Helmet>
-            <title>{t("ExportSuccessViewTitle")}</title>
-          </Helmet>
+        <div className="wizard-page">
           <h2>
             <CheckmarkSquare24Regular style={{ color: "#22bb33", verticalAlign: "middle", paddingRight: "8px" }} />
             {t("ExportQueueTitle")}
@@ -335,10 +341,7 @@ export const ViewStatusTask = () => {
         </div>
       )}
       {!loader && statusState.page === "ErrorPage" && (
-        <div className="wizard-page" aria-current={statusState.page === "ErrorPage"}>
-          <Helmet>
-            <title>{t("ExportFailureViewTitle")}</title>
-          </Helmet>
+        <div className="wizard-page">
           <h2>
             <ShareScreenStop24Regular style={{ color: "#bb2124", verticalAlign: "middle", paddingRight: "8px" }} />
             {t("ExportErrorTitle")}
