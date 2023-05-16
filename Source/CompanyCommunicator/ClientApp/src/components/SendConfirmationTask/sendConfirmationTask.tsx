@@ -3,7 +3,6 @@
 
 import * as AdaptiveCards from 'adaptivecards';
 import * as React from 'react';
-import { Helmet } from 'react-helmet-async';
 import { useTranslation } from 'react-i18next';
 import { useParams } from 'react-router-dom';
 import { Button, Field, Label, Persona, Spinner, Text } from '@fluentui/react-components';
@@ -194,9 +193,6 @@ export const SendConfirmationTask = () => {
 
   return (
     <>
-      <Helmet>
-        <title>{t("SendConfirmationTitle")}</title>
-      </Helmet>
       {loader && <Spinner />}
       <>
         <div className="adaptive-task-grid">

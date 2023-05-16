@@ -4,7 +4,6 @@
 import './App.scss';
 import i18n from 'i18next';
 import React, { Suspense } from 'react';
-import { Helmet } from 'react-helmet-async';
 import { useTranslation } from 'react-i18next';
 import { BrowserRouter, Route, Switch } from 'react-router-dom';
 import {
@@ -57,9 +56,6 @@ export const App = () => {
 
   return (
     <>
-      <Helmet>
-        <title>{t("MainPageTitle")}</title>
-      </Helmet>
       <FluentProvider theme={fluentUITheme} dir={i18n.dir(locale)}>
         <Suspense fallback={<div></div>}>
           <BrowserRouter>

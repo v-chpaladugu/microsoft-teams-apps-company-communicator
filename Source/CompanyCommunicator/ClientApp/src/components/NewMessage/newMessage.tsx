@@ -3,7 +3,6 @@
 
 import * as AdaptiveCards from "adaptivecards";
 import * as React from "react";
-import { Helmet } from "react-helmet-async";
 import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
 import validator from "validator";
@@ -603,13 +602,9 @@ export const NewMessage = () => {
 
   return (
     <>
-      <Helmet>
-        <title>
-          {pageSelection === CurrentPageSelection.CardCreation ? t("NewMessageTitle1") : t("NewMessageTitle2")}
-        </title>
-      </Helmet>
       {pageSelection === CurrentPageSelection.CardCreation && (
         <>
+          <span role="alert" aria-label={t("NewMessageStep1")} />
           <div className="adaptive-task-grid">
             <div className="form-area">
               <Field
@@ -737,6 +732,7 @@ export const NewMessage = () => {
       )}
       {pageSelection === CurrentPageSelection.AudienceSelection && (
         <>
+          <span role="alert" aria-label={t("NewMessageStep2")} />
           <div className="adaptive-task-grid">
             <div className="form-area">
               <Label size="large" id="audienceSelectionGroupLabelId">

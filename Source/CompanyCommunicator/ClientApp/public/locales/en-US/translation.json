@@ -97,11 +97,9 @@
   "ImageSizeInfoContent": "Maximum allowed size of image via upload is ~1 MB. It's recommended to use image upload functionality for smaller size images.",
   "UploadImageInfo": "Upload an image of type jpeg, jpg, png or gif.",
   "UploadImageSuccessful": "You can re-upload an image of type jpeg, jpg, png or gif.",
-  "MainPageTitle": "Company communicator home",
-  "SendConfirmationTitle": "Message send confirmation",
-  "ViewStatusTitle": "Message status view",
-  "ExportSuccessViewTitle": "Export success view",
-  "ExportFailureViewTitle": "Export failure view",
-  "NewMessageTitle1": "Message form step 1",
-  "NewMessageTitle2": "Message form step 2"
+  "ViewMessageStatus": "Message status view loaded",
+  "ExportSuccessView": "Export success view loaded",
+  "ExportFailureView": "Export failure view loaded",
+  "NewMessageStep1": "Message form basic information step",
+  "NewMessageStep2": "Message form audience selection step"
 }

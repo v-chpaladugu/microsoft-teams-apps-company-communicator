@@ -3,7 +3,6 @@
 
 import React from "react";
 import ReactDOM from "react-dom";
-import { HelmetProvider } from "react-helmet-async";
 import { Provider } from "react-redux";
 import * as microsoftTeams from "@microsoft/teams-js";
 import { App } from "./App";
@@ -12,14 +11,10 @@ import { store } from "./store";
 
 microsoftTeams.initialize();
 
-const helmetContext = {};
-
 ReactDOM.render(
-  <HelmetProvider context={helmetContext}>
     <Provider store={store}>
       <App />
-    </Provider>
-  </HelmetProvider>,
+    </Provider>,
   document.getElementById("root")
 );
 
