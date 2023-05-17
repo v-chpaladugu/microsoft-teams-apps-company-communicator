@@ -596,6 +596,12 @@ export const NewMessage = () => {
     let input = data.value as keyof typeof AudienceSelection;
     setSelectedRadioButton(AudienceSelection[input]);
 
+    if (AudienceSelection[input] === AudienceSelection.AllUsers) {
+      setAllUsersState(true);
+    } else if (allUsersState) {
+      setAllUsersState(false);
+    }
+
     AudienceSelection[input] === AudienceSelection.AllUsers ? setAllUserAria("alert") : setAllUserAria("none");
     AudienceSelection[input] === AudienceSelection.Groups ? setGroupsAria("alert") : setGroupsAria("none");
   };
